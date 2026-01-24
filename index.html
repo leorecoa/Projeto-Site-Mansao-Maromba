@@ -166,6 +166,54 @@
         animation: nav-button-glow 2.5s ease-in-out infinite;
         will-change: box-shadow;
       }
+
+      /* Splash Screen Animations */
+      @keyframes splash-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes splash-fade-out {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-100%); } /* Slide up out of view */
+      }
+
+      /* Enhanced logo pulse with rotation and NO glow */
+      @keyframes logo-pulse-enhanced {
+        0%, 100% {
+          transform: scale(1) rotateZ(0deg);
+          filter: brightness(1); /* No drop-shadow for neon */
+        }
+        25% {
+          transform: scale(1.05) rotateZ(1deg); /* Slight rotation */
+          filter: brightness(1.2); /* Brighter, but no neon color */
+        }
+        75% {
+          transform: scale(0.98) rotateZ(-1deg); /* Slight rotation in opposite direction */
+          filter: brightness(1.1); /* Brighter, but no neon color */
+        }
+      }
+
+      /* Pulsating neon background glow - REMOVED */
+      /* No definition for splash-neon-background-pulse needed if div is removed */
+
+      .splash-container {
+        animation: splash-fade-in 0.5s ease-out forwards;
+        transform-style: preserve-3d; /* Enable 3D transformations for children */
+      }
+
+      .splash-container.fade-out {
+        animation: splash-fade-out 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards; /* Aggressive ease-in for quick exit */
+      }
+
+      .splash-logo {
+        animation: logo-pulse-enhanced 3s ease-in-out infinite; /* Apply enhanced animation */
+        will-change: transform, filter;
+      }
+      
+      /* .splash-neon-bg-glow is removed from HTML, so its CSS is effectively unused. */
+      /* If it were to be kept for potential future use or debugging, it should be made transparent or display: none. */
+      /* For now, we are just removing the div itself. */
     </style>
   <script type="importmap">
 {

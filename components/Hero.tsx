@@ -55,7 +55,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
         style={{ transform: `translateY(${scrollY * 0.2}px) scale(${1 + scrollY * 0.0001})` }}
       >
         <h2 
-          className="text-[35vw] font-black font-syncopate whitespace-nowrap"
+          className="text-[25vw] font-black font-syncopate whitespace-nowrap"
           style={{ 
             color: activeProduct.theme.primary,
             transition: `transform 1.5s ease-out, filter 1.5s ease-out`, /* Otimizado */
