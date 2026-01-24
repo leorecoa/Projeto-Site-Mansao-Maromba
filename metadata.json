@@ -1,0 +1,7 @@
+{
+  "name": "Mansão Maromba - Depósito Digital",
+  "description": "Site institucional e comercial premium para o depósito digital de bebidas Mansão Maromba, com estética urbana, neon e nightlife.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
