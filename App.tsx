@@ -1,115 +1,92 @@
 
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import ProductSection from './components/ProductSection';
-import AboutSection from './components/AboutSection';
-import ReviewSection from './components/ReviewSection';
-import MapSection from './components/MapSection';
-import Footer from './components/Footer';
-import CartModal from './components/CartModal';
-import SplashScreen from './components/SplashScreen'; // Import the new component
-import { PRODUCTS, REVIEWS } from './data';
-import { useCart } from './hooks/useCart';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Hero from './sections/Hero/Hero';
+import ProductSection from './sections/Products/ProductSection';
+import AboutSection from './sections/About/AboutSection';
+import ReviewSection from './sections/Reviews/ReviewSection';
+import MapSection from './sections/Map/MapSection';
+import CartModal from './components/feedback/CartModal';
+import SplashScreen from './components/feedback/SplashScreen';
+import { PRODUCTS, REVIEWS } from './data/products';
+import { CartProvider } from './context/CartContext';
 
-const App: React.FC = () => {
+const MainApp: React.FC = () => {
   const [activeProductIndex, setActiveProductIndex] = useState(0);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
 
-  const { 
-    cart, 
-    addToCart, 
-    removeFromCart, 
-    updateQuantity, 
-    cartTotal, 
-    cartCount, 
-    isCartOpen, 
-    setIsCartOpen 
-  } = useCart();
-
   const activeProduct = PRODUCTS[activeProductIndex];
   const activeTheme = activeProduct.theme;
 
-  // Handle background transition
   useEffect(() => {
     document.body.style.background = activeTheme.bg;
-    document.body.style.transition = 'background 1.2s cubic-bezier(0.42, 0, 0.58, 1)'; // Duração e easing ajustados
+    document.body.style.transition = 'background 1.2s cubic-bezier(0.42, 0, 0.58, 1)';
   }, [activeTheme]);
 
-  // Splash screen logic
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsFadingOutSplash(true); // Start fade-out animation
-    }, 2500); // Show splash for 2.5 seconds before starting fade-out
-
+      setIsFadingOutSplash(true);
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
 
   const handleSplashAnimationEnd = () => {
-    setShowSplashScreen(false); // Remove splash screen component from DOM after animation
+    setShowSplashScreen(false);
   };
 
   const handleCheckout = () => {
     alert('Pedido finalizado com sucesso! (Integração com Supabase preparada)');
-    // logic to push to supabase would go here
   };
 
   return (
-    <>
+    <div className="min-h-screen transition-colors duration-1000">
       {showSplashScreen && (
         <SplashScreen 
           onAnimationEnd={handleSplashAnimationEnd} 
           isFadingOut={isFadingOutSplash} 
         />
       )}
-      {/* Main content is always rendered but covered by splash screen initially */}
-      <div className="min-h-screen transition-colors duration-1000">
-        <Navbar 
-          theme={activeTheme} 
-          cartCount={cartCount} 
-          onOpenCart={() => setIsCartOpen(true)} 
+      
+      <Navbar theme={activeTheme} />
+      
+      <main>
+        <Hero 
+          products={PRODUCTS} 
+          activeIndex={activeProductIndex} 
+          setActiveIndex={setActiveProductIndex}
         />
         
-        <main>
-          <Hero 
-            products={PRODUCTS} 
-            activeIndex={activeProductIndex} 
-            setActiveIndex={setActiveProductIndex}
-            onAddToCart={addToCart}
-          />
-          
-          <ProductSection 
-            products={PRODUCTS} 
-            activeTheme={activeTheme}
-            onAddToCart={addToCart}
-          />
-          
-          <AboutSection activeTheme={activeTheme} />
-          
-          <ReviewSection 
-            reviews={REVIEWS} 
-            activeTheme={activeTheme} 
-          />
-          
-          <MapSection activeTheme={activeTheme} />
-        </main>
-
-        <Footer activeTheme={activeTheme} />
-
-        <CartModal 
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-          cart={cart}
-          total={cartTotal}
+        <ProductSection 
+          products={PRODUCTS} 
           activeTheme={activeTheme}
-          onUpdateQuantity={updateQuantity}
-          onRemove={removeFromCart}
-          onCheckout={handleCheckout}
         />
-      </div>
-    </>
+        
+        <AboutSection activeTheme={activeTheme} />
+        
+        <ReviewSection 
+          reviews={REVIEWS} 
+          activeTheme={activeTheme} 
+        />
+        
+        <MapSection activeTheme={activeTheme} />
+      </main>
+
+      <Footer activeTheme={activeTheme} />
+
+      <CartModal 
+        activeTheme={activeTheme}
+        onCheckout={handleCheckout}
+      />
+    </div>
   );
 };
+
+const App: React.FC = () => (
+  <CartProvider>
+    <MainApp />
+  </CartProvider>
+);
 
 export default App;
