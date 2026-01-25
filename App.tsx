@@ -34,7 +34,7 @@ const App: React.FC = () => {
   // Handle background transition
   useEffect(() => {
     document.body.style.background = activeTheme.bg;
-    document.body.style.transition = 'background 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+    document.body.style.transition = 'background 1.2s cubic-bezier(0.42, 0, 0.58, 1)'; // Duração e easing ajustados
   }, [activeTheme]);
 
   // Splash screen logic

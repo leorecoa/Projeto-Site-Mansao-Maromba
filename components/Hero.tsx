@@ -15,6 +15,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [transitionDirection, setTransitionDirection] = useState<'next' | 'prev' | null>(null); // Novo estado para direção da transição
   const prevIndexRef = useRef(activeIndex);
 
   useEffect(() => {
@@ -25,11 +26,12 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const triggerChange = (newIndex: number) => {
+  const triggerChange = (newIndex: number, direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     prevIndexRef.current = activeIndex;
     setIsTransitioning(true);
     setShowFlash(true);
+    setTransitionDirection(direction); // Define a direção da transição
     setActiveIndex(newIndex);
     
     // Snappy reset for the flash impact
@@ -37,14 +39,15 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
       setShowFlash(false);
     }, 600);
 
-    // End transition slightly earlier for a crisper feel
+    // End transition (match new transition duration)
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 900);
+      setTransitionDirection(null); // Reseta a direção
+    }, 1200); // Ajustado para 1.2s
   };
 
-  const handleNext = () => triggerChange((activeIndex + 1) % products.length);
-  const handlePrev = () => triggerChange((activeIndex - 1 + products.length) % products.length);
+  const handleNext = () => triggerChange((activeIndex + 1) % products.length, 'next');
+  const handlePrev = () => triggerChange((activeIndex - 1 + products.length) % products.length, 'prev');
 
   return (
     <section id="hero" className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#020202]">
@@ -102,14 +105,14 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
         ))}
       </div>
 
-      {/* LAYER 3: Atmosphere / Fog (Moves faster up) */}
+      {/* LAYER 3: Atmosphere / Fog (Moves faster up) - COM EFEITO VORTEX */}
       <div 
         className="absolute inset-0 pointer-events-none z-0"
         style={{ 
           background: `radial-gradient(circle at 50% 50%, ${activeProduct.theme.primary}22 0%, transparent 75%)`,
           opacity: isTransitioning ? 0.7 : 0.3,
-          transform: `scale(${isTransitioning ? 1.3 : 1.1}) translateY(${scrollY * -0.25}px)`,
-          transition: `background 1.2s ease-in-out, opacity 1.2s ease-in-out, transform 1.2s ease-in-out`, /* Otimizado */
+          transform: `scale(${isTransitioning ? 1.3 : 1.1}) translateY(${scrollY * -0.25}px) ${isTransitioning ? `rotateZ(${transitionDirection === 'next' ? '10deg' : '-10deg'})` : 'rotateZ(0deg)'}`,
+          transition: `background 1.2s cubic-bezier(0.25, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.25, 1, 0.3, 1), transform 1.2s cubic-bezier(0.25, 1, 0.3, 1)`, /* CUBIC BEZIER e duração ajustada */
         }}
       />
       
@@ -132,7 +135,22 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
           
           <h1 className="text-6xl md:text-[9rem] font-syncopate font-bold leading-[0.8] tracking-tighter"> {/* Removido transition-all */}
             {activeProduct.name.split(' ').map((word, i) => (
-              <span key={i} className="block last:opacity-50 first:text-white last:italic last:text-[0.7em]">
+              <span 
+                key={i} 
+                className="block last:opacity-50 first:text-white last:italic last:text-[0.7em]"
+                style={{
+                  color: i === 0 ? 'white' : activeProduct.theme.primary, // Base color for neon
+                  textShadow: `
+                    0 0 6px ${activeProduct.theme.primary},
+                    0 0 15px ${activeProduct.theme.glow},
+                    -1px -1px 3px rgba(0,0,0,0.6), /* Dark shadow for depth */
+                    1px 1px 3px rgba(0,0,0,0.6),   /* Dark shadow for depth */
+                    2px -2px 6px ${activeProduct.theme.primary}33, /* Fragmented shift */
+                    -2px 2px 6px ${activeProduct.theme.primary}33   /* Fragmented shift */
+                  `,
+                  transition: 'text-shadow 0.5s ease-out, color 0.5s ease-out' // Smooth transition for text-shadow
+                }}
+              >
                 {word}
               </span>
             ))}
@@ -196,7 +214,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
               let scale = 0.3;
               let rotateY = '0deg';
               let zIndex = 0;
-              let filter = 'blur(40px) grayscale(100%)';
+              let filter = 'blur(20px) grayscale(70%)'; // Suavizado o blur e grayscale para lateral
 
               if (isCenter) {
                 translateX = '0%';
@@ -208,16 +226,16 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
                 filter = isTransitioning ? `blur(2px) brightness(1.6)` : `drop-shadow(0 0 30px ${product.theme.primary}44) contrast(1.4) brightness(1.2) saturate(1.5)`;
               } else if (isNext || (activeIndex === products.length - 1 && index === 0)) {
                 translateX = '90%';
-                translateZ = '-300px'; // Ajuste na profundidade
+                translateZ = '-200px'; // Ajuste na profundidade para garrafas laterais
                 opacity = 0.2;
-                scale = 0.65; // Ajuste na escala da garrafa lateral
+                scale = 0.75; // Ajuste na escala da garrafa lateral para 'ligeiramente' menor
                 rotateY = '-45deg';
                 zIndex = 20;
               } else if (isPrev || (activeIndex === 0 && index === products.length - 1)) {
                 translateX = '-90%';
-                translateZ = '-300px'; // Ajuste na profundidade
+                translateZ = '-200px'; // Ajuste na profundidade para garrafas laterais
                 opacity = 0.2;
-                scale = 0.65; // Ajuste na escala da garrafa lateral
+                scale = 0.75; // Ajuste na escala da garrafa lateral para 'ligeiramente' menor
                 rotateY = '45deg';
                 zIndex = 20;
               }
@@ -313,7 +331,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex, onAd
         {products.map((_, i) => (
           <button
             key={i}
-            onClick={() => triggerChange(i)}
+            onClick={() => triggerChange(i, i > activeIndex ? 'next' : 'prev')} // Pass direction here
             className="group flex flex-col items-center gap-4 outline-none"
           >
             <span 

@@ -178,25 +178,50 @@
         to { opacity: 0; transform: translateY(-100%); } /* Slide up out of view */
       }
 
-      /* Enhanced logo pulse with rotation and NO glow */
+      /* Enhanced logo pulse with subtle float and rotation */
       @keyframes logo-pulse-enhanced {
         0%, 100% {
-          transform: scale(1) rotateZ(0deg);
-          filter: brightness(1); /* No drop-shadow for neon */
+          transform: translateY(0px) scale(1) rotateZ(0deg);
+          filter: brightness(1);
         }
         25% {
-          transform: scale(1.05) rotateZ(1deg); /* Slight rotation */
-          filter: brightness(1.2); /* Brighter, but no neon color */
+          transform: translateY(-8px) scale(1.07) rotateZ(2deg); /* Mais dinâmico */
+          filter: brightness(1.3);
         }
         75% {
-          transform: scale(0.98) rotateZ(-1deg); /* Slight rotation in opposite direction */
-          filter: brightness(1.1); /* Brighter, but no neon color */
+          transform: translateY(8px) scale(0.97) rotateZ(-2deg); /* Mais dinâmico */
+          filter: brightness(1.1);
         }
       }
 
-      /* Pulsating neon background glow - REMOVED */
-      /* No definition for splash-neon-background-pulse needed if div is removed */
-
+      /* Pulsating background glow with vortex/wave effect */
+      @keyframes splash-vortex-glow {
+        0% {
+          transform: scale(0.8) rotate(0deg);
+          opacity: 0;
+          background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
+          filter: blur(80px);
+        }
+        20% {
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.1) rotate(180deg);
+          opacity: 0.9;
+          background: radial-gradient(circle at center, rgba(0, 255, 255, 0.4) 0%, rgba(255, 255, 0, 0.2) 20%, transparent 80%);
+          filter: blur(120px);
+        }
+        80% {
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(0.8) rotate(360deg);
+          opacity: 0;
+          background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
+          filter: blur(80px);
+        }
+      }
+      
       .splash-container {
         animation: splash-fade-in 0.5s ease-out forwards;
         transform-style: preserve-3d; /* Enable 3D transformations for children */
@@ -210,10 +235,15 @@
         animation: logo-pulse-enhanced 3s ease-in-out infinite; /* Apply enhanced animation */
         will-change: transform, filter;
       }
-      
-      /* .splash-neon-bg-glow is removed from HTML, so its CSS is effectively unused. */
-      /* If it were to be kept for potential future use or debugging, it should be made transparent or display: none. */
-      /* For now, we are just removing the div itself. */
+
+      .splash-background-glow {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5; /* Atrás do logo */
+        animation: splash-vortex-glow 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, opacity, background, filter;
+      }
     </style>
   <script type="importmap">
 {

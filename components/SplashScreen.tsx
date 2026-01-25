@@ -17,8 +17,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationEnd, isFadingOut
         }
       }}
     >
-      {/* Dynamic neon background glow - REMOVED */}
-      {/* <div className="splash-neon-bg-glow" /> */}
+      {/* Dynamic background glow */}
+      <div className="splash-background-glow" />
 
       <img
         src="https://acdn-us.mitiendanube.com/stores/004/048/852/themes/common/logo-59460031-1702327004-d85672d8490cfcdddfd25fff2c4cb1621702327004-480-0.webp"
