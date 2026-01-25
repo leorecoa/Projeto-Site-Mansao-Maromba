@@ -51,7 +51,6 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
   return (
     <section id="hero" className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#020202]">
       
-      {/* LAYER 1: Background Parallax Text */}
       <div 
         className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04] select-none z-0 transition-transform duration-700 ease-out"
         style={{ transform: `translateY(${scrollY * 0.2}px) scale(${1 + scrollY * 0.0001})` }}
@@ -79,7 +78,6 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
         />
       )}
 
-      {/* LAYER 2: Background Neon Streaks */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(6)].map((_, i) => (
           <div 

@@ -16,7 +16,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationEnd, isFadingOut
         }
       }}
     >
-      {/* Dynamic background glow */}
       <div className="splash-background-glow" />
 
       <img
