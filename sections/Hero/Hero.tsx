@@ -118,7 +118,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
             VIBE MANSÃO MAROMBA
           </div>
           
-          <h1 className="text-6xl md:text-[8rem] font-syncopate font-bold leading-[0.85] tracking-tighter">
+          <h1 className="text-5xl md:text-[6.5rem] font-syncopate font-bold leading-[0.85] tracking-tighter transition-all duration-700">
             {activeProduct.name.split(' ').map((word, i) => (
               <span 
                 key={i} 
