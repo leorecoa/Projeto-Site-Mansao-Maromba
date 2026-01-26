@@ -5,13 +5,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mansão Maromba | Depósito Digital Premium</title>
+    
+    <!-- Meta Tags & Favicon -->
     <link rel="icon" type="image/png" href="https://i.imgur.com/2CMQ6GJ.png">
     <meta property="og:image" content="https://i.imgur.com/2CMQ6GJ.png">
     <meta name="twitter:image" content="https://i.imgur.com/2CMQ6GJ.png">
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts Otimizadas -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Syncopate:400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Syncopate:400;700&display=swap" rel="stylesheet" type="text/css">
+
+    <!-- Scripts Externos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
       body {
         margin: 0;
@@ -69,25 +76,23 @@
         will-change: transform, opacity;
       }
 
-      /* Flash final mais sutil, menos invasivo porém impactante */
       @keyframes transition-flash {
         0% { opacity: 0; transform: scale(0.6); filter: blur(15px) brightness(1.05); }
         10% { opacity: 0.3; transform: scale(1); filter: blur(0px) brightness(1.2); }
         100% { opacity: 0; transform: scale(1.6); filter: blur(30px) brightness(1); }
       }
       .flash-effect {
-        animation: transition-flash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* Duração ajustada */
+        animation: transition-flash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         will-change: transform, opacity, filter;
       }
 
-      /* Surge de chegada: pop rápido e estabilização */
       @keyframes glow-surge {
         0% { filter: drop-shadow(0 0 0px transparent); transform: scale(0.95); opacity: 0.7; }
         30% { filter: drop-shadow(0 0 60px currentColor); transform: scale(1.08); opacity: 1; }
         100% { filter: drop-shadow(0 0 15px currentColor); transform: scale(1); opacity: 1; }
       }
       .animate-surge {
-        animation: glow-surge 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; /* Duração ajustada */
+        animation: glow-surge 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         will-change: transform, opacity, filter;
       }
 
@@ -96,22 +101,20 @@
         transform-style: preserve-3d;
       }
       
-      /* Transição de desfile com leve overshoot para sensação de chegada */
       .bottle-transition {
         transition: transform 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), opacity 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1.61, 0.36, 1);
         will-change: transform, opacity, filter;
       }
 
       .text-reveal {
-        animation: text-reveal 1.3s cubic-bezier(0.23, 1, 0.32, 1) forwards; /* Duração e easing ajustados */
-        will-change: transform, opacity, filter; /* Removido letter-spacing */
+        animation: text-reveal 1.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        will-change: transform, opacity, filter;
       }
       @keyframes text-reveal {
-        from { opacity: 0; transform: translateX(-40px) scale(0.95); filter: blur(10px); } /* Valores iniciais ajustados, removido letter-spacing */
-        to { opacity: 1; transform: translateX(0) scale(1); filter: blur(0px); } /* Removido letter-spacing */
+        from { opacity: 0; transform: translateX(-40px) scale(0.95); filter: blur(10px); }
+        to { opacity: 1; transform: translateX(0) scale(1); filter: blur(0px); }
       }
 
-      /* Rastro de movimento sutil */
       .trail-blur {
         filter: blur(12px) brightness(1.4);
         opacity: 0.3;
@@ -137,7 +140,6 @@
         will-change: border-color;
       }
 
-      /* Efeito de brilho pulsante para o CTA, usando variável CSS */
       @keyframes subtle-pulse-glow {
         0%, 100% {
           box-shadow: 0 0 15px var(--glow-color, currentColor), 0 10px 40px var(--glow-color, currentColor);
@@ -151,7 +153,6 @@
         will-change: box-shadow;
       }
 
-      /* Novo brilho pulsante para botões de navegação */
       @keyframes nav-button-glow {
         0%, 100% {
           box-shadow: 0 0 10px var(--btn-glow-color, rgba(255,255,255,0.2)),
@@ -167,7 +168,6 @@
         will-change: box-shadow;
       }
 
-      /* Splash Screen Animations */
       @keyframes splash-fade-in {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -175,26 +175,24 @@
 
       @keyframes splash-fade-out {
         from { opacity: 1; transform: translateY(0); }
-        to { opacity: 0; transform: translateY(-100%); } /* Slide up out of view */
+        to { opacity: 0; transform: translateY(-100%); }
       }
 
-      /* Enhanced logo pulse with subtle float and rotation */
       @keyframes logo-pulse-enhanced {
         0%, 100% {
           transform: translateY(0px) scale(1) rotateZ(0deg);
           filter: brightness(1);
         }
         25% {
-          transform: translateY(-8px) scale(1.07) rotateZ(2deg); /* Mais dinâmico */
+          transform: translateY(-8px) scale(1.07) rotateZ(2deg);
           filter: brightness(1.3);
         }
         75% {
-          transform: translateY(8px) scale(0.97) rotateZ(-2deg); /* Mais dinâmico */
+          transform: translateY(8px) scale(0.97) rotateZ(-2deg);
           filter: brightness(1.1);
         }
       }
 
-      /* Pulsating background glow with vortex/wave effect */
       @keyframes splash-vortex-glow {
         0% {
           transform: scale(0.8) rotate(0deg);
@@ -202,18 +200,14 @@
           background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
           filter: blur(80px);
         }
-        20% {
-          opacity: 0.7;
-        }
+        20% { opacity: 0.7; }
         50% {
           transform: scale(1.1) rotate(180deg);
           opacity: 0.9;
           background: radial-gradient(circle at center, rgba(0, 255, 255, 0.4) 0%, rgba(255, 255, 0, 0.2) 20%, transparent 80%);
           filter: blur(120px);
         }
-        80% {
-          opacity: 0.7;
-        }
+        80% { opacity: 0.7; }
         100% {
           transform: scale(0.8) rotate(360deg);
           opacity: 0;
@@ -224,15 +218,15 @@
       
       .splash-container {
         animation: splash-fade-in 0.5s ease-out forwards;
-        transform-style: preserve-3d; /* Enable 3D transformations for children */
+        transform-style: preserve-3d;
       }
 
       .splash-container.fade-out {
-        animation: splash-fade-out 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards; /* Aggressive ease-in for quick exit */
+        animation: splash-fade-out 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards;
       }
 
       .splash-logo {
-        animation: logo-pulse-enhanced 3s ease-in-out infinite; /* Apply enhanced animation */
+        animation: logo-pulse-enhanced 3s ease-in-out infinite;
         will-change: transform, filter;
       }
 
@@ -240,22 +234,23 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        z-index: 5; /* Atrás do logo */
+        z-index: 5;
         animation: splash-vortex-glow 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
         will-change: transform, opacity, background, filter;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
-  }
-}
-</script>
-</head>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+      }
+    }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
   </body>

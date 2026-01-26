@@ -11,8 +11,6 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
-.env.*.local    
 
 # Editor directories and files
 .vscode/*
@@ -24,21 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-# Cache
-.cache
-.parcel-cache
-.vite
-.eslintcache
-
-# Testes
-coverage
-
-# Logs adicionais
-*.pid
-*.seed
-*.pid.lock
-
-# Build de ferramentas
-.tmp
-temp
-*.tsbuildinfo
