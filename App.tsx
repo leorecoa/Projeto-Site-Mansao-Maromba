@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './sections/Hero/Hero';
@@ -20,31 +20,28 @@ const MainApp: React.FC = () => {
   const activeProduct = PRODUCTS[activeProductIndex];
   const activeTheme = activeProduct.theme;
 
+  // Atualiza o background dinamicamente baseado no tema do produto ativo
   useEffect(() => {
     document.body.style.background = activeTheme.bg;
     document.body.style.transition = 'background 1.2s cubic-bezier(0.42, 0, 0.58, 1)';
   }, [activeTheme]);
 
+  // Gerenciamento do Splash Screen
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsFadingOutSplash(true);
-    }, 2500);
+    const timer = setTimeout(() => setIsFadingOutSplash(true), 2500);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSplashAnimationEnd = () => {
-    setShowSplashScreen(false);
-  };
-
   const handleCheckout = () => {
-    alert('Pedido finalizado com sucesso! (Integração com Supabase preparada)');
+    // Aqui entrará a lógica de integração com o checkout do Supabase/Stripe
+    alert('Redirecionando para o Checkout Seguro Mansão Maromba...');
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-1000">
+    <div className="min-h-screen transition-colors duration-1000 overflow-x-hidden">
       {showSplashScreen && (
         <SplashScreen 
-          onAnimationEnd={handleSplashAnimationEnd} 
+          onAnimationEnd={() => setShowSplashScreen(false)} 
           isFadingOut={isFadingOutSplash} 
         />
       )}
@@ -52,33 +49,22 @@ const MainApp: React.FC = () => {
       <Navbar theme={activeTheme} />
       
       <main>
-        <Hero 
-          products={PRODUCTS} 
-          activeIndex={activeProductIndex} 
-          setActiveIndex={setActiveProductIndex}
-        />
+        <Suspense fallback={<div className="h-screen bg-black" />}>
+          <Hero 
+            products={PRODUCTS} 
+            activeIndex={activeProductIndex} 
+            setActiveIndex={setActiveProductIndex} 
+          />
+        </Suspense>
         
-        <ProductSection 
-          products={PRODUCTS} 
-          activeTheme={activeTheme}
-        />
-        
+        <ProductSection products={PRODUCTS} activeTheme={activeTheme} />
         <AboutSection activeTheme={activeTheme} />
-        
-        <ReviewSection 
-          reviews={REVIEWS} 
-          activeTheme={activeTheme} 
-        />
-        
+        <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
         <MapSection activeTheme={activeTheme} />
       </main>
 
       <Footer activeTheme={activeTheme} />
-
-      <CartModal 
-        activeTheme={activeTheme}
-        onCheckout={handleCheckout}
-      />
+      <CartModal activeTheme={activeTheme} onCheckout={handleCheckout} />
     </div>
   );
 };

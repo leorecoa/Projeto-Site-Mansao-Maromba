@@ -1,383 +1,250 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mansão Maromba | Depósito Digital Premium</title>
-  <link rel="icon" type="image/png" href="https://i.imgur.com/2CMQ6GJ.png">
-  <meta property="og:image" content="https://i.imgur.com/2CMQ6GJ.png">
-  <meta name="twitter:image" content="https://i.imgur.com/2CMQ6GJ.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Syncopate:400;700&display=swap"
-    rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: #000;
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-    .font-syncopate {
-      font-family: 'Syncopate', sans-serif;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #000;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0px) rotate(0deg);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mansão Maromba | Depósito Digital Premium</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/2CMQ6GJ.png">
+    <meta property="og:image" content="https://i.imgur.com/2CMQ6GJ.png">
+    <meta name="twitter:image" content="https://i.imgur.com/2CMQ6GJ.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Syncopate:400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: #000;
+        color: #fff;
+        overflow-x: hidden;
+      }
+      .font-syncopate {
+        font-family: 'Syncopate', sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-40px) rotate(4deg); }
+      }
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+        will-change: transform;
       }
 
-      50% {
-        transform: translateY(-40px) rotate(4deg);
+      @keyframes neon-streak {
+        0% { transform: translateX(-100%) skewX(-45deg); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateX(250%) skewX(-45deg); opacity: 0; }
       }
-    }
-
-    .animate-float {
-      animation: float 4s ease-in-out infinite;
-      will-change: transform;
-    }
-
-    @keyframes neon-streak {
-      0% {
-        transform: translateX(-100%) skewX(-45deg);
-        opacity: 0;
-      }
-
-      20% {
-        opacity: 1;
+      .neon-streak {
+        position: absolute;
+        height: 4px;
+        width: 70%;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        animation: neon-streak 3.5s infinite linear;
+        filter: drop-shadow(0 0 10px currentColor);
+        will-change: transform, opacity;
       }
 
-      80% {
-        opacity: 1;
+      /* Flash final mais sutil, menos invasivo porém impactante */
+      @keyframes transition-flash {
+        0% { opacity: 0; transform: scale(0.6); filter: blur(15px) brightness(1.05); }
+        10% { opacity: 0.3; transform: scale(1); filter: blur(0px) brightness(1.2); }
+        100% { opacity: 0; transform: scale(1.6); filter: blur(30px) brightness(1); }
+      }
+      .flash-effect {
+        animation: transition-flash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* Duração ajustada */
+        will-change: transform, opacity, filter;
       }
 
-      100% {
-        transform: translateX(250%) skewX(-45deg);
-        opacity: 0;
+      /* Surge de chegada: pop rápido e estabilização */
+      @keyframes glow-surge {
+        0% { filter: drop-shadow(0 0 0px transparent); transform: scale(0.95); opacity: 0.7; }
+        30% { filter: drop-shadow(0 0 60px currentColor); transform: scale(1.08); opacity: 1; }
+        100% { filter: drop-shadow(0 0 15px currentColor); transform: scale(1); opacity: 1; }
       }
-    }
-
-    .neon-streak {
-      position: absolute;
-      height: 4px;
-      width: 70%;
-      background: linear-gradient(90deg, transparent, currentColor, transparent);
-      animation: neon-streak 3.5s infinite linear;
-      filter: drop-shadow(0 0 10px currentColor);
-      will-change: transform, opacity;
-    }
-
-    /* Flash final mais sutil, menos invasivo porém impactante */
-    @keyframes transition-flash {
-      0% {
-        opacity: 0;
-        transform: scale(0.6);
-        filter: blur(15px) brightness(1.05);
+      .animate-surge {
+        animation: glow-surge 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; /* Duração ajustada */
+        will-change: transform, opacity, filter;
       }
 
-      10% {
+      .perspective-stage {
+        perspective: 1500px;
+        transform-style: preserve-3d;
+      }
+      
+      /* Transição de desfile com leve overshoot para sensação de chegada */
+      .bottle-transition {
+        transition: transform 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), opacity 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1.61, 0.36, 1);
+        will-change: transform, opacity, filter;
+      }
+
+      .text-reveal {
+        animation: text-reveal 1.3s cubic-bezier(0.23, 1, 0.32, 1) forwards; /* Duração e easing ajustados */
+        will-change: transform, opacity, filter; /* Removido letter-spacing */
+      }
+      @keyframes text-reveal {
+        from { opacity: 0; transform: translateX(-40px) scale(0.95); filter: blur(10px); } /* Valores iniciais ajustados, removido letter-spacing */
+        to { opacity: 1; transform: translateX(0) scale(1); filter: blur(0px); } /* Removido letter-spacing */
+      }
+
+      /* Rastro de movimento sutil */
+      .trail-blur {
+        filter: blur(12px) brightness(1.4);
         opacity: 0.3;
-        transform: scale(1);
-        filter: blur(0px) brightness(1.2);
+        transform: scale(0.9);
+        will-change: transform, opacity, filter;
       }
 
-      100% {
-        opacity: 0;
-        transform: scale(1.6);
-        filter: blur(30px) brightness(1);
+      @keyframes pulse-vogue {
+        0%, 100% { opacity: 0.5; transform: scale(1); filter: blur(120px); }
+        50% { opacity: 0.8; transform: scale(1.2); filter: blur(80px); }
       }
-    }
-
-    .flash-effect {
-      animation: transition-flash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      /* Duração ajustada */
-      will-change: transform, opacity, filter;
-    }
-
-    /* Surge de chegada: pop rápido e estabilização */
-    @keyframes glow-surge {
-      0% {
-        filter: drop-shadow(0 0 0px transparent);
-        transform: scale(0.95);
-        opacity: 0.7;
+      .pulse-glow-vogue {
+        animation: pulse-vogue 2.5s ease-in-out infinite;
+        will-change: transform, opacity, filter;
       }
 
-      30% {
-        filter: drop-shadow(0 0 60px currentColor);
-        transform: scale(1.08);
-        opacity: 1;
+      @keyframes border-glow {
+        0%, 100% { border-color: rgba(255,255,255,0.1); }
+        50% { border-color: currentColor; }
+      }
+      .animate-border-glow {
+        animation: border-glow 2s infinite ease-in-out;
+        will-change: border-color;
       }
 
-      100% {
-        filter: drop-shadow(0 0 15px currentColor);
-        transform: scale(1);
-        opacity: 1;
+      /* Efeito de brilho pulsante para o CTA, usando variável CSS */
+      @keyframes subtle-pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 15px var(--glow-color, currentColor), 0 10px 40px var(--glow-color, currentColor);
+        }
+        50% {
+          box-shadow: 0 0 35px var(--glow-color, currentColor), 0 10px 50px var(--glow-color, currentColor);
+        }
       }
-    }
-
-    .animate-surge {
-      animation: glow-surge 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      /* Duração ajustada */
-      will-change: transform, opacity, filter;
-    }
-
-    .perspective-stage {
-      perspective: 1500px;
-      transform-style: preserve-3d;
-    }
-
-    /* Transição de desfile com leve overshoot para sensação de chegada */
-    .bottle-transition {
-      transition: transform 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), opacity 0.9s cubic-bezier(0.22, 1.61, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1.61, 0.36, 1);
-      will-change: transform, opacity, filter;
-    }
-
-    .text-reveal {
-      animation: text-reveal 1.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-      /* Duração e easing ajustados */
-      will-change: transform, opacity, filter;
-      /* Removido letter-spacing */
-    }
-
-    @keyframes text-reveal {
-      from {
-        opacity: 0;
-        transform: translateX(-40px) scale(0.95);
-        filter: blur(10px);
+      .animate-subtle-pulse-glow {
+        animation: subtle-pulse-glow 2s ease-in-out infinite;
+        will-change: box-shadow;
       }
 
-      /* Valores iniciais ajustados, removido letter-spacing */
-      to {
-        opacity: 1;
-        transform: translateX(0) scale(1);
-        filter: blur(0px);
+      /* Novo brilho pulsante para botões de navegação */
+      @keyframes nav-button-glow {
+        0%, 100% {
+          box-shadow: 0 0 10px var(--btn-glow-color, rgba(255,255,255,0.2)),
+                      0 0 25px var(--btn-glow-color, rgba(255,255,255,0.1));
+        }
+        50% {
+          box-shadow: 0 0 20px var(--btn-glow-color, currentColor),
+                      0 0 50px var(--btn-glow-color, currentColor);
+        }
+      }
+      .animate-nav-button-glow {
+        animation: nav-button-glow 2.5s ease-in-out infinite;
+        will-change: box-shadow;
       }
 
-      /* Removido letter-spacing */
-    }
-
-    /* Rastro de movimento sutil */
-    .trail-blur {
-      filter: blur(12px) brightness(1.4);
-      opacity: 0.3;
-      transform: scale(0.9);
-      will-change: transform, opacity, filter;
-    }
-
-    @keyframes pulse-vogue {
-
-      0%,
-      100% {
-        opacity: 0.5;
-        transform: scale(1);
-        filter: blur(120px);
+      /* Splash Screen Animations */
+      @keyframes splash-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
 
-      50% {
-        opacity: 0.8;
-        transform: scale(1.2);
-        filter: blur(80px);
-      }
-    }
-
-    .pulse-glow-vogue {
-      animation: pulse-vogue 2.5s ease-in-out infinite;
-      will-change: transform, opacity, filter;
-    }
-
-    @keyframes border-glow {
-
-      0%,
-      100% {
-        border-color: rgba(255, 255, 255, 0.1);
+      @keyframes splash-fade-out {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-100%); } /* Slide up out of view */
       }
 
-      50% {
-        border-color: currentColor;
-      }
-    }
-
-    .animate-border-glow {
-      animation: border-glow 2s infinite ease-in-out;
-      will-change: border-color;
-    }
-
-    /* Efeito de brilho pulsante para o CTA, usando variável CSS */
-    @keyframes subtle-pulse-glow {
-
-      0%,
-      100% {
-        box-shadow: 0 0 15px var(--glow-color, currentColor), 0 10px 40px var(--glow-color, currentColor);
+      /* Enhanced logo pulse with subtle float and rotation */
+      @keyframes logo-pulse-enhanced {
+        0%, 100% {
+          transform: translateY(0px) scale(1) rotateZ(0deg);
+          filter: brightness(1);
+        }
+        25% {
+          transform: translateY(-8px) scale(1.07) rotateZ(2deg); /* Mais dinâmico */
+          filter: brightness(1.3);
+        }
+        75% {
+          transform: translateY(8px) scale(0.97) rotateZ(-2deg); /* Mais dinâmico */
+          filter: brightness(1.1);
+        }
       }
 
-      50% {
-        box-shadow: 0 0 35px var(--glow-color, currentColor), 0 10px 50px var(--glow-color, currentColor);
+      /* Pulsating background glow with vortex/wave effect */
+      @keyframes splash-vortex-glow {
+        0% {
+          transform: scale(0.8) rotate(0deg);
+          opacity: 0;
+          background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
+          filter: blur(80px);
+        }
+        20% {
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.1) rotate(180deg);
+          opacity: 0.9;
+          background: radial-gradient(circle at center, rgba(0, 255, 255, 0.4) 0%, rgba(255, 255, 0, 0.2) 20%, transparent 80%);
+          filter: blur(120px);
+        }
+        80% {
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(0.8) rotate(360deg);
+          opacity: 0;
+          background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
+          filter: blur(80px);
+        }
       }
-    }
-
-    .animate-subtle-pulse-glow {
-      animation: subtle-pulse-glow 2s ease-in-out infinite;
-      will-change: box-shadow;
-    }
-
-    /* Novo brilho pulsante para botões de navegação */
-    @keyframes nav-button-glow {
-
-      0%,
-      100% {
-        box-shadow: 0 0 10px var(--btn-glow-color, rgba(255, 255, 255, 0.2)),
-          0 0 25px var(--btn-glow-color, rgba(255, 255, 255, 0.1));
-      }
-
-      50% {
-        box-shadow: 0 0 20px var(--btn-glow-color, currentColor),
-          0 0 50px var(--btn-glow-color, currentColor);
-      }
-    }
-
-    .animate-nav-button-glow {
-      animation: nav-button-glow 2.5s ease-in-out infinite;
-      will-change: box-shadow;
-    }
-
-    /* Splash Screen Animations */
-    @keyframes splash-fade-in {
-      from {
-        opacity: 0;
+      
+      .splash-container {
+        animation: splash-fade-in 0.5s ease-out forwards;
+        transform-style: preserve-3d; /* Enable 3D transformations for children */
       }
 
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes splash-fade-out {
-      from {
-        opacity: 1;
-        transform: translateY(0);
+      .splash-container.fade-out {
+        animation: splash-fade-out 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards; /* Aggressive ease-in for quick exit */
       }
 
-      to {
-        opacity: 0;
-        transform: translateY(-100%);
+      .splash-logo {
+        animation: logo-pulse-enhanced 3s ease-in-out infinite; /* Apply enhanced animation */
+        will-change: transform, filter;
       }
 
-      /* Slide up out of view */
-    }
-
-    /* Enhanced logo pulse with subtle float and rotation */
-    @keyframes logo-pulse-enhanced {
-
-      0%,
-      100% {
-        transform: translateY(0px) scale(1) rotateZ(0deg);
-        filter: brightness(1);
+      .splash-background-glow {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5; /* Atrás do logo */
+        animation: splash-vortex-glow 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, opacity, background, filter;
       }
-
-      25% {
-        transform: translateY(-8px) scale(1.07) rotateZ(2deg);
-        /* Mais dinâmico */
-        filter: brightness(1.3);
-      }
-
-      75% {
-        transform: translateY(8px) scale(0.97) rotateZ(-2deg);
-        /* Mais dinâmico */
-        filter: brightness(1.1);
-      }
-    }
-
-    /* Pulsating background glow with vortex/wave effect */
-    @keyframes splash-vortex-glow {
-      0% {
-        transform: scale(0.8) rotate(0deg);
-        opacity: 0;
-        background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
-        filter: blur(80px);
-      }
-
-      20% {
-        opacity: 0.7;
-      }
-
-      50% {
-        transform: scale(1.1) rotate(180deg);
-        opacity: 0.9;
-        background: radial-gradient(circle at center, rgba(0, 255, 255, 0.4) 0%, rgba(255, 255, 0, 0.2) 20%, transparent 80%);
-        filter: blur(120px);
-      }
-
-      80% {
-        opacity: 0.7;
-      }
-
-      100% {
-        transform: scale(0.8) rotate(360deg);
-        opacity: 0;
-        background: radial-gradient(circle at center, rgba(255, 0, 255, 0.4) 0%, rgba(0, 255, 255, 0.2) 20%, transparent 80%);
-        filter: blur(80px);
-      }
-    }
-
-    .splash-container {
-      animation: splash-fade-in 0.5s ease-out forwards;
-      transform-style: preserve-3d;
-      /* Enable 3D transformations for children */
-    }
-
-    .splash-container.fade-out {
-      animation: splash-fade-out 0.8s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-      /* Aggressive ease-in for quick exit */
-    }
-
-    .splash-logo {
-      animation: logo-pulse-enhanced 3s ease-in-out infinite;
-      /* Apply enhanced animation */
-      will-change: transform, filter;
-    }
-
-    .splash-background-glow {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5;
-      /* Atrás do logo */
-      animation: splash-vortex-glow 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform, opacity, background, filter;
-    }
-  </style>
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -389,9 +256,7 @@
 }
 </script>
 </head>
-
-<body>
-  <div id="root"></div>
-</body>
-
+  <body>
+    <div id="root"></div>
+  </body>
 </html>

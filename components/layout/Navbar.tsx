@@ -18,9 +18,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
           src="https://i.imgur.com/2CMQ6GJ.png" 
           alt="Mansão Maromba Logo" 
           className="w-12 h-12 object-contain transition-all duration-300"
-          style={{ 
-            filter: `contrast(1.2) brightness(1.1) saturate(1.3) drop-shadow(0 0 10px ${theme.glow})` 
-          }}
+          style={{ filter: `contrast(1.2) brightness(1.1) saturate(1.3) drop-shadow(0 0 10px ${theme.glow})` }}
         />
         <span className="font-syncopate font-bold text-lg tracking-tighter hidden md:block">
           MANSÃO MAROMBA
