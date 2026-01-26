@@ -1,9 +1,8 @@
-
 import { Product, Review } from '../types';
 
 export const PRODUCTS: Product[] = [
   {
-    id: 'tigrinho',
+    id: 'tigrinho', // <-- PODE SER string
     name: 'Combo Tigrinho',
     description: 'MANGA + MARACUJÁ. ENERGIA INTENSA QUE INCENDEIA A NOITE.',
     price: 89.90,
@@ -69,7 +68,25 @@ export const PRODUCTS: Product[] = [
 ];
 
 export const REVIEWS: Review[] = [
-  { id: 1, user: "Lucas Silva", rating: 5, comment: "Melhor combo de SP. Entrega rápida demais!", date: "2 dias atrás" },
-  { id: 2, user: "Ana Paula", rating: 4, comment: "O Tigrinho é sensacional, voltarei a pedir com certeza.", date: "1 semana atrás" },
-  { id: 3, user: "Ricardo", rating: 4, comment: "O Double Darkness é o brabo. Visual do site tá animal.", date: "1 mês atrás" }
+  {
+    id: 1,
+    user: "Lucas Silva", // <-- Mude "name" para "user"
+    rating: 5,
+    comment: "Melhor combo de SP. Entrega rápida demais!", // <-- Mude "text" para "comment"
+    date: "2 dias atrás"
+  },
+  {
+    id: 2,
+    user: "Ana Paula",
+    rating: 4,
+    comment: "O Tigrinho é sensacional, voltarei a pedir com certeza.",
+    date: "1 semana atrás"
+  },
+  {
+    id: 3,
+    user: "Ricardo",
+    rating: 4,
+    comment: "O Double Darkness é o brabo. Visual do site tá animal.",
+    date: "1 mês atrás"
+  }
 ];
