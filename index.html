@@ -15,7 +15,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 
-    
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              syncopate: ['Syncopate', 'sans-serif'],
+              inter: ['Inter', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
     
     <style>
       body {
@@ -130,5 +143,7 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Script de entrada essencial para o funcionamento do React na Vercel -->
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>
