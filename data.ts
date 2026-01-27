@@ -9,7 +9,7 @@ export const PRODUCTS: Product[] = [
     price: 89.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.ibb.co/bMK7dDH2/mansao-maromba.png',
+    image: 'https://i.imgur.com/iFgXsaT.png',
     theme: {
       primary: '#ff0000',
       secondary: '#4b0000',
@@ -25,7 +25,7 @@ export const PRODUCTS: Product[] = [
     price: 99.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.ibb.co/tT20W8bn/mansao-maromba1.png',
+    image: 'https://i.imgur.com/QKXsWbm.png',
     theme: {
       primary: '#444444',
       secondary: '#0a0a0a',
@@ -41,7 +41,7 @@ export const PRODUCTS: Product[] = [
     price: 94.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.ibb.co/Q3QX4G3g/mansao-maromba2.png',
+    image: 'https://i.imgur.com/FaTOEtC.png',
     theme: {
       primary: '#ff00ff',
       secondary: '#200020',
@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
     price: 84.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.ibb.co/fzDdqd5Z/mansao-maromba3.png',
+    image: 'https://i.imgur.com/U2nL7Mv.png',
     theme: {
       primary: '#00f0ff',
       secondary: '#001a1c',

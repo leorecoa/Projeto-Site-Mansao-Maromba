@@ -198,7 +198,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                     className={`h-[480px] md:h-[700px] object-contain transition-all duration-700 ${isCenter ? 'animate-float cursor-pointer hover:scale-[1.04]' : ''}`}
                     style={{
                       filter: isCenter 
-                        ? 'contrast(1.25) brightness(1.2) saturate(1.3)' 
+                        ? 'contrast(1.4) brightness(1.1) saturate(1.4) drop-shadow(0 20px 40px rgba(0,0,0,0.6))' 
                         : 'none'
                     }}
                   />
