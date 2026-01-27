@@ -15,7 +15,7 @@ export interface Product {
   price: number;
   volume: string; // <-- ADICIONE volume
   type: string; // <-- ADICIONE type
-  image: string;
+  image_url: string;
   theme: ProductTheme;
 }
 

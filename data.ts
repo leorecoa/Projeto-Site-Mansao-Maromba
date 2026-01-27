@@ -9,7 +9,7 @@ export const PRODUCTS: Product[] = [
     price: 89.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/iFgXsaT.png',
+    image_url: 'https://i.imgur.com/iFgXsaT.png',
     theme: {
       primary: '#ff0000',
       secondary: '#4b0000',
@@ -25,7 +25,7 @@ export const PRODUCTS: Product[] = [
     price: 99.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/QKXsWbm.png',
+    image_url: 'https://i.imgur.com/QKXsWbm.png',
     theme: {
       primary: '#444444',
       secondary: '#0a0a0a',
@@ -41,7 +41,7 @@ export const PRODUCTS: Product[] = [
     price: 94.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/FaTOEtC.png',
+    image_url: 'https://i.imgur.com/FaTOEtC.png',
     theme: {
       primary: '#ff00ff',
       secondary: '#200020',
@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
     price: 84.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/U2nL7Mv.png',
+    image_url: 'https://i.imgur.com/U2nL7Mv.png',
     theme: {
       primary: '#00f0ff',
       secondary: '#001a1c',
