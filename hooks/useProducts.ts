@@ -27,7 +27,7 @@ export const useProducts = () => {
                     price: Number(item.price), // Garante que o preço seja numérico
                     volume: item.volume,
                     type: item.type,
-                    image_url: item.image_url,
+                    image: item.image_url, // Mapeia image_url do banco para image do frontend
                     theme: item.theme, // O Supabase já retorna JSONB como objeto
                 }));
                 setProducts(formattedProducts);

@@ -11,7 +11,10 @@ export const seedProducts = async () => {
 
     // Remove o ID local (que é string ex: 'tigrinho') para que o Supabase gere um UUID novo
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const productsToInsert = PRODUCTS.map(({ id, ...rest }) => rest);
+    const productsToInsert = PRODUCTS.map(({ id, image, ...rest }) => ({
+        ...rest,
+        image_url: image // Renomeia image para image_url ao enviar para o banco
+    }));
 
     try {
         const { data, error } = await supabase
