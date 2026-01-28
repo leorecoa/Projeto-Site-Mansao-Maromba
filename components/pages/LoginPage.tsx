@@ -6,8 +6,8 @@ import { LogIn, Mail, Loader } from 'lucide-react'
 
 const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false)
-    const [testEmail] = useState('teste@mansaomaromba.com')
-    const [testPassword] = useState('teste123456')
+    const [testEmail] = useState(import.meta.env.VITE_TEST_EMAIL || 'teste@mansaomaromba.com')
+    const [testPassword] = useState(import.meta.env.VITE_TEST_PASSWORD || 'teste123456')
 
     const handleGoogleLogin = async (): Promise<void> => {
         setIsLoading(true)

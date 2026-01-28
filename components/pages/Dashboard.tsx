@@ -3,12 +3,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../layout/Navbar'; // <-- CORRETO: '../layout/Navbar'
 import { useAuth } from '../../hooks/useAuth'; // <-- CORRETO: '../../hooks/useAuth'
-import type { ProductTheme } from '../../types'; // <-- CORRETO: '../../types'
+import type { Theme } from '../../types'; // <-- CORRETO: '../../types'
 
 const Dashboard: React.FC = () => {
     const { user, signOut } = useAuth();
 
-    const dashboardTheme: ProductTheme = {
+    const dashboardTheme: Theme = {
         primary: '#ff9900',
         secondary: '#663300',
         glow: 'rgba(255, 153, 0, 0.5)',
