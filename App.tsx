@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabase';
@@ -45,7 +44,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-// Componente principal da landing page
+// Componente principal da landing page - AGORA SEM ROUTE DENTRO
 const LandingPage: React.FC = () => {
   const [activeProductIndex, setActiveProductIndex] = useState<number>(0);
   const [showSplashScreen, setShowSplashScreen] = useState<boolean>(true);
@@ -78,15 +77,13 @@ const LandingPage: React.FC = () => {
       )}
 
       <Navbar theme={activeTheme} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
+
       <main>
-        <Suspense fallback={<div className="h-screen bg-black" />}>
-          <Hero
-            products={PRODUCTS}
-            activeIndex={activeProductIndex}
-            setActiveIndex={setActiveProductIndex}
-          />
-        </Suspense>
+        <Hero
+          products={PRODUCTS}
+          activeIndex={activeProductIndex}
+          setActiveIndex={setActiveProductIndex}
+        />
 
         <ProductSection products={PRODUCTS} activeTheme={activeTheme} />
         <AboutSection activeTheme={activeTheme} />
