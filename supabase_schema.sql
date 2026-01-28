@@ -1,102 +1,78 @@
 -- Habilita a extensão para geração de UUIDs
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Função para atualizar o timestamp de updated_at automaticamente
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- 1. TABELA DE CATEGORIAS
-CREATE TABLE IF NOT EXISTS categories (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  name TEXT NOT NULL UNIQUE,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE,
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
 );
-
--- 2. TABELA DE PRODUTOS
-CREATE TABLE IF NOT EXISTS products (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
-  name TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT,
-  price DECIMAL(10, 2) NOT NULL,
-  volume TEXT, -- ex: '1L', '500ml'
-  type TEXT,   -- ex: 'Cocktail Alcoólico Gaseificado'
-  image_url TEXT,
-  theme JSONB, -- { "primary": "#ff0000", "secondary": "#4b0000", "glow": "rgba(255,0,0,0.8)", "bg": "..." }
-  stock_quantity INTEGER DEFAULT 0,
-  is_active BOOLEAN DEFAULT true,
-  is_featured BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.customers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  full_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  phone text,
+  address_street text,
+  address_number text,
+  address_complement text,
+  address_neighborhood text,
+  address_city text,
+  address_state text,
+  address_zip text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT customers_pkey PRIMARY KEY (id)
 );
-
-CREATE TRIGGER update_products_updated_at 
-BEFORE UPDATE ON products 
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-
--- 3. TABELA DE CLIENTES (Profiles)
-CREATE TABLE IF NOT EXISTS customers (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  full_name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  phone TEXT,
-  address_street TEXT,
-  address_number TEXT,
-  address_complement TEXT,
-  address_neighborhood TEXT,
-  address_city TEXT,
-  address_state TEXT,
-  address_zip TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.order_items (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  product_id uuid,
+  quantity integer NOT NULL CHECK (quantity > 0),
+  unit_price numeric NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT order_items_pkey PRIMARY KEY (id),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id),
+  CONSTRAINT order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
 );
-
--- 4. TABELA DE PEDIDOS (Orders)
-CREATE TABLE IF NOT EXISTS orders (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
-  total_amount DECIMAL(10, 2) NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'paid')),
-  payment_method TEXT,
-  tracking_code TEXT,
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.orders (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  customer_id uuid,
+  total_amount numeric NOT NULL,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'processing'::text, 'shipped'::text, 'delivered'::text, 'cancelled'::text, 'paid'::text])),
+  payment_method text,
+  tracking_code text,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
 );
-
-CREATE TRIGGER update_orders_updated_at 
-BEFORE UPDATE ON orders 
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-
--- 5. ITENS DO PEDIDO (Order Items)
-CREATE TABLE IF NOT EXISTS order_items (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-  product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
-  quantity INTEGER NOT NULL CHECK (quantity > 0),
-  unit_price DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.products (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  price numeric NOT NULL,
+  volume text,
+  type text,
+  image_url text,
+  theme jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  category_id uuid,
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
 );
-
--- 6. TABELA DE REVIEWS (Avaliações)
-CREATE TABLE IF NOT EXISTS reviews (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-  customer_name TEXT NOT NULL,
-  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-  comment TEXT,
-  is_visible BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.reviews (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  customer_name text NOT NULL,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment text,
+  is_visible boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  user_id uuid DEFAULT auth.uid(),
+  CONSTRAINT reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT reviews_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-
--- 7. EXEMPLO DE INSERÇÃO DE CATEGORIA INICIAL
-INSERT INTO categories (name, slug, description) 
-VALUES ('Combos Premium', 'combos-premium', 'Nossa linha de elite para a melhor experiência.')
-ON CONFLICT (name) DO NOTHING;

@@ -1,21 +1,22 @@
-
-export interface Theme {
+// types/index.ts
+export interface ProductTheme {
   primary: string;
   secondary: string;
   glow: string;
   text: string;
   bg: string;
+  accent?: string; // Adicione se precisar
 }
 
 export interface Product {
-  id: string;
+  id: string | number; // <-- ACEITA string OU number
   name: string;
   description: string;
   price: number;
+  volume: string; // <-- ADICIONE volume
+  type: string; // <-- ADICIONE type
   image: string;
-  volume: string;
-  type: string;
-  theme: Theme;
+  theme: ProductTheme;
 }
 
 export interface CartItem extends Product {
@@ -24,8 +25,8 @@ export interface CartItem extends Product {
 
 export interface Review {
   id: number;
-  user: string;
+  user: string; // <-- Mude "name" para "user" se seu código usa "user"
   rating: number;
-  comment: string;
+  comment: string; // <-- Mude "text" para "comment" se seu código usa "comment"
   date: string;
 }
