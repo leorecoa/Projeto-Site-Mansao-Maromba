@@ -2,47 +2,63 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { Product } from '../types';
 
+type SupabaseProduct = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  volume: string | null;
+  type: string | null;
+  image_url: string | null;
+  theme: any; // JSONB controlado no map
+};
+
 export const useProducts = () => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            // Busca todos os produtos ordenados por data de criação
-            const { data, error } = await supabase
-                .from('products')
-                .select('*')
-                .order('created_at', { ascending: true });
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
 
-            if (error) throw error;
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: true });
 
-            if (data) {
-                // Mapeia os dados para garantir compatibilidade com a interface Product
-                const formattedProducts: Product[] = data.map((item) => ({
-                    id: item.id,
-                    name: item.name,
-                    description: item.description,
-                    price: Number(item.price), // Garante que o preço seja numérico
-                    volume: item.volume,
-                    type: item.type,
-                    image: item.image_url, // Mapeia image_url do banco para image do frontend
-                    theme: item.theme, // O Supabase já retorna JSONB como objeto
-                }));
-                setProducts(formattedProducts);
-            }
-        } catch (err: any) {
-            console.error('Erro ao buscar produtos:', err.message);
-            setError(err.message || 'Erro desconhecido ao buscar produtos');
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (error) throw error;
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+      if (data) {
+        const formattedProducts: Product[] = (data as SupabaseProduct[]).map(
+          (item) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description ?? '',
+            price: item.price,
+            volume: item.volume ?? '',
+            type: item.type ?? '',
+            image: item.image_url ?? '',
+            theme: item.theme as Product['theme'],
+          })
+        );
 
-    return { products, loading, error, refetch: fetchProducts };
+        setProducts(formattedProducts);
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Erro desconhecido ao buscar produtos';
+
+      console.error('Erro ao buscar produtos:', message);
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return { products, loading, error, refetch: fetchProducts };
 };
