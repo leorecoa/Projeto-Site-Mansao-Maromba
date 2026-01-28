@@ -15,7 +15,7 @@ import AuthCallback from './components/Auth/AuthCallback';
 import { PRODUCTS, REVIEWS } from './data/products';
 import { CartProvider } from './context/CartContext';
 import { useAuth } from './hooks/useAuth';
-import type { ProductTheme } from './types';
+import type { Theme as ProductTheme } from './types';
 
 // Lazy load para páginas
 const Dashboard = lazy(() => import('./components/pages/Dashboard'));
@@ -76,7 +76,7 @@ const LandingPage: React.FC = () => {
           isFadingOut={isFadingOutSplash}
         />
       )}
-
+      
       <Navbar theme={activeTheme} />
 
       <main>
