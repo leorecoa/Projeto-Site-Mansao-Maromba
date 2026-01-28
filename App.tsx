@@ -76,9 +76,9 @@ const LandingPage: React.FC = () => {
           isFadingOut={isFadingOutSplash}
         />
       )}
-      
-      <Navbar theme={activeTheme} />
 
+      <Navbar theme={activeTheme} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <main>
         <Suspense fallback={<div className="h-screen bg-black" />}>
           <Hero
