@@ -1,31 +1,25 @@
-// components/pages/LoginPage.tsx - IMPLEMENTAÇÃO COMPLETA
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabase';
-import GoogleLoginButton from '../Auth/GoogleLoginButton';
+import { Link } from 'react-router-dom'
+import { supabase } from '../../supabase'
+import GoogleLoginButton from '../Auth/GoogleLoginButton'
 
-const LoginPage: React.FC = () => {
-    const navigate = useNavigate();
-
+const LoginPage = () => {
     const handleGoogleLogin = async () => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                    queryParams: {
-                        access_type: 'offline',
-                        prompt: 'consent',
-                    }
-                }
-            });
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+            },
+        })
 
-            if (error) throw error;
-        } catch (error) {
-            console.error('Erro no login:', error);
-            alert('Erro ao fazer login: ' + (error as Error).message);
+        if (error) {
+            console.error(error)
+            alert(error.message)
         }
-    };
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
@@ -36,8 +30,13 @@ const LoginPage: React.FC = () => {
                             Mansão<span className="text-yellow-400">Maromba</span>
                         </div>
                     </Link>
-                    <h1 className="text-3xl font-bold text-white mb-2">Entre na sua conta</h1>
-                    <p className="text-gray-300">Acesse seus pedidos e benefícios exclusivos</p>
+
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                        Entre na sua conta
+                    </h1>
+                    <p className="text-gray-300">
+                        Acesse seus pedidos e benefícios exclusivos
+                    </p>
                 </div>
 
                 <div className="space-y-4">
@@ -45,10 +44,12 @@ const LoginPage: React.FC = () => {
 
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-600"></div>
+                            <div className="w-full border-t border-gray-600" />
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-transparent text-gray-400">Ou continue com email</span>
+                            <span className="px-2 bg-transparent text-gray-400">
+                                Ou continue com email
+                            </span>
                         </div>
                     </div>
 
@@ -59,7 +60,7 @@ const LoginPage: React.FC = () => {
                             </label>
                             <input
                                 type="email"
-                                className="w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                className="w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 placeholder="seu@email.com"
                             />
                         </div>
@@ -70,14 +71,14 @@ const LoginPage: React.FC = () => {
                             </label>
                             <input
                                 type="password"
-                                className="w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                className="w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                                 placeholder="••••••••"
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold py-3 rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:-translate-y-0.5"
+                            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold py-3 rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all"
                         >
                             Entrar
                         </button>
@@ -86,19 +87,16 @@ const LoginPage: React.FC = () => {
                     <div className="text-center mt-6">
                         <p className="text-gray-400">
                             Novo por aqui?{' '}
-                            <button
-                                onClick={() => alert('Use o Google para criar sua conta')}
-                                className="text-yellow-400 hover:text-yellow-300 font-medium"
-                            >
-                                Crie uma conta
-                            </button>
+                            <span className="text-yellow-400 font-medium">
+                                Use o Google para criar sua conta
+                            </span>
                         </p>
                     </div>
 
                     <div className="text-center mt-8">
                         <Link
                             to="/"
-                            className="text-gray-400 hover:text-white text-sm inline-flex items-center gap-1"
+                            className="text-gray-400 hover:text-white text-sm"
                         >
                             ← Voltar para a loja
                         </Link>
@@ -106,7 +104,7 @@ const LoginPage: React.FC = () => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default LoginPage;
+export default LoginPage
