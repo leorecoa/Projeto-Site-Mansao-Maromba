@@ -1,5 +1,5 @@
 // types/index.ts
-export interface ProductTheme {
+export interface Theme {
   primary: string;
   secondary: string;
   glow: string;
@@ -16,7 +16,7 @@ export interface Product {
   volume: string; // <-- ADICIONE volume
   type: string; // <-- ADICIONE type
   image: string;
-  theme: ProductTheme;
+  theme: Theme;
 }
 
 export interface CartItem extends Product {

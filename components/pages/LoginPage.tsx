@@ -1,34 +1,38 @@
 import React, { useState } from 'react'
-import { supabase } from '../../supabase'
 import Navbar from '../layout/Navbar'
 import type { Theme } from '../../types'
-import { LogIn, Mail, Loader } from 'lucide-react'
+import { Mail, Loader } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
+import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const { signInWithGoogle, signIn, user } = useAuth();
+    const location = useLocation();
     const [testEmail] = useState(import.meta.env.VITE_TEST_EMAIL || 'teste@mansaomaromba.com')
     const [testPassword] = useState(import.meta.env.VITE_TEST_PASSWORD || 'teste123456')
 
+    // Pega a página anterior ou define o dashboard como padrão
+    const from = location.state?.from?.pathname || "/dashboard";
+    // Pega o estado que foi passado pela página anterior (ex: abrir carrinho)
+    const fromState = location.state?.from?.state;
+
+    if (user) {
+        return <Navigate to={from} state={fromState} replace />;
+    }
+
     const handleGoogleLogin = async (): Promise<void> => {
         setIsLoading(true)
+        setErrorMessage(null)
         try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                },
-            })
-
-            if (error) {
-                throw error
-            }
+            await signInWithGoogle();
+            // O hook useAuth irá redirecionar automaticamente se o login for bem-sucedido
         } catch (err: unknown) {
             if (err instanceof Error) {
-                console.error('[Auth][Google]', err.message)
-                alert('Google Login: ' + err.message)
+                setErrorMessage(err.message)
             } else {
-                console.error('[Auth][Google] Erro desconhecido', err)
-                alert('Falha inesperada ao iniciar login com Google.')
+                setErrorMessage('Ocorreu um erro inesperado durante o login com Google.')
             }
         } finally {
             setIsLoading(false)
@@ -37,25 +41,20 @@ const LoginPage: React.FC = () => {
 
     const handleTestLogin = async (): Promise<void> => {
         setIsLoading(true)
+        setErrorMessage(null)
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: testEmail,
-                password: testPassword
-            })
+            const { error } = await signIn(testEmail, testPassword)
 
             if (error) {
-                if (error.message.includes('Invalid')) {
-                    alert('⚠️ Crie o usuário primeiro no Supabase Studio:\nEmail: teste@mansaomaromba.com\nSenha: teste123456')
-                } else {
-                    throw error
-                }
-            } else {
-                alert('✅ Login teste realizado! Redirecionando...')
-                window.location.href = '/dashboard'
+                // Para senhas/emails errados, o Supabase retorna "Invalid login credentials"
+                setErrorMessage('Credenciais de login inválidas. Tente novamente.')
             }
+            // O hook useAuth irá redirecionar automaticamente se o login for bem-sucedido
         } catch (err: unknown) {
             if (err instanceof Error) {
-                alert('Erro teste: ' + err.message)
+                setErrorMessage(err.message)
+            } else {
+                setErrorMessage('Ocorreu um erro inesperado durante o login.')
             }
         } finally {
             setIsLoading(false)
@@ -77,6 +76,12 @@ const LoginPage: React.FC = () => {
                 <section className="w-full max-w-md p-8 space-y-6 bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 text-center">
                     <h1 className="text-4xl font-bold font-syncopate">Acessar Painel</h1>
                     <p className="text-gray-400">Autentique-se para acessar sua conta</p>
+
+                    {errorMessage && (
+                        <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm text-left">
+                            {errorMessage}
+                        </div>
+                    )}
 
                     {/* Botão Google */}
                     <button

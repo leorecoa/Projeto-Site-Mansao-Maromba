@@ -1,5 +1,6 @@
+// App.tsx - CORREÇÃO
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from './supabase';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -21,13 +22,20 @@ const Dashboard = lazy(() => import('./components/pages/Dashboard'));
 const LoginPage = lazy(() => import('./components/pages/LoginPage'));
 const Profile = lazy(() => import('./components/pages/Profile'));
 
-// Componente para rotas protegidas
+// Componente para rotas protegidas - CORRIGIDO
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAuth?: boolean;
+  redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAuth = true,
+  redirectTo = '/login'
+}) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -37,14 +45,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // Só redireciona se estiver tentando acessar uma rota protegida SEM estar autenticado
+  if (requireAuth && !user) {
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
+  // NÃO redireciona se já estiver autenticado e tentando acessar rota pública
+  // Isso permite que usuário logado veja a loja (/)
   return <>{children}</>;
 };
 
-// Componente principal da landing page - AGORA SEM ROUTE DENTRO
+// Componente principal da landing page - AGORA FUNCIONAL
 const LandingPage: React.FC = () => {
   const [activeProductIndex, setActiveProductIndex] = useState<number>(0);
   const [showSplashScreen, setShowSplashScreen] = useState<boolean>(true);
@@ -97,58 +108,79 @@ const LandingPage: React.FC = () => {
   );
 };
 
-// Componente App principal com rotas
-const App: React.FC = () => (
-  <CartProvider>
-    <Router>
-      <Routes>
-        {/* Rota pública - Landing Page */}
-        <Route path="/" element={<LandingPage />} />
+// Componente App principal com rotas - CORRIGIDO
+const App: React.FC = () => {
+  const { user, loading } = useAuth();
 
-        {/* Rota de login */}
-        <Route path="/login" element={
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen bg-black">
-              <div className="text-white">Carregando página de login...</div>
-            </div>
-          }>
-            <LoginPage />
-          </Suspense>
-        } />
+  // Se está carregando, mostra loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
+  }
 
-        {/* Rota de callback do Google OAuth */}
-        <Route path="/auth/callback" element={<AuthCallback />} />
+  return (
+    <CartProvider>
+      <Router>
+        <Routes>
+          {/* Rota pública - Landing Page (SEMPRE acessível) */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Rotas protegidas */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Suspense fallback={
-              <div className="flex items-center justify-center min-h-screen bg-black">
-                <div className="text-white">Carregando dashboard...</div>
-              </div>
-            }>
-              <Dashboard />
-            </Suspense>
-          </ProtectedRoute>
-        } />
+          {/* Rota de login - Só acessível se NÃO estiver logado */}
+          <Route path="/login" element={
+            user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-screen bg-black">
+                  <div className="text-white">Carregando...</div>
+                </div>
+              }>
+                <LoginPage />
+              </Suspense>
+            )
+          } />
 
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Suspense fallback={
-              <div className="flex items-center justify-center min-h-screen bg-black">
-                <div className="text-white">Carregando perfil...</div>
-              </div>
-            }>
-              <Profile />
-            </Suspense>
-          </ProtectedRoute>
-        } />
+          {/* Rota de callback do Google OAuth */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
-        {/* Rota 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
-  </CartProvider>
-);
+          {/* Rotas protegidas - Só acessíveis se ESTIVER logado */}
+          <Route path="/dashboard" element={
+            user ? (
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-screen bg-black">
+                  <div className="text-white">Carregando dashboard...</div>
+                </div>
+              }>
+                <Dashboard />
+              </Suspense>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } />
+
+          <Route path="/profile" element={
+            user ? (
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-screen bg-black">
+                  <div className="text-white">Carregando perfil...</div>
+                </div>
+              }>
+                <Profile />
+              </Suspense>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } />
+
+          {/* Rota 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </CartProvider>
+  );
+};
 
 export default App;

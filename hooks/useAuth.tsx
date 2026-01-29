@@ -1,4 +1,3 @@
-// hooks/useAuth.tsx - APENAS ADICIONE ESTAS 2 COISAS
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import type { Session, User } from '@supabase/supabase-js';
@@ -8,10 +7,14 @@ interface UseAuthReturn {
     loading: boolean;
     session: Session | null;
     signIn: (email: string, password: string) => Promise<{
-        data: { user: User | null; session: Session | null } | null;
-        error: Error | null
-    }>;  // ← 1. ADICIONE ESTA LINHA
+        data: {
+            user: User | null;
+            session: Session | null;
+        } | null;
+        error: Error | null;
+    }>;
     signOut: () => Promise<{ error: Error | null }>;
+    signInWithGoogle: () => Promise<void>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -38,7 +41,6 @@ export function useAuth(): UseAuthReturn {
         return () => subscription.unsubscribe();
     }, []);
 
-    // ← 2. ADICIONE ESTE MÉTODO (SÓ ISSO!)
     const signIn = async (email: string, password: string) => {
         return await supabase.auth.signInWithPassword({
             email,
@@ -46,11 +48,35 @@ export function useAuth(): UseAuthReturn {
         });
     };
 
+    const signInWithGoogle = async (): Promise<void> => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            })
+
+            if (error) {
+                throw error
+            }
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                console.error('[Auth][Google]', err.message)
+                alert('Google Login: ' + err.message)
+            } else {
+                console.error('[Auth][Google] Erro desconhecido', err)
+                alert('Falha inesperada ao iniciar login com Google.')
+            }
+        }
+    }
+
     return {
         user,
         loading,
         session,
-        signIn, // ← 3. ADICIONE AQUI
-        signOut: () => supabase.auth.signOut()
+        signIn,
+        signOut: () => supabase.auth.signOut(),
+        signInWithGoogle,
     };
 }

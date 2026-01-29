@@ -2,12 +2,12 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth'; // <-- CORRETO: '../../hooks/useAuth'
 import Navbar from '../layout/Navbar'; // <-- CORRETO: '../layout/Navbar'
-import type { ProductTheme } from '../../types'; // <-- CORRETO: '../../types'
+import type { Theme } from '../../types'; // <-- CORRETO: '../../types'
 
 const Profile: React.FC = () => {
     const { user } = useAuth();
 
-    const profileTheme: ProductTheme = {
+    const profileTheme: Theme = {
         primary: '#9b59b6',
         secondary: '#2c003e',
         glow: 'rgba(155, 89, 182, 0.5)',
@@ -33,7 +33,7 @@ const Profile: React.FC = () => {
                                 />
                                 <div>
                                     <h2 className="text-xl font-semibold text-white">{user?.email}</h2>
-                                    <p className="text-gray-400">Membro desde {new Date(user?.created_at || '').toLocaleDateString('pt-BR')}</p>
+                                    <p className="text-gray-400">Membro desde {user?.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}</p>
                                 </div>
                             </div>
 
