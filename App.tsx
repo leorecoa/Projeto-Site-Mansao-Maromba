@@ -1,62 +1,120 @@
-// c:\Users\Leorecoa\MM\Projeto-Site-Mansao-Maromba\App.tsx
 
-import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { CartProvider } from './context/CartContext'
-import { useAuth } from './hooks/useAuth'
+import React, { useState, useEffect, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Hero from './sections/Hero/Hero';
+import ProductSection from './sections/Products/ProductSection';
+import AboutSection from './sections/About/AboutSection';
+import ReviewSection from './sections/Reviews/ReviewSection';
+import MapSection from './sections/Map/MapSection';
+import CartModal from './components/feedback/CartModal';
+import CheckoutModal from './components/feedback/CheckoutModal';
+import SplashScreen from './components/feedback/SplashScreen';
+import LoginPage from './pages/LoginPage';
+import { PRODUCTS as MOCK_PRODUCTS, REVIEWS } from './data/products';
+import { CartProvider, useCart } from './context/CartContext';
+import { useAuth } from './hooks/useAuth';
+import { productsService } from './services/supabase';
+import { Product } from './types';
 
-import LoginPage from './components/pages/LoginPage'
-import OrdersPage from './components/pages/OrdersPage'
-import AuthCallback from './components/Auth/AuthCallback'
+const MainContent: React.FC = () => {
+  const { cart, cartTotal, clearCart, setIsCartOpen } = useCart();
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [dataSource, setDataSource] = useState<'mock' | 'supabase'>('mock');
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-const App: React.FC = () => {
-  const { user, loading } = useAuth()
+  const activeProduct = products[activeProductIndex] || MOCK_PRODUCTS[0];
+  const activeTheme = activeProduct.theme;
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-500" />
-      </div>
-    )
-  }
+  useEffect(() => {
+    const fetchDBData = async () => {
+      setIsLoadingProducts(true);
+      try {
+        const dbProducts = await productsService.getProducts();
+        if (dbProducts && dbProducts.length > 0) {
+          setProducts(dbProducts);
+          setDataSource('supabase');
+        }
+      } catch (error) {
+        console.error('Erro de conexão com o Banco:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    fetchDBData();
+  }, []);
+
+  useEffect(() => {
+    if (activeTheme) {
+      document.body.style.background = activeTheme.bg;
+    }
+  }, [activeTheme]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsFadingOutSplash(true), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <BrowserRouter>
-      <CartProvider>
-        <Routes>
-
-          {/* decisão central */}
-          <Route path="/" element={<LoginPage />} />
-
-          {/* público */}
-          <Route path="/login" element={<LoginPage />} />
-
-          {/* Callback de Autenticação do Supabase */}
-          <Route path="/auth/callback" element={<AuthCallback />} />
-
-          {/* privado */}
-          <Route
-            path="/OrdersPage"
-            element={
-              user ? <OrdersPage /> : <Navigate to="/login" replace />
-            }
+    <div className="min-h-screen transition-colors duration-1000 overflow-x-hidden">
+      {showSplashScreen && (
+        <SplashScreen 
+          onAnimationEnd={() => setShowSplashScreen(false)} 
+          isFadingOut={isFadingOutSplash} 
+        />
+      )}
+      
+      <Navbar theme={activeTheme} />
+      
+      <main>
+        <Suspense fallback={<div className="h-screen bg-black" />}>
+          <Hero 
+            products={products} 
+            activeIndex={activeProductIndex} 
+            setActiveIndex={setActiveProductIndex} 
           />
+        </Suspense>
+        
+        <ProductSection products={products} activeTheme={activeTheme} />
+        <AboutSection activeTheme={activeTheme} />
+        <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
+        <MapSection activeTheme={activeTheme} />
+      </main>
 
-          {/* Dashboard (Redireciona para OrdersPage por enquanto) */}
-          <Route
-            path="/dashboard"
-            element={
-              user ? <OrdersPage /> : <Navigate to="/login" replace />
-            }
-          />
+      <Footer activeTheme={activeTheme} />
+      
+      <CartModal activeTheme={activeTheme} onCheckout={() => setIsCheckoutOpen(true)} />
 
-          {/* 404 */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+      <CheckoutModal 
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        activeTheme={activeTheme}
+        cart={cart}
+        total={cartTotal}
+        onSuccess={() => {
+          clearCart();
+          setIsCheckoutOpen(false);
+        }}
+      />
+    </div>
+  );
+};
 
-        </Routes>
-      </CartProvider>
-    </BrowserRouter>
-  )
-}
+const App: React.FC = () => (
+  <BrowserRouter>
+    <CartProvider>
+      <Routes>
+        <Route path="/" element={<MainContent />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </CartProvider>
+  </BrowserRouter>
+);
 
-export default App
+export default App;

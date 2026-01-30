@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://i.imgur.com/2CMQ6GJ.png" alt="Mansão Maromba Logo" width="120" />
 </p>
@@ -17,6 +16,12 @@
   Estética Urbana • Neon Nightlife • Performance Premium
 </p>
 
+<p align="center">
+  <a href="https://projeto-site-mansao-maromba.vercel.app/">
+    <img src="https://img.shields.io/badge/Demo-Acessar%20Site-blue?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+</p>
+
 ---
 
 ## 🚀 Sobre o Projeto
@@ -29,6 +34,13 @@ O **Mansão Maromba - Depósito Digital** é uma plataforma e-commerce de elite 
 - 📦 **Gestão de Dados via Supabase**: Integração em tempo real com banco de dados para produtos, clientes e pedidos.
 - 🛒 **Checkout Inteligente**: Fluxo de compra simplificado com validação e armazenamento seguro no backend.
 - 📱 **Mobile First**: Experiência totalmente responsiva e adaptada para dispositivos móveis.
+
+---
+
+## 🔗 Demo Online
+
+Confira o projeto em execução no link abaixo:  
+👉 **[https://projeto-site-mansao-maromba.vercel.app/](https://projeto-site-mansao-maromba.vercel.app/)**
 
 ---
 
