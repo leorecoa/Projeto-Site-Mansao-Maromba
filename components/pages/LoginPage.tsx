@@ -16,7 +16,8 @@ const LoginPage: React.FC = () => {
     const testPassword = import.meta.env.VITE_TEST_PASSWORD || 'teste123456'
 
     // Página de origem ou fallback
-    const from = location.state?.from?.pathname || '/'
+    const from = '/'
+
     const fromState = location.state?.from?.state
 
     if (user) {
