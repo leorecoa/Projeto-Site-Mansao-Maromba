@@ -2,16 +2,17 @@
 import React from 'react';
 import { Product, Theme } from '../../types';
 import { Plus } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/CartContext'; // Importa useCart
 import { formatCurrency } from '../../utils/format';
 
 interface ProductSectionProps {
   products: Product[];
   activeTheme: Theme;
+  // onAddToCart: (product: Product) => void; // Removido
 }
 
 const ProductSection: React.FC<ProductSectionProps> = ({ products, activeTheme }) => {
-  const { addToCart } = useCart();
+  const { addToCart } = useCart(); // Usa o hook useCart
 
   return (
     <section id="products" className="py-24 px-6 relative">

@@ -2,16 +2,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Zap, Crown } from 'lucide-react';
 import { Product } from '../../types';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/CartContext'; // Importa useCart
 
 interface HeroProps {
   products: Product[];
   activeIndex: number;
   setActiveIndex: (index: number) => void;
+  // onAddToCart: (product: Product) => void; // Removido
 }
 
 const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) => {
-  const { addToCart } = useCart();
+  const { addToCart } = useCart(); // Usa o hook useCart
   const activeProduct = products[activeIndex];
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showFlash, setShowFlash] = useState(false);

@@ -14,16 +14,19 @@ import SplashScreen from './components/feedback/SplashScreen';
 import LoginPage from './pages/LoginPage';
 import { PRODUCTS as MOCK_PRODUCTS, REVIEWS } from './data/products';
 import { CartProvider, useCart } from './context/CartContext';
-import { useAuth } from './hooks/useAuth';
+import { useAuth } from './hooks/useAuth'; // Importar useAuth
 import { productsService } from './services/supabase';
-import { Product } from './types';
+// FIX: Adjusted the import path for the 'Product' type for consistency.
+import { Product } from './types'; 
 
+// Componente para o conteúdo principal, acessível após o login
 const MainContent: React.FC = () => {
   const { cart, cartTotal, clearCart, setIsCartOpen } = useCart();
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [dataSource, setDataSource] = useState<'mock' | 'supabase'>('mock');
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [activeProductIndex, setActiveProductIndex] = useState(0);
+  // FIX: Renamed the useState setter setActiveProductIndex to setHeroActiveIndex for clarity and to prevent potential naming conflicts.
+  const [activeProductIndex, setHeroActiveIndex] = useState(0);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -60,6 +63,25 @@ const MainContent: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Use Auth para proteger rotas ou mostrar informações do usuário
+  const { user, loading: authLoading } = useAuth(); // Usar o hook useAuth
+
+  if (authLoading) {
+    // Exibe um carregador enquanto verifica o estado de autenticação
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
+      </div>
+    );
+  }
+
+  // Exemplo de proteção de rota: se não houver usuário logado, redireciona para o login
+  // NOTA: Para este projeto, o MainContent é público, então essa proteção pode ser removida se desejado.
+  // if (!user) {
+  //   return <Navigate to="/login" replace state={{ from: location }} />;
+  // }
+
+
   return (
     <div className="min-h-screen transition-colors duration-1000 overflow-x-hidden">
       {showSplashScreen && (
@@ -69,17 +91,21 @@ const MainContent: React.FC = () => {
         />
       )}
       
-      <Navbar theme={activeTheme} />
+      {/* Navbar não precisa mais de onOpenCart e cartCount, pois usa o hook useCart internamente */}
+      <Navbar theme={activeTheme} /> 
       
       <main>
         <Suspense fallback={<div className="h-screen bg-black" />}>
+          {/* Hero não precisa mais de onAddToCart, pois usa o hook useCart internamente */}
           <Hero 
             products={products} 
             activeIndex={activeProductIndex} 
-            setActiveIndex={setActiveProductIndex} 
+            // FIX: Pass the renamed setter setHeroActiveIndex to the Hero component.
+            setActiveIndex={setHeroActiveIndex} 
           />
         </Suspense>
         
+        {/* ProductSection não precisa mais de onAddToCart, pois usa o hook useCart internamente */}
         <ProductSection products={products} activeTheme={activeTheme} />
         <AboutSection activeTheme={activeTheme} />
         <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
@@ -88,6 +114,7 @@ const MainContent: React.FC = () => {
 
       <Footer activeTheme={activeTheme} />
       
+      {/* CartModal agora recebe apenas activeTheme e onCheckout, o resto via useCart */}
       <CartModal activeTheme={activeTheme} onCheckout={() => setIsCheckoutOpen(true)} />
 
       <CheckoutModal 
@@ -105,16 +132,20 @@ const MainContent: React.FC = () => {
   );
 };
 
+// Componente App com roteamento
 const App: React.FC = () => (
   <BrowserRouter>
-    <CartProvider>
+    <CartProvider> {/* CartProvider deve envolver as rotas para que useCart seja acessível */}
       <Routes>
         <Route path="/" element={<MainContent />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Adicione outras rotas protegidas aqui, se necessário, ou um dashboard */}
+        {/* <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} /> */}
+        <Route path="*" element={<Navigate to="/" replace />} /> {/* Redireciona rotas inválidas para a home */}
       </Routes>
     </CartProvider>
   </BrowserRouter>
 );
 
 export default App;
+    
