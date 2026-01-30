@@ -3,37 +3,38 @@ import Navbar from '../layout/Navbar'
 import type { Theme } from '../../types'
 import { Mail, Loader } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const { signInWithGoogle, signIn, user } = useAuth();
-    const location = useLocation();
-    const [testEmail] = useState(import.meta.env.VITE_TEST_EMAIL || 'teste@mansaomaromba.com')
-    const [testPassword] = useState(import.meta.env.VITE_TEST_PASSWORD || 'teste123456')
 
-    // Pega a página anterior ou define o dashboard como padrão
-    const from = location.state?.from?.pathname || "/dashboard";
-    // Pega o estado que foi passado pela página anterior (ex: abrir carrinho)
-    const fromState = location.state?.from?.state;
+    const { signInWithGoogle, signIn, user } = useAuth()
+    const location = useLocation()
+
+    const testEmail = import.meta.env.VITE_TEST_EMAIL || 'teste@mansaomaromba.com'
+    const testPassword = import.meta.env.VITE_TEST_PASSWORD || 'teste123456'
+
+    // Página de origem ou fallback
+    const from = location.state?.from?.pathname || '/'
+    const fromState = location.state?.from?.state
 
     if (user) {
-        return <Navigate to={from} state={fromState} replace />;
+        return <Navigate to={from} state={fromState} replace />
     }
 
     const handleGoogleLogin = async (): Promise<void> => {
         setIsLoading(true)
         setErrorMessage(null)
+
         try {
-            await signInWithGoogle();
-            // O hook useAuth irá redirecionar automaticamente se o login for bem-sucedido
+            await signInWithGoogle()
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                setErrorMessage(err.message)
-            } else {
-                setErrorMessage('Ocorreu um erro inesperado durante o login com Google.')
-            }
+            setErrorMessage(
+                err instanceof Error
+                    ? err.message
+                    : 'Erro inesperado ao entrar com Google.'
+            )
         } finally {
             setIsLoading(false)
         }
@@ -42,20 +43,19 @@ const LoginPage: React.FC = () => {
     const handleTestLogin = async (): Promise<void> => {
         setIsLoading(true)
         setErrorMessage(null)
+
         try {
             const { error } = await signIn(testEmail, testPassword)
 
             if (error) {
-                // Para senhas/emails errados, o Supabase retorna "Invalid login credentials"
-                setErrorMessage('Credenciais de login inválidas. Tente novamente.')
+                setErrorMessage('Credenciais inválidas. Verifique e tente novamente.')
             }
-            // O hook useAuth irá redirecionar automaticamente se o login for bem-sucedido
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                setErrorMessage(err.message)
-            } else {
-                setErrorMessage('Ocorreu um erro inesperado durante o login.')
-            }
+            setErrorMessage(
+                err instanceof Error
+                    ? err.message
+                    : 'Erro inesperado ao efetuar login.'
+            )
         } finally {
             setIsLoading(false)
         }
@@ -72,10 +72,15 @@ const LoginPage: React.FC = () => {
     return (
         <div className="min-h-screen text-white" style={{ background: loginTheme.bg }}>
             <Navbar theme={loginTheme} />
+
             <main className="flex items-center justify-center pt-32 sm:pt-40 px-4">
                 <section className="w-full max-w-md p-8 space-y-6 bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 text-center">
-                    <h1 className="text-4xl font-bold font-syncopate">Acessar Painel</h1>
-                    <p className="text-gray-400">Autentique-se para acessar sua conta</p>
+                    <h1 className="text-4xl font-bold font-syncopate">
+                        Acessar Painel
+                    </h1>
+                    <p className="text-gray-400">
+                        Autentique-se para acessar sua conta
+                    </p>
 
                     {errorMessage && (
                         <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm text-left">
@@ -83,11 +88,11 @@ const LoginPage: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Botão Google */}
+                    {/* Google */}
                     <button
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-black bg-yellow-400 rounded-lg hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-black bg-yellow-400 rounded-lg hover:bg-yellow-300 disabled:opacity-50 transition-colors"
                     >
                         {isLoading ? (
                             <Loader className="animate-spin h-5 w-5" />
@@ -99,31 +104,27 @@ const LoginPage: React.FC = () => {
                                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                             </svg>
                         )}
-                        {isLoading ? 'Processando...' : 'Entrar com Google'}
+                        {isLoading ? 'Processando…' : 'Entrar com Google'}
                     </button>
 
                     <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-600"></div>
+                            <div className="w-full border-t border-gray-600" />
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-transparent text-gray-400">Ou teste com</span>
+                            <span className="px-2 text-gray-400">Ou teste com</span>
                         </div>
                     </div>
 
-                    {/* Botão de teste */}
+                    {/* Teste */}
                     <button
                         onClick={handleTestLogin}
                         disabled={isLoading}
-                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
                         <Mail size={20} />
-                        Login de Teste (Email/Senha)
+                        Login de Teste
                     </button>
-
-                    <p className="text-xs text-gray-500 pt-4">
-                        💡 Para Google Login, configure no Supabase: Authentication → Providers → Google
-                    </p>
                 </section>
             </main>
         </div>
