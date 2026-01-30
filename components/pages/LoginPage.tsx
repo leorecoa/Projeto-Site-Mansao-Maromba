@@ -1,35 +1,33 @@
 import React, { useState } from 'react'
-import Navbar from '../layout/Navbar'
+import Navbar from '../Navbar'
 import type { Theme } from '../../types'
 import { Mail, Loader } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-    const { signInWithGoogle, signIn, user } = useAuth()
-    const location = useLocation()
+    const { signInWithGoogle, signIn, user, loading } = useAuth()
 
+    // Redireciona automaticamente se o usuário já estiver autenticado
+    if (user && !loading) {
+        return <Navigate to="/dashboard" replace />
+    }
+
+    // Credenciais de teste
     const testEmail = import.meta.env.VITE_TEST_EMAIL || 'teste@mansaomaromba.com'
     const testPassword = import.meta.env.VITE_TEST_PASSWORD || 'teste123456'
 
-    // Página de origem ou fallback
-    const from = '/'
-
-    const fromState = location.state?.from?.state
-
-    if (user) {
-        return <Navigate to={from} state={fromState} replace />
-    }
-
+    // Função de login com Google (via redirect)
     const handleGoogleLogin = async (): Promise<void> => {
         setIsLoading(true)
         setErrorMessage(null)
 
         try {
             await signInWithGoogle()
+            // redirecionamento ocorre automaticamente via AuthCallback
         } catch (err: unknown) {
             setErrorMessage(
                 err instanceof Error
@@ -41,6 +39,7 @@ const LoginPage: React.FC = () => {
         }
     }
 
+    // Login de teste com email e senha
     const handleTestLogin = async (): Promise<void> => {
         setIsLoading(true)
         setErrorMessage(null)
@@ -62,8 +61,9 @@ const LoginPage: React.FC = () => {
         }
     }
 
+    // Tema oficial da Mansão Maromba
     const loginTheme: Theme = {
-        primary: '#facc15',
+        primary: '#facc15', // amarelo Mansão Maromba
         secondary: '#1f2937',
         glow: 'rgba(250, 204, 21, 0.4)',
         text: '#FFFFFF',
@@ -72,28 +72,25 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="min-h-screen text-white" style={{ background: loginTheme.bg }}>
-            <Navbar theme={loginTheme} />
+            <Navbar theme={loginTheme} onOpenCart={() => { }} />
 
             <main className="flex items-center justify-center pt-32 sm:pt-40 px-4">
                 <section className="w-full max-w-md p-8 space-y-6 bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 text-center">
-                    <h1 className="text-4xl font-bold font-syncopate">
-                        Acessar Painel
-                    </h1>
-                    <p className="text-gray-400">
-                        Autentique-se para acessar sua conta
-                    </p>
+                    <h1 className="text-4xl font-bold font-syncopate">Acessar Painel</h1>
+                    <p className="text-gray-400">Autentique-se para acessar sua conta</p>
 
+                    {/* Mensagem de erro */}
                     {errorMessage && (
                         <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm text-left">
                             {errorMessage}
                         </div>
                     )}
 
-                    {/* Google */}
+                    {/* Botão Google */}
                     <button
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-black bg-yellow-400 rounded-lg hover:bg-yellow-300 disabled:opacity-50 transition-colors"
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 font-semibold text-black bg-yellow-400 rounded-lg hover:bg-yellow-300 disabled:opacity-50 transition-colors"
                     >
                         {isLoading ? (
                             <Loader className="animate-spin h-5 w-5" />
@@ -108,6 +105,7 @@ const LoginPage: React.FC = () => {
                         {isLoading ? 'Processando…' : 'Entrar com Google'}
                     </button>
 
+                    {/* Divisor */}
                     <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-600" />
@@ -117,14 +115,14 @@ const LoginPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Teste */}
+                    {/* Botão Teste */}
                     <button
                         onClick={handleTestLogin}
                         disabled={isLoading}
-                        className="w-full inline-flex items-center justify-center gap-3 px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
                         <Mail size={20} />
-                        Login de Teste
+                        {isLoading ? 'Processando…' : 'Login de Teste'}
                     </button>
                 </section>
             </main>

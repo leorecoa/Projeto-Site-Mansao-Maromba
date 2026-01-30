@@ -1,10 +1,13 @@
+// c:\Users\Leorecoa\MM\Projeto-Site-Mansao-Maromba\App.tsx
+
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import { useAuth } from './hooks/useAuth'
 
 import LoginPage from './components/pages/LoginPage'
-import Dashboard from './components/pages/Dashboard'
+import OrdersPage from './components/pages/OrdersPage'
+import AuthCallback from './components/Auth/AuthCallback'
 
 const App: React.FC = () => {
   const { user, loading } = useAuth()
@@ -23,19 +26,27 @@ const App: React.FC = () => {
         <Routes>
 
           {/* decisão central */}
-          <Route
-            path="/"
-            element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
-          />
+          <Route path="/" element={<LoginPage />} />
 
           {/* público */}
           <Route path="/login" element={<LoginPage />} />
 
+          {/* Callback de Autenticação do Supabase */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
+
           {/* privado */}
+          <Route
+            path="/OrdersPage"
+            element={
+              user ? <OrdersPage /> : <Navigate to="/login" replace />
+            }
+          />
+
+          {/* Dashboard (Redireciona para OrdersPage por enquanto) */}
           <Route
             path="/dashboard"
             element={
-              user ? <Dashboard /> : <Navigate to="/login" replace />
+              user ? <OrdersPage /> : <Navigate to="/login" replace />
             }
           />
 

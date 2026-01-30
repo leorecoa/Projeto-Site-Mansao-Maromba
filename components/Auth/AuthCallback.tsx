@@ -1,43 +1,37 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../../supabase'
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../supabase';
 
-const AuthCallback = () => {
-  const navigate = useNavigate()
+const AuthCallback: React.FC = () => {
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let isMounted = true
-
-    const handleAuth = async () => {
-      const { data, error } = await supabase.auth.getSession()
-
-      if (!isMounted) return
-
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getSession(); // pega a sessão atual
       if (error) {
-        console.error('[AuthCallback]', error.message)
-        navigate('/login', { replace: true })
-        return
+        console.error('Erro no callback do Google:', error.message);
+        navigate('/login');
+        return;
       }
 
-      if (data.session) {
-        navigate('/dashboard', { replace: true })
-      } else {
-        navigate('/login', { replace: true })
+      if (!data.session) {
+        // Se não houver sessão, volta para login
+        navigate('/login');
+        return;
       }
-    }
 
-    handleAuth()
+      // Sessão válida, redireciona para dashboard
+      navigate('/dashboard');
+    };
 
-    return () => {
-      isMounted = false
-    }
-  }, [navigate])
+    checkSession();
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white">
-      Autenticando…
+    <div className="flex items-center justify-center min-h-screen text-white">
+      Processando login...
     </div>
-  )
-}
+  );
+};
 
-export default AuthCallback
+export default AuthCallback;
