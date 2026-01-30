@@ -1,22 +1,20 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import { useAuth } from './hooks/useAuth';
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { CartProvider } from './context/CartContext'
+import { useAuth } from './hooks/useAuth'
 
-import LoginPage from './components/pages/LoginPage'; // ajuste conforme SUA árvore
-
-// lazy
-const Dashboard = lazy(() => import('./components/pages/Dashboard'));
+import LoginPage from './components/pages/LoginPage'
+import Dashboard from './components/pages/Dashboard'
 
 const App: React.FC = () => {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth()
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-500" />
       </div>
-    );
+    )
   }
 
   return (
@@ -24,29 +22,30 @@ const App: React.FC = () => {
       <CartProvider>
         <Routes>
 
-          {/* LANDING PAGE = loja */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* decisão central */}
+          <Route
+            path="/"
+            element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
+          />
 
-          {/* LOGIN */}
+          {/* público */}
           <Route path="/login" element={<LoginPage />} />
 
-          {/* DASHBOARD protegido */}
+          {/* privado */}
           <Route
             path="/dashboard"
             element={
-              <Suspense fallback={<div className="text-white">Carregando…</div>}>
-                <Dashboard />
-              </Suspense>
+              user ? <Dashboard /> : <Navigate to="/login" replace />
             }
           />
 
-          {/* fallback */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>
       </CartProvider>
     </BrowserRouter>
-  );
-};
+  )
+}
 
-export default App;
+export default App
