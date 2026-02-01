@@ -62,7 +62,7 @@ const CartModal: React.FC<CartModalProps> = ({
                   style={{ backgroundColor: item.theme.primary }}
                 />
                 <div className="w-20 h-20 bg-white/5 rounded-xl flex items-center justify-center shrink-0">
-                  <img src={item.image} alt={item.name} className="h-16 object-contain" />
+                  <img src={item.image_url} alt={item.name} className="h-16 object-contain" />
                 </div>
                 <div className="flex-grow flex flex-col justify-between">
                   <div>

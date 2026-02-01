@@ -9,7 +9,7 @@ export const PRODUCTS: Product[] = [
     price: 89.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/iFgXsaT.png',
+    image_url: 'https://i.ibb.co/bMK7dDH2/mansao-maromba.png',
     theme: {
       primary: '#ff0000',
       secondary: '#4b0000',
@@ -25,7 +25,7 @@ export const PRODUCTS: Product[] = [
     price: 99.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/QKXsWbm.png',
+    image_url: 'https://i.ibb.co/tT20W8bn/mansao-maromba1.png',
     theme: {
       primary: '#444444',
       secondary: '#0a0a0a',
@@ -41,7 +41,7 @@ export const PRODUCTS: Product[] = [
     price: 94.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/FaTOEtC.png',
+    image_url: 'https://i.ibb.co/Q3QX4G3g/mansao-maromba2.png',
     theme: {
       primary: '#ff00ff',
       secondary: '#200020',
@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
     price: 84.90,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
-    image: 'https://i.imgur.com/U2nL7Mv.png',
+    image_url: 'https://i.ibb.co/fzDdqd5Z/mansao-maromba3.png',
     theme: {
       primary: '#00f0ff',
       secondary: '#001a1c',
@@ -67,9 +67,36 @@ export const PRODUCTS: Product[] = [
     }
   }
 ];
-
-export const REVIEWS: Review[] = [
-  { id: 1, user: "Lucas Silva", rating: 5, comment: "Melhor combo de SP. Entrega rápida demais!", date: "2 dias atrás" },
-  { id: 2, user: "Ana Paula", rating: 4, comment: "O Tigrinho é sensacional, voltarei a pedir com certeza.", date: "1 semana atrás" },
-  { id: 3, user: "Ricardo", rating: 4, comment: "O Double Darkness é o brabo. Visual do site tá animal.", date: "1 mês atrás" }
+// No seu data.ts (linhas ~72-74 e outros reviews)
+export const reviews = [
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567891", // ✅ String UUID
+    product_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", // ✅ Referência a um produto
+    customer_name: "João Silva",
+    rating: 5,
+    comment: "Excelente produto! Entrega super rápida.",
+    is_visible: true,
+    created_at: "2024-01-15T10:30:00Z",
+    user_id: "user-uuid-123" // Opcional, mas se incluir, deve ser string
+  },
+  
+  {
+    id: "b2c3d4e5-f678-9012-bcde-f12345678902", // ✅ String UUID
+    product_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    customer_name: "Maria Santos",
+    rating: 4,
+    comment: "Muito bom, mas poderia ter mais gás.",
+    is_visible: true,
+    created_at: "2024-01-16T14:20:00Z"
+  },
+  
+  {
+    id: "c3d4e5f6-7890-1234-cdef-123456789003", // ✅ String UUID
+    product_id: "b2c3d4e5-f678-9012-bcde-f12345678901", // Outro produto
+    customer_name: "Carlos Oliveira",
+    rating: 5,
+    comment: "Perfeito para a balada! 🔥",
+    is_visible: true,
+    created_at: "2024-01-17T18:45:00Z"
+  }
 ];

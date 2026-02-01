@@ -20,13 +20,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ reviews, activeTheme }) =
                 <div className="flex text-yellow-500">
                   {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < review.rating ? activeTheme.primary : "none"} stroke={i < review.rating ? activeTheme.primary : "gray"} />)}
                 </div>
-                <span className="text-xs text-gray-500 font-bold uppercase">{review.date}</span>
+                <span className="text-xs text-gray-500 font-bold uppercase">{new Date(review.created_at).toLocaleDateString()}</span>
               </div>
               <p className="text-lg italic text-white/80 mb-8 italic">"{review.comment}"</p>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold">{review.user[0]}</div>
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold">{review.customer_name[0]}</div>
                 <div>
-                  <h4 className="font-bold">{review.user}</h4>
+                  <h4 className="font-bold">{review.customer_name}</h4>
                   <p className="text-xs text-gray-500">Cliente Verificado</p>
                 </div>
               </div>

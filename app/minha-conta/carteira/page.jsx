@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/stores/useAppStore'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
-import DepositModal from '@/components/Wallet/DepositModal'
+import { supabase } from '@/services/supabase'
+import DepositModal from '@/components/Wallet/DepositModal.tsx'
 
 export default function WalletPage() {
   const { user } = useAuth()
@@ -35,7 +35,7 @@ export default function WalletPage() {
         .select('*')
         .eq('wallet_id', user.id) // Supondo que wallet_id na transactions é o auth.uid
         .order('created_at', { ascending: false })
-      
+
       if (transactionsError) {
         console.error('Erro ao buscar transações:', transactionsError)
       } else if (transactionsData) {
@@ -52,7 +52,7 @@ export default function WalletPage() {
     <div className="wallet-page-container">
       <h1>Minha Carteira</h1>
       <p>Saldo Atual: <strong>R$ {walletBalance.toFixed(2)}</strong></p>
-      <button 
+      <button
         onClick={() => setIsDepositModalOpen(true)}
         style={{ background: 'var(--color-primary)' }}
       >
@@ -72,7 +72,7 @@ export default function WalletPage() {
         </ul>
       )}
 
-      <DepositModal 
+      <DepositModal
         isOpen={isDepositModalOpen}
         onClose={() => setIsDepositModalOpen(false)}
         currentBalance={walletBalance}

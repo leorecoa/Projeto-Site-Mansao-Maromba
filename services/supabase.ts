@@ -24,7 +24,7 @@ export const productsService = {
         name: p.name,
         description: p.description,
         price: Number(p.price),
-        image: p.image_url || 'https://i.imgur.com/iFgXsaT.png',
+        image: p.image_url || 'https://i.ibb.co/bMK7dDH2/mansao-maromba.png',
         volume: p.volume || '1L',
         type: p.type || 'Cocktail',
         theme: p.theme || {

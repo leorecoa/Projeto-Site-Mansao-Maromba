@@ -29,34 +29,36 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ reviews, activeTheme }) =
 
         <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
           {reviews.map((review) => (
-            <div 
-              key={review.id} 
+            <div
+              key={review.id}
               className="min-w-[300px] md:min-w-[400px] snap-center glass-card p-8 rounded-3xl"
             >
               <div className="flex justify-between items-center mb-6">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      size={14} 
-                      fill={i < review.rating ? activeTheme.primary : "none"} 
+                    <Star
+                      key={i}
+                      size={14}
+                      fill={i < review.rating ? activeTheme.primary : "none"}
                       stroke={i < review.rating ? activeTheme.primary : "gray"}
                     />
                   ))}
                 </div>
-                <span className="text-xs text-gray-500 font-bold uppercase">{review.date}</span>
+                <span className="text-xs text-gray-500 font-bold uppercase">
+                  {new Date(review.created_at).toLocaleDateString()}
+                </span>
               </div>
-              
+
               <p className="text-lg italic text-white/80 mb-8 leading-relaxed">
                 "{review.comment}"
               </p>
 
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold">
-                  {review.user[0]}
+                  {review.customer_name[0]}
                 </div>
                 <div>
-                  <h4 className="font-bold">{review.user}</h4>
+                  <h4 className="font-bold">{review.customer_name}</h4>
                   <p className="text-xs text-gray-500 uppercase tracking-widest">Cliente Verificado</p>
                 </div>
               </div>

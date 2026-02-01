@@ -1,41 +1,57 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '../services/supabase';
 
-export const useAuth = () => {
-  const [user, setUser] = useState(null)
-  const [userRole, setUserRole] = useState<string | null>(null)
+export function useAuth() {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState<string>('user');
+    const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        const currentUser = session?.user
-        setUser(currentUser || null)
-        
-        if (currentUser) {
-          // Buscar a role do usuário na tabela `customers`
-          const { data: customerData, error } = await supabase
-            .from('customers')
-            .select('user_role')
-            .eq('auth_user_id', currentUser.id)
-            .single()
-          
-          if (error) {
-            console.error('Erro ao buscar role do usuário:', error)
-            setUserRole(null)
-          } else {
-            setUserRole(customerData?.user_role || 'customer')
-          }
-        } else {
-          setUserRole(null)
-        }
-      }
-    )
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [])
+    useEffect(() => {
+        // Verificar sessão atual
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
 
-  const isAdmin = userRole === 'admin'
+        // Ouvir mudanças na autenticação
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
 
-  return { user, userRole, isAdmin }
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const signInWithGoogle = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/`
+            }
+        });
+        if (error) throw error;
+    };
+
+    const signIn = async (email, password) => {
+        return await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+    };
+
+    const signOut = async () => {
+        await supabase.auth.signOut();
+    };
+
+    return { 
+        user, 
+        loading, 
+        userRole, 
+        isAdmin,
+        signInWithGoogle,
+        signIn,
+        signOut
+    };
 }
