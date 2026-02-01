@@ -55,7 +55,9 @@ CREATE TABLE IF NOT EXISTS customers (
   address_city TEXT,
   address_state TEXT,
   address_zip TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  -- 4. ADICIONAR COLUNA DE ROLE PARA CONTROLE DE ACESSO
+  user_role TEXT DEFAULT 'customer' CHECK (user_role IN ('customer', 'admin', 'staff'))
 );
 
 -- 4. TABELA DE PEDIDOS (Orders)
@@ -68,7 +70,10 @@ CREATE TABLE IF NOT EXISTS orders (
   tracking_code TEXT,
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  -- 3. ADICIONAR SUPORTE A PAGAMENTO COM CARTEIRA NA TABELA ORDERS
+  used_wallet_balance DECIMAL(10, 2) DEFAULT 0.00,
+  final_charge_amount DECIMAL(10, 2) -- Valor cobrado no cartão (se houver)
 );
 
 CREATE TRIGGER update_orders_updated_at 
@@ -76,11 +81,11 @@ BEFORE UPDATE ON orders
 FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 -- 5. ITENS DO PEDIDO (Order Items)
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS order_items (\
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
   product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
-  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  quantity INTEGER NOT NULL CHECK (quantity > 0),\
   unit_price DECIMAL(10, 2) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -95,6 +100,57 @@ CREATE TABLE IF NOT EXISTS reviews (
   is_visible BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- 1. TABELA DA CARTEIRA/DEPÓSITO DIGITAL
+CREATE TABLE IF NOT EXISTS user_wallet (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+  balance DECIMAL(10, 2) DEFAULT 0.00 CHECK (balance >= 0),
+  total_deposited DECIMAL(10, 2) DEFAULT 0.00,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(customer_id)
+);
+
+-- Trigger para atualizar o `updated_at` da carteira
+CREATE TRIGGER update_user_wallet_updated_at 
+BEFORE UPDATE ON user_wallet 
+FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+-- 2. HISTÓRICO DE TRANSAÇÕES DA CARTEIRA
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  wallet_id UUID NOT NULL REFERENCES user_wallet(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('DEPOSIT', 'PURCHASE', 'REFUND', 'ADMIN_ADJUSTMENT')),
+  amount DECIMAL(10, 2) NOT NULL,
+  description TEXT,
+  status TEXT DEFAULT 'COMPLETED' CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED')),
+  stripe_payment_intent_id TEXT, -- Para referência futura com o Stripe
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 5. (OPCIONAL) INGREDIENTES PARA OS PRODUTOS
+CREATE TABLE IF NOT EXISTS product_ingredients (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  quantity TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Políticas RLS para user_wallet
+ALTER TABLE user_wallet ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own wallet" ON user_wallet
+  FOR SELECT USING (auth.uid() = (
+    SELECT auth_user_id FROM customers WHERE id = user_wallet.customer_id
+  ));
+
+CREATE POLICY "Admins can view all wallets" ON user_wallet
+  FOR SELECT USING (EXISTS (
+    SELECT 1 FROM customers 
+    WHERE auth_user_id = auth.uid() AND user_role = 'admin'
+  ));
 
 -- 7. EXEMPLO DE INSERÇÃO DE CATEGORIA INICIAL
 INSERT INTO categories (name, slug, description) 

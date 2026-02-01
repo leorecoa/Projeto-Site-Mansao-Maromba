@@ -1,55 +1,41 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../services/supabase';
-import { User } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
-    // Busca sessão inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Escuta mudanças na autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signInWithGoogle = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        const currentUser = session?.user
+        setUser(currentUser || null)
+        
+        if (currentUser) {
+          // Buscar a role do usuário na tabela `customers`
+          const { data: customerData, error } = await supabase
+            .from('customers')
+            .select('user_role')
+            .eq('auth_user_id', currentUser.id)
+            .single()
+          
+          if (error) {
+            console.error('Erro ao buscar role do usuário:', error)
+            setUserRole(null)
+          } else {
+            setUserRole(customerData?.user_role || 'customer')
+          }
+        } else {
+          setUserRole(null)
+        }
       }
-    });
-    if (error) throw error;
-  }, []);
+    )
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
 
-  const signIn = useCallback(async (email: string, pass: string) => {
-    return await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
-  }, []);
+  const isAdmin = userRole === 'admin'
 
-  const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  }, []);
-
-  return {
-    user,
-    loading,
-    signInWithGoogle,
-    signIn,
-    signOut
-  };
-};
+  return { user, userRole, isAdmin }
+}
