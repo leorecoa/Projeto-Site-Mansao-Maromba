@@ -12,14 +12,16 @@ interface AppState {
   currentTheme: any | null;
   user: any | null;
   walletBalance: number;
-  isLoggedIn: boolean;
-
+  isLoggedIn: boolean; // ✅ ADICIONE ESTA LINHA
+  
+  // Ações
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
   updateWalletBalance: (newBalance: number) => void;
-  setUser: (userData: any | null) => void;
-  logout: () => void;
+  setUser: (userData: any) => void;
+  login: (userData: any) => void; // ✅ ADICIONE ESTA AÇÃO
+  logout: () => void; // ✅ ADICIONE ESTA AÇÃO
 }
 
 export const useAppStore = create<AppState>()(
@@ -30,22 +32,26 @@ export const useAppStore = create<AppState>()(
       currentTheme: null,
       user: null,
       walletBalance: 0,
-      isLoggedIn: false,
+      isLoggedIn: false, // ✅ INICIALIZE AQUI
 
-      setUser: (userData) =>
-        set({
-          user: userData,
-          isLoggedIn: !!userData,
-          walletBalance: userData?.balance ?? 0,
-        }),
+      // Ação de login
+      login: (userData) => {
+        set({ 
+          user: userData, 
+          isLoggedIn: true,
+          walletBalance: userData.balance || 0 
+        });
+      },
 
-      logout: () =>
-        set({
-          user: null,
+      // Ação de logout
+      logout: () => {
+        set({ 
+          user: null, 
           isLoggedIn: false,
           cart: [],
-          cartTotal: 0,
-        }),
+          cartTotal: 0 
+        });
+      },
 
       addToCart: (product) => {
         const currentCart = get().cart;
@@ -53,13 +59,17 @@ export const useAppStore = create<AppState>()(
           (item) => item.id === product.id
         );
 
-        const updatedCart = existingItem
-          ? currentCart.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            )
-          : [...currentCart, { ...product, quantity: 1 }];
+        let updatedCart: CartItem[];
+
+        if (existingItem) {
+          updatedCart = currentCart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        } else {
+          updatedCart = [...currentCart, { ...product, quantity: 1 }];
+        }
 
         const newTotal = updatedCart.reduce(
           (sum, item) => sum + item.price * item.quantity,
@@ -90,17 +100,18 @@ export const useAppStore = create<AppState>()(
 
       updateWalletBalance: (newBalance) =>
         set({ walletBalance: newBalance }),
+
+      setUser: (userData) => set({ user: userData }),
     }),
-    {
+    { 
       name: 'maromba-app-storage',
       partialize: (state) => ({
         user: state.user,
-        isLoggedIn: state.isLoggedIn,
+        isLoggedIn: state.isLoggedIn, // ✅ PERSISTA O ESTADO DE LOGIN
         walletBalance: state.walletBalance,
         cart: state.cart,
         cartTotal: state.cartTotal,
-        currentTheme: state.currentTheme,
-      }),
+      })
     }
   )
 );

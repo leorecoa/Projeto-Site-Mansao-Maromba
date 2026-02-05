@@ -12,7 +12,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  image: string;
+  image_url: string;
   volume: string;
   type: string;
   theme: Theme;

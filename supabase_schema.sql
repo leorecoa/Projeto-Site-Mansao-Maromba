@@ -1,158 +1,115 @@
 -- Habilita a extensão para geração de UUIDs
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Função para atualizar o timestamp de updated_at automaticamente
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- 1. TABELA DE CATEGORIAS
-CREATE TABLE IF NOT EXISTS categories (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  name TEXT NOT NULL UNIQUE,
-  slug TEXT NOT NULL UNIQUE,
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE,
   description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
 );
-
--- 2. TABELA DE PRODUTOS
-CREATE TABLE IF NOT EXISTS products (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
-  name TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT,
-  price DECIMAL(10, 2) NOT NULL,
-  volume TEXT, -- ex: '1L', '500ml'
-  type TEXT,   -- ex: 'Cocktail Alcoólico Gaseificado'
-  image_url TEXT,
-  theme JSONB, -- { "primary": "#ff0000", "secondary": "#4b0000", "glow": "rgba(255,0,0,0.8)", "bg": "..." }
-  stock_quantity INTEGER DEFAULT 0,
-  is_active BOOLEAN DEFAULT true,
-  is_featured BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.customers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  full_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  phone text,
+  address_street text,
+  address_number text,
+  address_complement text,
+  address_neighborhood text,
+  address_city text,
+  address_state text,
+  address_zip text,
+  created_at timestamp with time zone DEFAULT now(),
+  auth_user_id uuid UNIQUE,
+  user_role text DEFAULT 'customer'::text CHECK (user_role = ANY (ARRAY['customer'::text, 'admin'::text, 'staff'::text])),
+  CONSTRAINT customers_pkey PRIMARY KEY (id),
+  CONSTRAINT customers_auth_user_id_fkey FOREIGN KEY (auth_user_id) REFERENCES auth.users(id)
 );
-
-CREATE TRIGGER update_products_updated_at 
-BEFORE UPDATE ON products 
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-
--- 3. TABELA DE CLIENTES (Profiles)
-CREATE TABLE IF NOT EXISTS customers (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  full_name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  phone TEXT,
-  address_street TEXT,
-  address_number TEXT,
-  address_complement TEXT,
-  address_neighborhood TEXT,
-  address_city TEXT,
-  address_state TEXT,
-  address_zip TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  -- 4. ADICIONAR COLUNA DE ROLE PARA CONTROLE DE ACESSO
-  user_role TEXT DEFAULT 'customer' CHECK (user_role IN ('customer', 'admin', 'staff'))
+CREATE TABLE public.order_items (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  product_id uuid,
+  quantity integer NOT NULL CHECK (quantity > 0),
+  unit_price numeric NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT order_items_pkey PRIMARY KEY (id),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id)
 );
-
--- 4. TABELA DE PEDIDOS (Orders)
-CREATE TABLE IF NOT EXISTS orders (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
-  total_amount DECIMAL(10, 2) NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'paid')),
-  payment_method TEXT,
-  tracking_code TEXT,
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  -- 3. ADICIONAR SUPORTE A PAGAMENTO COM CARTEIRA NA TABELA ORDERS
-  used_wallet_balance DECIMAL(10, 2) DEFAULT 0.00,
-  final_charge_amount DECIMAL(10, 2) -- Valor cobrado no cartão (se houver)
+CREATE TABLE public.orders (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  customer_id uuid,
+  total_amount numeric NOT NULL,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'processing'::text, 'shipped'::text, 'delivered'::text, 'cancelled'::text, 'paid'::text])),
+  payment_method text,
+  tracking_code text,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  used_wallet_balance numeric DEFAULT 0.00,
+  final_charge_amount numeric,
+  shipping_address_snapshot jsonb NOT NULL,
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
 );
-
-CREATE TRIGGER update_orders_updated_at 
-BEFORE UPDATE ON orders 
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-
--- 5. ITENS DO PEDIDO (Order Items)
-CREATE TABLE IF NOT EXISTS order_items (\
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-  product_id UUID REFERENCES products(id) ON DELETE RESTRICT,
-  quantity INTEGER NOT NULL CHECK (quantity > 0),\
-  unit_price DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.product_ingredients (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  product_id uuid NOT NULL,
+  name text NOT NULL,
+  quantity text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT product_ingredients_pkey PRIMARY KEY (id),
+  CONSTRAINT product_ingredients_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
 );
-
--- 6. TABELA DE REVIEWS (Avaliações)
-CREATE TABLE IF NOT EXISTS reviews (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
-  customer_name TEXT NOT NULL,
-  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-  comment TEXT,
-  is_visible BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.products (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  price numeric NOT NULL,
+  volume text,
+  type text,
+  image_url text,
+  theme jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  category_id uuid,
+  is_active boolean DEFAULT true,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
 );
-
--- 1. TABELA DA CARTEIRA/DEPÓSITO DIGITAL
-CREATE TABLE IF NOT EXISTS user_wallet (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-  balance DECIMAL(10, 2) DEFAULT 0.00 CHECK (balance >= 0),
-  total_deposited DECIMAL(10, 2) DEFAULT 0.00,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(customer_id)
+CREATE TABLE public.reviews (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  customer_name text NOT NULL,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment text,
+  is_visible boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  user_id uuid DEFAULT auth.uid(),
+  CONSTRAINT reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-
--- Trigger para atualizar o `updated_at` da carteira
-CREATE TRIGGER update_user_wallet_updated_at 
-BEFORE UPDATE ON user_wallet 
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-
--- 2. HISTÓRICO DE TRANSAÇÕES DA CARTEIRA
-CREATE TABLE IF NOT EXISTS wallet_transactions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  wallet_id UUID NOT NULL REFERENCES user_wallet(id) ON DELETE CASCADE,
-  type TEXT NOT NULL CHECK (type IN ('DEPOSIT', 'PURCHASE', 'REFUND', 'ADMIN_ADJUSTMENT')),
-  amount DECIMAL(10, 2) NOT NULL,
-  description TEXT,
-  status TEXT DEFAULT 'COMPLETED' CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED')),
-  stripe_payment_intent_id TEXT, -- Para referência futura com o Stripe
-  metadata JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.user_wallet (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  customer_id uuid NOT NULL UNIQUE,
+  balance numeric DEFAULT 0.00 CHECK (balance >= 0::numeric),
+  total_deposited numeric DEFAULT 0.00,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_wallet_pkey PRIMARY KEY (id),
+  CONSTRAINT user_wallet_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
 );
-
--- 5. (OPCIONAL) INGREDIENTES PARA OS PRODUTOS
-CREATE TABLE IF NOT EXISTS product_ingredients (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  quantity TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.wallet_transactions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  wallet_id uuid NOT NULL,
+  type text NOT NULL CHECK (type = ANY (ARRAY['DEPOSIT'::text, 'PURCHASE'::text, 'REFUND'::text, 'ADMIN_ADJUSTMENT'::text])),
+  amount numeric NOT NULL,
+  description text,
+  status text DEFAULT 'PENDING'::text CHECK (status = ANY (ARRAY['PENDING'::text, 'COMPLETED'::text, 'FAILED'::text, 'CANCELLED'::text])),
+  stripe_payment_intent_id text,
+  metadata jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT wallet_transactions_pkey PRIMARY KEY (id),
+  CONSTRAINT wallet_transactions_wallet_id_fkey FOREIGN KEY (wallet_id) REFERENCES public.user_wallet(id)
 );
-
--- Políticas RLS para user_wallet
-ALTER TABLE user_wallet ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own wallet" ON user_wallet
-  FOR SELECT USING (auth.uid() = (
-    SELECT auth_user_id FROM customers WHERE id = user_wallet.customer_id
-  ));
-
-CREATE POLICY "Admins can view all wallets" ON user_wallet
-  FOR SELECT USING (EXISTS (
-    SELECT 1 FROM customers 
-    WHERE auth_user_id = auth.uid() AND user_role = 'admin'
-  ));
-
--- 7. EXEMPLO DE INSERÇÃO DE CATEGORIA INICIAL
-INSERT INTO categories (name, slug, description) 
-VALUES ('Combos Premium', 'combos-premium', 'Nossa linha de elite para a melhor experiência.')
-ON CONFLICT (name) DO NOTHING;

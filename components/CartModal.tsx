@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import { CartItem, Theme } from '../types';
@@ -14,11 +13,11 @@ interface CartModalProps {
   onCheckout: () => void;
 }
 
-const CartModal: React.FC<CartModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  cart, 
-  total, 
+const CartModal: React.FC<CartModalProps> = ({
+  isOpen,
+  onClose,
+  cart,
+  total,
   activeTheme,
   onUpdateQuantity,
   onRemove,
@@ -26,19 +25,22 @@ const CartModal: React.FC<CartModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  // Imagem de fallback
+  const fallbackImage = 'https://via.placeholder.com/150?text=Produto';
+
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-md bg-[#0a0a0a] h-full shadow-2xl flex flex-col transition-transform duration-500 transform translate-x-0 border-l border-white/5">
         <div className="p-6 flex justify-between items-center border-b border-white/5">
           <h2 className="text-2xl font-syncopate font-bold">CARRINHO</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/5 transition-colors"
           >
@@ -57,12 +59,20 @@ const CartModal: React.FC<CartModalProps> = ({
           ) : (
             cart.map((item) => (
               <div key={item.id} className="flex gap-4 glass-card p-4 rounded-2xl relative overflow-hidden">
-                <div 
+                <div
                   className="absolute left-0 top-0 bottom-0 w-1"
-                  style={{ backgroundColor: item.theme.primary }}
+                  style={{ backgroundColor: item.theme?.primary || '#fff' }}
                 />
                 <div className="w-20 h-20 bg-white/5 rounded-xl flex items-center justify-center shrink-0">
-                  <img src={item.image_url} alt={item.name} className="h-16 object-contain" />
+                  {/* Corrigido: usa fallback se image_url for null/undefined */}
+                  <img
+                    src={item.image_url || fallbackImage}
+                    alt={item.name}
+                    className="h-16 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = fallbackImage;
+                    }}
+                  />
                 </div>
                 <div className="flex-grow flex flex-col justify-between">
                   <div>
@@ -71,14 +81,14 @@ const CartModal: React.FC<CartModalProps> = ({
                   </div>
                   <div className="flex justify-between items-end">
                     <div className="flex items-center gap-3 bg-white/5 rounded-lg px-2 py-1">
-                      <button 
-                        onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                      <button
+                        onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
                         className="p-1 hover:text-white/70"
                       >
                         <Minus size={14} />
                       </button>
                       <span className="font-bold text-sm min-w-[20px] text-center">{item.quantity}</span>
-                      <button 
+                      <button
                         onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                         className="p-1 hover:text-white/70"
                       >
@@ -91,7 +101,7 @@ const CartModal: React.FC<CartModalProps> = ({
                     </div>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => onRemove(item.id)}
                   className="absolute top-2 right-2 text-red-500/40 hover:text-red-500 transition-colors"
                 >
@@ -108,11 +118,11 @@ const CartModal: React.FC<CartModalProps> = ({
               <span className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">Total do Pedido</span>
               <span className="text-3xl font-syncopate font-bold">R$ {total.toFixed(2).replace('.', ',')}</span>
             </div>
-            <button 
+            <button
               onClick={onCheckout}
               className="w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-300 transform active:scale-95 shadow-2xl"
-              style={{ 
-                backgroundColor: activeTheme.primary, 
+              style={{
+                backgroundColor: activeTheme.primary,
                 color: '#000',
                 boxShadow: `0 10px 40px ${activeTheme.glow}`
               }}

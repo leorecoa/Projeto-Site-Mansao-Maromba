@@ -6,6 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
   <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
@@ -46,6 +47,7 @@ Confira o projeto em execução no link abaixo:
 
 ## 🛠️ Stack Tecnológica
 
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
 - **Frontend:** [React](https://reactjs.org/) (Hooks, Context API)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
 - **Backend/DB:** [Supabase](https://supabase.com/) (PostgreSQL + Real-time)
@@ -57,20 +59,20 @@ Confira o projeto em execução no link abaixo:
 ## ⚙️ Configuração e Instalação
 
 ### 1. Requisitos Próximos
-Certifique-se de ter as variáveis de ambiente configuradas para a conexão com o banco:
+Certifique-se de ter as variáveis de ambiente configuradas para a conexão com o banco (arquivo `.env.local`):
 
 ```env
-VITE_SUPABASE_URL=sua_url_do_supabase
-VITE_SUPABASE_ANON_KEY=sua_chave_anonima
+NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
 ```
 
 ### 2. Estrutura de Pastas
 ```text
 Mansao-Maromba/
 ├── components/          # Componentes reutilizáveis (UI/Layout)
-├── context/             # Gerenciamento de estado (Carrinho)
+├── stores/              # Gerenciamento de estado Global (Zustand)
 ├── data/                # Dados estáticos e Mockups
-├── hooks/               # Custom hooks (useCart)
+├── hooks/               # Custom hooks (useAuth, etc)
 ├── sections/            # Seções principais da Landing Page
 ├── services/            # Integração com APIs externas (Supabase)
 ├── types/               # Definições de TypeScript

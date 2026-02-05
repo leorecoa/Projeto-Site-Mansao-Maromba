@@ -1,0 +1,93 @@
+.balance-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.balance-display.compact {
+  padding: 6px 10px;
+  gap: 4px;
+}
+
+.balance-label {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.balance-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.balance-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--color-primary, #facc15);
+}
+
+.balance-user {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.not-logged {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.error {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.error-text {
+  font-size: 13px;
+}
+
+.refresh-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.refresh-btn:hover {
+  transform: rotate(90deg);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 🔄 loading */
+
+.balance-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--color-primary, #facc15);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,57 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../services/supabase';
 
+interface SignInCredentials {
+  email: string;
+  password: string;
+}
+
 export function useAuth() {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [userRole, setUserRole] = useState<string>('user');
-    const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Verificar sessão atual
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-        // Ouvir mudanças na autenticação
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-        return () => subscription.unsubscribe();
-    }, []);
+    return () => subscription.unsubscribe();
+  }, []);
 
-    const signInWithGoogle = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/`
-            }
-        });
-        if (error) throw error;
-    };
+  // 🔐 ADMIN = role no metadata
+  const isAdmin = useMemo(() => {
+    return user?.user_metadata?.role === 'admin';
+  }, [user]);
 
-    const signIn = async (email, password) => {
-        return await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-    };
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+    if (error) throw error;
+  };
 
-    const signOut = async () => {
-        await supabase.auth.signOut();
-    };
+  const signIn = async ({ email, password }: SignInCredentials) => {
+    return supabase.auth.signInWithPassword({ email, password });
+  };
 
-    return { 
-        user, 
-        loading, 
-        userRole, 
-        isAdmin,
-        signInWithGoogle,
-        signIn,
-        signOut
-    };
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  return {
+    user,
+    loading,
+    isAdmin, // ✅ agora existe
+    signInWithGoogle,
+    signIn,
+    signOut,
+  };
 }
