@@ -21,7 +21,7 @@ INSERT INTO products (id, name, description, price, volume, type, image, theme) 
   89.90,
   '1L',
   'Cocktail Alcoólico Gaseificado',
-  'https://i.imgur.com/iFgXsaT.png',
+  '/images/products/tigrinho.png',
   '{"primary": "#ff0000", "secondary": "#4b0000", "glow": "rgba(255, 0, 0, 0.8)", "text": "#FFFFFF", "bg": "linear-gradient(180deg, #1a0000 0%, #000000 100%)"}'::jsonb
 ),
 (
@@ -31,7 +31,7 @@ INSERT INTO products (id, name, description, price, volume, type, image, theme) 
   99.90,
   '1L',
   'Cocktail Alcoólico Gaseificado',
-  'https://i.imgur.com/QKXsWbm.png',
+  '/images/products/darkness.png',
   '{"primary": "#444444", "secondary": "#0a0a0a", "glow": "rgba(100, 100, 100, 0.3)", "text": "#EEEEEE", "bg": "linear-gradient(180deg, #0d0d0d 0%, #000000 100%)"}'::jsonb
 ),
 (
@@ -41,7 +41,7 @@ INSERT INTO products (id, name, description, price, volume, type, image, theme) 
   94.90,
   '1L',
   'Cocktail Alcoólico Gaseificado',
-  'https://i.imgur.com/FaTOEtC.png',
+  '/images/products/pink.png',
   '{"primary": "#ff00ff", "secondary": "#200020", "glow": "rgba(255, 0, 255, 0.6)", "text": "#FFFFFF", "bg": "linear-gradient(180deg, #150015 0%, #000000 100%)"}'::jsonb
 ),
 (
@@ -51,7 +51,7 @@ INSERT INTO products (id, name, description, price, volume, type, image, theme) 
   84.90,
   '1L',
   'Cocktail Alcoólico Gaseificado',
-  'https://i.imgur.com/U2nL7Mv.png',
+  '/images/products/vodka.png',
   '{"primary": "#00f0ff", "secondary": "#001a1c", "glow": "rgba(0, 240, 255, 0.5)", "text": "#FFFFFF", "bg": "linear-gradient(180deg, #001012 0%, #000000 100%)"}'::jsonb
 )
 ON CONFLICT (id) DO UPDATE SET
