@@ -1,28 +1,33 @@
-<div align="center">
+<div align="center"> <img src="https://i.imgur.com/2CMQ6GJ.png" alt="Mansão Maromba Logo" width="120" />
+Mansão Maromba
 
-<img src="https://i.imgur.com/2CMQ6GJ.png" alt="Mansão Maromba Logo" width="120" />
+Um e-commerce de bebidas premium onde design, tecnologia e performance trabalham juntos para criar impacto imediato.
 
-# Mansão Maromba
+Mansão Maromba não é um site.
+É uma experiência visual orientada a produto.
 
-E-commerce de bebidas com **design premium**, **animações 3D** e foco em experiência visual.
+Cada interação foi pensada para:
 
-![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178C6?style=flat-square&logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?style=flat-square&logo=vite)
-![Supabase](https://img.shields.io/badge/Supabase-2.95.3-3ECF8E?style=flat-square&logo=supabase)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel)
+destacar o produto como protagonista
 
-[🚀 Demo](https://projeto-site-mansao-maromba-leandro-jesse-da-silvas-projects.vercel.app) •
-[📚 Funcionalidades](#-funcionalidades)
+usar motion com intenção, não ruído
+
+manter performance mesmo com efeitos avançados
+
+sustentar escala através de arquitetura limpa
+
+O front-end combina React 19, TypeScript e motion 3D para criar profundidade real, enquanto o backend em Supabase garante dados, autenticação e segurança sem fricção.
+O deploy em Vercel fecha o ciclo com entrega contínua, rápida e confiável.
+
+A Inteligência Artificial é usada como camada estratégica de orquestração — acelerando decisões, refinando UX e validando padrões — sempre sob direção humana.
+
+O resultado é um produto que comunica marca, força e clareza em poucos segundos.
+Sem excesso. Sem distrações. Só o que importa.
+
+Design first. Arquitetura sólida. Execução precisa.
 
 </div>
 
----
-
-## 👨‍💻 Desenvolvedor
-
-**[Leandro Jessé](https://github.com/leorecoa)**  
-Desenvolvimento com apoio de **Inteligência Artificial (Amazon Q)**
 
 ---
 
