@@ -4,16 +4,18 @@ import LoginPage from './components/auth/LoginPage';
 import App from './App';
 
 export default function Router() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const path = window.location.pathname;
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [user]);
+    if (!authLoading) {
+      const timer = setTimeout(() => setLoading(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, user]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
