@@ -76,7 +76,7 @@ Cada componente foi arquitetado para:
 | **API** | Supabase REST/GraphQL | Endpoints auto-gerados |
 | **Storage** | Supabase Storage | CDN para imagens e mídia |
 | **Deploy** | Vercel Edge Functions | Serverless global deployment |
-| **CI/CD** | Vercel + GitHub Actions | Pipeline automatizado |
+| **CI/CD** | Vercel |
 
 ### **Performance**
 - ⚡ **LCP**: < 1.2s (imagens otimizadas com lazy loading)
@@ -172,5 +172,5 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
   <strong>Design First • Arquitetura Sólida • Execução Precisa</strong>
   <br/>
   <br/>
-  Desenvolvido com ❤️ por <a href="https://github.com/leorecoa">Leonardo Recoaro</a>
+  Desenvolvido com ❤️ por <a href="https://github.com/leorecoa">Leandro Jessé</a>
 </div>
