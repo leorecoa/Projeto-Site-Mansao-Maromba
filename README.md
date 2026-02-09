@@ -4,87 +4,70 @@
 
 # Mansão Maromba
 
+E-commerce de bebidas com **design premium**, **animações 3D** e foco em experiência visual.
+
 ![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178C6?style=flat-square&logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?style=flat-square&logo=vite)
 ![Supabase](https://img.shields.io/badge/Supabase-2.95.3-3ECF8E?style=flat-square&logo=supabase)
-![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=flat-square&logo=vercel)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel)
 
-E-commerce de bebidas com design premium e animações 3D
-
-[🚀 Demo](https://projeto-site-mansao-maromba-leandro-jesse-da-silvas-projects.vercel.app) • [📚 Docs](#-funcionalidades)
+[🚀 Demo](https://projeto-site-mansao-maromba-leandro-jesse-da-silvas-projects.vercel.app) •
+[📚 Funcionalidades](#-funcionalidades)
 
 </div>
 
 ---
 
-## 👨💻 Desenvolvedor
+## 👨‍💻 Desenvolvedor
 
-**[Leandro Jessé](https://github.com/leorecoa)** | *Com assistência de AI (Amazon Q)*
+**[Leandro Jessé](https://github.com/leorecoa)**  
+Desenvolvimento com apoio de **Inteligência Artificial (Amazon Q)**
 
 ---
 
 ## ✨ Funcionalidades
 
 ### 🔐 Autenticação
-- Login com email/senha + Google OAuth
-- Rotas protegidas e persistência de sessão
+- Login com email e senha
+- Login social via Google OAuth
+- Persistência de sessão
+- Rotas protegidas
 
 ### 🛒 E-commerce
-- Carrinho funcional com Context API
-- CRUD de produtos no painel admin
+- Carrinho de compras com Context API
+- Gerenciamento de produtos (CRUD)
+- Painel administrativo
 
-### 🎨 Interface
+### 🎨 Interface & Experiência
 - Carrossel 3D de produtos
-- Glass morphism e temas dinâmicos
-- Responsivo (mobile + desktop)
+- Temas dinâmicos por produto
+- Glassmorphism e efeitos visuais
+- Layout totalmente responsivo (mobile e desktop)
 
 ---
 
-## 🛠️ Stack
+## 🛠️ Stack Tecnológica
 
-**Frontend:** React 19 • TypeScript • Vite • Tailwind CSS  
-**Backend:** Supabase (PostgreSQL + Auth)  
-**Deploy:** Vercel
+**Frontend**
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+
+**Backend**
+- Supabase (PostgreSQL + Auth)
+
+**Deploy**
+- Vercel
 
 ---
 
-## 🚀 Instalação
+## 🚀 Instalação e Execução
 
 ```bash
 git clone https://github.com/leorecoa/Projeto-Site-Mansao-Maromba.git
 cd Projeto-Site-Mansao-Maromba
 npm install
-cp .env.example .env  # Configure Supabase
+cp .env.example .env
 npm run dev
-```
-
----
-
-## 📊 Performance
-
-⚡ Build: **4s** | 📦 Bundle: **395 KB** | 🎯 Lighthouse: **90+**
-
----
-
-## 🎯 Roadmap
-
-- [ ] Checkout (Stripe/Mercado Pago)
-- [ ] Histórico de pedidos
-- [ ] Sistema de cupons
-- [ ] PWA
-
----
-
-## 📞 Contato
-
-**Leandro Jessé**  
-GitHub: [@leorecoa](https://github.com/leorecoa) • Email: leorecoa2@gmail.com
-
----
-
-<div align="center">
-
-Feito com ❤️ por Leandro Jessé | Acelerado com 🤖 AI
-
-</div>
