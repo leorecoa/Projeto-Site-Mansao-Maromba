@@ -5,7 +5,7 @@ import { PRODUCTS } from '../data/products'
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>(PRODUCTS)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,10 +25,8 @@ export const useProducts = () => {
         setProducts(data as Product[])
       }
     } catch (err: any) {
-      console.error('Erro ao carregar produtos:', err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
+      console.error('Usando produtos locais:', err.message)
+      setProducts(PRODUCTS)
     }
   }
 
