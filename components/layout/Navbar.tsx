@@ -1,8 +1,8 @@
-
-import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ShoppingCart, LogOut, User } from 'lucide-react';
 import { Theme } from '../../types';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../hooks/useAuth';
 
 interface NavbarProps {
   theme: Theme;
@@ -10,6 +10,19 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ theme }) => {
   const { cartCount, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Aguarda um pouco para garantir que a sessão foi carregada
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = '/login';
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center transition-all duration-500 glass-card">
@@ -48,6 +61,22 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
             </span>
           )}
         </button>
+
+        {!loading && user && (
+          <>
+            <span className="hidden md:flex items-center gap-2 text-sm text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+              <User size={14} />
+              {user.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-full transition-transform hover:scale-110 active:scale-95 hover:bg-red-500/20 border border-red-400/20"
+              title="Sair"
+            >
+              <LogOut size={20} className="text-red-400" />
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );
