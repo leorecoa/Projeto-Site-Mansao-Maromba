@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './components/auth/LoginPage';
+import AuthCallback from './components/auth/AuthCallback';
 import App from './App';
 
 export default function Router() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const path = window.location.pathname;
+  const hasOAuthCallback = window.location.hash.includes('access_token');
+
+  // Se tem callback OAuth, processa primeiro
+  if (hasOAuthCallback) {
+    return <AuthCallback />;
+  }
 
   useEffect(() => {
     if (!authLoading) {
