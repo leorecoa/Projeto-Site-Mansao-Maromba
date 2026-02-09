@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Zap, Crown } from 'lucide-react';
 import { Product } from '../../types';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 
 interface HeroProps {
   products: Product[];

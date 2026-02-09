@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingCart, LogOut, User } from 'lucide-react';
 import { Theme } from '../../types';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
 
 interface NavbarProps {

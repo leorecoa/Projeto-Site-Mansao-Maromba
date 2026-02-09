@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Product, Theme } from '../../types';
 import { Plus } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 import { formatCurrency } from '../../utils/format';
 
 interface ProductSectionProps {

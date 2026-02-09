@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { X, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import { Theme } from '../../types';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 import { formatCurrency } from '../../utils/format';
 
 interface CartModalProps {
