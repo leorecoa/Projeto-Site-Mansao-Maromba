@@ -9,9 +9,7 @@ export default function AuthCallback() {
       const refreshToken = hashParams.get('refresh_token');
 
       if (accessToken && refreshToken) {
-        console.log('Processando callback OAuth...');
-        
-        const { data, error } = await supabase.auth.setSession({
+        const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
@@ -19,8 +17,6 @@ export default function AuthCallback() {
         if (error) {
           console.error('Erro ao processar sessão:', error);
         } else {
-          console.log('Sessão criada com sucesso!', data.user?.email);
-          // Limpa hash e redireciona
           window.location.href = '/';
         }
       }

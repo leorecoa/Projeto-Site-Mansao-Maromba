@@ -9,14 +9,9 @@ export function useAuth() {
     // Processa hash fragment do OAuth (Google redirect)
     const hashParams = new URLSearchParams(window.location.hash.substring(1))
     const accessToken = hashParams.get('access_token')
-    
-    if (accessToken) {
-      console.log('OAuth callback detectado, processando token...')
-    }
 
     // Verifica sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('getSession resultado:', session ? 'Sessão encontrada' : 'Sem sessão', session?.user?.email)
       setUser(session?.user ?? null)
       setLoading(false)
     })
@@ -25,7 +20,6 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('onAuthStateChange:', event, session?.user?.email)
       setUser(session?.user ?? null)
       setLoading(false)
       
@@ -39,7 +33,6 @@ export function useAuth() {
   }, [])
 
   const signOut = async () => {
-    console.log('Fazendo logout...')
     await supabase.auth.signOut()
     setUser(null)
   }
