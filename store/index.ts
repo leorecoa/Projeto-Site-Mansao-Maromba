@@ -1,48 +1,35 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { Product, CartItem } from '../types'
 
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  image_url: string
-  volume: string
-  type: string
-  quantity: number
-}
-
-interface AppStore {
+interface CartStore {
   cart: CartItem[]
-  user: any | null
-  theme: any
+  isCartOpen: boolean
   cartTotal: number
   cartCount: number
   
-  addToCart: (product: any) => void
+  addToCart: (product: Product) => void
   removeFromCart: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
-  setUser: (user: any) => void
-  logout: () => void
-  setTheme: (theme: any) => void
+  setIsCartOpen: (isOpen: boolean) => void
 }
 
-export const useStore = create<AppStore>()((
+export const useCartStore = create<CartStore>()((
   persist(
     (set, get) => ({
       cart: [],
-      user: null,
-      theme: null,
+      isCartOpen: false,
       cartTotal: 0,
       cartCount: 0,
 
-      addToCart: (product: any) => {
+      addToCart: (product: Product) => {
         const cart = get().cart
-        const existing = cart.find((item: CartItem) => item.id === product.id)
+        const existing = cart.find(item => item.id === product.id)
         
         let newCart: CartItem[]
         if (existing) {
-          newCart = cart.map((item: CartItem) =>
+          newCart = cart.map(item =>
             item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
@@ -51,16 +38,16 @@ export const useStore = create<AppStore>()((
           newCart = [...cart, { ...product, quantity: 1 }]
         }
         
-        const total = newCart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0)
-        const count = newCart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
+        const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        const count = newCart.reduce((sum, item) => sum + item.quantity, 0)
         
-        set({ cart: newCart, cartTotal: total, cartCount: count })
+        set({ cart: newCart, cartTotal: total, cartCount: count, isCartOpen: true })
       },
 
       removeFromCart: (id: string) => {
-        const newCart = get().cart.filter((item: CartItem) => item.id !== id)
-        const total = newCart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0)
-        const count = newCart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
+        const newCart = get().cart.filter(item => item.id !== id)
+        const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        const count = newCart.reduce((sum, item) => sum + item.quantity, 0)
         set({ cart: newCart, cartTotal: total, cartCount: count })
       },
 
@@ -68,22 +55,20 @@ export const useStore = create<AppStore>()((
         if (quantity <= 0) {
           get().removeFromCart(id)
         } else {
-          const newCart = get().cart.map((item: CartItem) =>
+          const newCart = get().cart.map(item =>
             item.id === id ? { ...item, quantity } : item
           )
-          const total = newCart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0)
-          const count = newCart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
+          const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+          const count = newCart.reduce((sum, item) => sum + item.quantity, 0)
           set({ cart: newCart, cartTotal: total, cartCount: count })
         }
       },
 
       clearCart: () => set({ cart: [], cartTotal: 0, cartCount: 0 }),
-      setUser: (user: any) => set({ user }),
-      logout: () => set({ user: null, cart: [], cartTotal: 0, cartCount: 0 }),
-      setTheme: (theme: any) => set({ theme }),
+      setIsCartOpen: (isOpen: boolean) => set({ isCartOpen: isOpen }),
     }),
     {
-      name: 'maromba-store',
+      name: 'maromba-cart',
     }
-  ) as any
+  )
 ))

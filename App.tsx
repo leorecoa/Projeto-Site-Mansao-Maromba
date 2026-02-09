@@ -9,16 +9,17 @@ import ReviewSection from './sections/Reviews/ReviewSection';
 import MapSection from './sections/Map/MapSection';
 import CartModal from './components/feedback/CartModal';
 import SplashScreen from './components/feedback/SplashScreen';
-import { PRODUCTS, REVIEWS } from './data/products';
-import { CartProvider } from './context/CartContext';
+import { REVIEWS } from './data/products';
+import { useProducts } from './hooks/useProducts';
 
 const MainApp: React.FC = () => {
   const [activeProductIndex, setActiveProductIndex] = useState(0);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
+  const { products, loading } = useProducts();
 
-  const activeProduct = PRODUCTS[activeProductIndex];
-  const activeTheme = activeProduct.theme;
+  const activeProduct = products[activeProductIndex];
+  const activeTheme = activeProduct?.theme;
 
   useEffect(() => {
     document.body.style.background = activeTheme.bg;
@@ -43,33 +44,37 @@ const MainApp: React.FC = () => {
         />
       )}
       
-      <Navbar theme={activeTheme} />
-      
-      <main>
-        <Suspense fallback={<div className="h-screen bg-black" />}>
-          <Hero 
-            products={PRODUCTS} 
-            activeIndex={activeProductIndex} 
-            setActiveIndex={setActiveProductIndex} 
-          />
-        </Suspense>
-        
-        <ProductSection products={PRODUCTS} activeTheme={activeTheme} />
-        <AboutSection activeTheme={activeTheme} />
-        <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
-        <MapSection activeTheme={activeTheme} />
-      </main>
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <Navbar theme={activeTheme} />
+          
+          <main>
+            <Suspense fallback={<div className="h-screen bg-black" />}>
+              <Hero 
+                products={products} 
+                activeIndex={activeProductIndex} 
+                setActiveIndex={setActiveProductIndex} 
+              />
+            </Suspense>
+            
+            <ProductSection products={products} activeTheme={activeTheme} />
+            <AboutSection activeTheme={activeTheme} />
+            <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
+            <MapSection activeTheme={activeTheme} />
+          </main>
 
-      <Footer activeTheme={activeTheme} />
-      <CartModal activeTheme={activeTheme} onCheckout={handleCheckout} />
+          <Footer activeTheme={activeTheme} />
+          <CartModal activeTheme={activeTheme} onCheckout={handleCheckout} />
+        </>
+      )}
     </div>
   );
 };
 
-const App: React.FC = () => (
-  <CartProvider>
-    <MainApp />
-  </CartProvider>
-);
+const App: React.FC = () => <MainApp />;
 
 export default App;
