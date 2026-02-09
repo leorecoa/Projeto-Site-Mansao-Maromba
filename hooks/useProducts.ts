@@ -22,7 +22,17 @@ export const useProducts = () => {
       if (error) throw error
 
       if (data && data.length > 0) {
-        setProducts(data as Product[])
+        const mappedProducts = data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          volume: p.volume,
+          type: p.type,
+          image: p.image_url || p.image,
+          theme: typeof p.theme === 'string' ? JSON.parse(p.theme) : p.theme
+        }))
+        setProducts(mappedProducts as Product[])
       }
     } catch (err: any) {
       console.error('Usando produtos locais:', err.message)
