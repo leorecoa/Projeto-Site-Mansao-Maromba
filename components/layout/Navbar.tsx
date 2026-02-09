@@ -14,6 +14,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Navbar - user:', user?.email, 'loading:', loading)
     // Aguarda um pouco para garantir que a sessão foi carregada
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
@@ -76,6 +77,13 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
               <LogOut size={20} className="text-red-400" />
             </button>
           </>
+        )}
+        
+        {/* Debug temporário */}
+        {user && (
+          <div className="fixed bottom-4 right-4 bg-green-500/90 text-white px-4 py-2 rounded-lg text-xs z-50">
+            Logado: {user.email}
+          </div>
         )}
       </div>
     </nav>
