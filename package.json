@@ -1,5 +1,5 @@
 {
-  "name": "mansão-maromba---depósito-digital-pro",
+  "name": "mansao-maromba-deposito-digital-pro",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "19.0.0",
-    "react-dom": "^19.2.4",
-    "lucide-react": "0.463.0"
+    "framer-motion": "^12.33.0",
+    "lucide-react": "^0.463.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
