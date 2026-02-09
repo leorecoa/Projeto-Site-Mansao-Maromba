@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../hooks/useAuth';
-import { Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2, X } from 'lucide-react';
+import { useUploadImage } from '../../hooks/useUploadImage';
+import { useQueryClient } from '@tanstack/react-query';
+import { Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2, X, Upload, Loader2 } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -14,10 +16,14 @@ interface Product {
 
 export default function AdminPanel() {
   const { user } = useAuth();
+  const { uploadImage, uploading } = useUploadImage();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'stats'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -41,14 +47,31 @@ export default function AdminPanel() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => setImagePreview(reader.result as string)
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    let imageUrl = formData.image
+
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile)
+      if (uploadedUrl) imageUrl = uploadedUrl
+    }
+
     const productData = {
       name: formData.name,
       price: parseFloat(formData.price),
       volume: formData.volume,
-      image: formData.image,
+      image_url: imageUrl,
       description: formData.description
     };
 
@@ -58,8 +81,11 @@ export default function AdminPanel() {
       await supabase.from('products').insert([productData]);
     }
 
+    queryClient.invalidateQueries({ queryKey: ['products'] })
     setShowModal(false);
     setEditingProduct(null);
+    setImageFile(null)
+    setImagePreview('')
     setFormData({ name: '', price: '', volume: '', image: '', description: '' });
     loadProducts();
   };
@@ -73,12 +99,14 @@ export default function AdminPanel() {
       image: product.image,
       description: product.description
     });
+    setImagePreview(product.image)
     setShowModal(true);
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja deletar este produto?')) {
       await supabase.from('products').delete().eq('id', id);
+      queryClient.invalidateQueries({ queryKey: ['products'] })
       loadProducts();
     }
   };
@@ -255,14 +283,43 @@ export default function AdminPanel() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">URL da Imagem</label>
-                <input
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white"
-                  required
-                />
+                <label className="block text-sm font-semibold mb-2">Imagem do Produto</label>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-yellow-400/10 border-2 border-dashed border-yellow-400/30 rounded-lg cursor-pointer hover:bg-yellow-400/20 transition-colors">
+                      <Upload size={20} className="text-yellow-400" />
+                      <span className="text-yellow-400 font-semibold">
+                        {imageFile ? imageFile.name : 'Escolher arquivo'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {imagePreview && (
+                    <div className="relative w-full h-40 bg-white/5 rounded-lg overflow-hidden">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
+                    </div>
+                  )}
+
+                  <div className="text-center text-gray-400 text-sm">ou</div>
+
+                  <input
+                    type="url"
+                    placeholder="Cole a URL da imagem"
+                    value={formData.image}
+                    onChange={(e) => {
+                      setFormData({ ...formData, image: e.target.value })
+                      setImagePreview(e.target.value)
+                    }}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white"
+                  />
+                </div>
               </div>
 
               <div>
@@ -278,9 +335,17 @@ export default function AdminPanel() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-colors"
+                disabled={uploading}
+                className="w-full py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {editingProduct ? 'Atualizar' : 'Criar'} Produto
+                {uploading ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    Enviando imagem...
+                  </>
+                ) : (
+                  <>{editingProduct ? 'Atualizar' : 'Criar'} Produto</>
+                )}
               </button>
             </form>
           </div>
