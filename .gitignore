@@ -2,31 +2,54 @@
 node_modules/
 .pnp
 .pnp.js
+package-lock.json
 
 # Testing
 coverage/
+.nyc_output/
 
 # Production
 dist/
 build/
+*.tsbuildinfo
 
-# Environment
+# Environment Variables (CRÍTICO - Credenciais)
 .env
 .env.local
+.env.development
+.env.test
 .env.production
+.env.*.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Cache
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+
+# Temporary
+*.tmp
+*.temp
+.temp/
+.tmp/

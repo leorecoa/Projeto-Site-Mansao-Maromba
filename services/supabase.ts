@@ -1,16 +1,10 @@
+import { createClient } from '@supabase/supabase-js'
 
-// Implementação futura: export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const productsService = {
-  getProducts: async () => {
-    console.log('Fetching from Supabase products table...');
-    return [];
-  }
-};
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL e Anon Key são obrigatórios. Configure o arquivo .env')
+}
 
-export const ordersService = {
-  createOrder: async (orderData: any) => {
-    console.log('Sending order to Supabase orders table...', orderData);
-    return { success: true };
-  }
-};
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
