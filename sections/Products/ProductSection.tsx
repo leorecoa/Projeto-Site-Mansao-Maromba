@@ -1,9 +1,9 @@
-// c:/Users/Leorecoa/MM/Projeto-Site-Mansao-Maromba/sections/Products/ProductSection.tsx
+
 import React from 'react';
-import { ShoppingCart } from 'lucide-react';
 import { Product, Theme } from '../../types';
-import { useCart } from '@/app/context/CartContext';
-import { formatCurrency } from '@/utils/format';
+import { Plus } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
+import { formatCurrency } from '../../utils/format';
 
 interface ProductSectionProps {
   products: Product[];
@@ -14,57 +14,27 @@ const ProductSection: React.FC<ProductSectionProps> = ({ products, activeTheme }
   const { addToCart } = useCart();
 
   return (
-    <section id="products" className="py-24 px-6 relative z-10">
+    <section id="products" className="py-24 px-6 relative">
       <div className="container mx-auto">
-        <div className="flex flex-col items-center mb-16 text-center">
-          <h2 className="text-4xl md:text-6xl font-syncopate font-bold mb-4">
-            NOSSOS <span style={{ color: activeTheme.primary }}>COMBOS</span>
-          </h2>
-          <p className="text-gray-400 max-w-2xl">
-            A seleção oficial da Mansão Maromba. Energia, sabor e a vibe que você procura.
-          </p>
+        <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.3em]" style={{ color: activeTheme.primary }}>Catálogo Premium</span>
+            <h2 className="text-4xl md:text-6xl font-syncopate font-bold mt-2">OS BRABOS.</h2>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="group relative bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-white/20 transition-all duration-500 hover:-translate-y-2"
-            >
-              {/* Imagem */}
-              <div className="relative h-64 mb-6 flex items-center justify-center overflow-hidden rounded-2xl bg-black/20">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
-                <img
-                  src={product.image_url || 'https://via.placeholder.com/300'}
-                  alt={product.name}
-                  className="h-full object-contain group-hover:scale-110 transition-transform duration-500 relative z-10"
-                />
+            <div key={product.id} className="group glass-card p-6 rounded-3xl transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
+              <div className="relative mb-6 flex justify-center h-64">
+                <img src={product.image} alt={product.name} className="h-full object-contain transition-transform group-hover:scale-110" />
               </div>
-
-              {/* Info */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold font-syncopate leading-tight">{product.name}</h3>
-                    <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">{product.type} • {product.volume}</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold" style={{ color: activeTheme.primary }}>
-                      {formatCurrency(product.price)}
-                    </p>
-                  </div>
+              <div className="mt-auto">
+                <h3 className="text-xl font-bold mb-1">{product.name}</h3>
+                <p className="text-xs text-gray-400 mb-4 uppercase tracking-widest">{product.volume} · {product.type}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold">{formatCurrency(product.price)}</span>
+                  <button onClick={() => addToCart(product)} className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ backgroundColor: product.theme.primary, color: '#000' }}><Plus size={24} /></button>
                 </div>
-
-                <p className="text-sm text-gray-400 line-clamp-2">{product.description}</p>
-
-                <button
-                  onClick={() => addToCart(product)}
-                  className="w-full py-4 rounded-xl font-bold text-black flex items-center justify-center gap-2 transition-transform active:scale-95 hover:brightness-110"
-                  style={{ backgroundColor: activeTheme.primary }}
-                >
-                  <ShoppingCart size={18} />
-                  ADICIONAR AO CARRINHO
-                </button>
               </div>
             </div>
           ))}
