@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './components/auth/LoginPage';
 import AuthCallback from './components/auth/AuthCallback';
+import AdminPanel from './components/admin/AdminPanel';
 import App from './App';
 
 export default function Router() {
@@ -10,7 +11,6 @@ export default function Router() {
   const path = window.location.pathname;
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
-  // Se tem callback OAuth, processa primeiro
   if (hasOAuthCallback) {
     return <AuthCallback />;
   }
@@ -39,6 +39,14 @@ export default function Router() {
       return null;
     }
     return <LoginPage />;
+  }
+
+  if (path === '/admin') {
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return null;
+    }
+    return <AdminPanel />;
   }
 
   if (!isAuthenticated) {

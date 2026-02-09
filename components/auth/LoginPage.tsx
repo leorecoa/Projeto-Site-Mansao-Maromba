@@ -64,13 +64,12 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Logo Section */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 mb-4 shadow-lg shadow-yellow-400/20 overflow-hidden rounded-2xl">
-              <img 
-                src="https://i.imgur.com/2CMQ6GJ.png" 
-                alt="Mansão Maromba Logo" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <img 
+              src="https://i.imgur.com/2CMQ6GJ.png" 
+              alt="Mansão Maromba Logo" 
+              className="w-20 h-20 object-cover mx-auto mb-4 shadow-lg shadow-yellow-400/20"
+              style={{ borderRadius: '1rem' }}
+            />
             <h1 className="text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2">
               Mansão Maromba
             </h1>
