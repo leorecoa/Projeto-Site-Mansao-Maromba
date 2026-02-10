@@ -28,10 +28,7 @@ export default function CheckoutPage() {
     return null
   }
 
-  if (cart.length === 0) {
-    navigate('/')
-    return null
-  }
+  // REMOVIDO: if (cart.length === 0) navigate('/')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
