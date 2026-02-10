@@ -12,16 +12,38 @@ const fetchProducts = async (): Promise<Product[]> => {
   if (error) throw error
 
   if (data && data.length > 0) {
-    return data.map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      price: p.price,
-      volume: p.volume,
-      type: p.type,
-      image: p.image_url || p.image,
-      theme: typeof p.theme === 'string' ? JSON.parse(p.theme) : p.theme
-    }))
+    return data.map((p: any) => {
+      let theme = p.theme
+      
+      if (typeof theme === 'string') {
+        try {
+          theme = JSON.parse(theme)
+        } catch {
+          theme = null
+        }
+      }
+      
+      if (!theme) {
+        theme = {
+          primary: '#ff0000',
+          secondary: '#4b0000',
+          glow: 'rgba(255, 0, 0, 0.8)',
+          text: '#FFFFFF',
+          bg: 'linear-gradient(180deg, #1a0000 0%, #000000 100%)'
+        }
+      }
+      
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        volume: p.volume,
+        type: p.type,
+        image: p.image_url || p.image,
+        theme
+      }
+    })
   }
 
   return PRODUCTS

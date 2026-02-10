@@ -43,7 +43,15 @@ export default function AdminPanel() {
   const loadProducts = async () => {
     const { data, error } = await supabase.from('products').select('*');
     if (!error && data) {
-      setProducts(data);
+      const mappedProducts = data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        volume: p.volume,
+        image: p.image_url || p.image,
+        description: p.description
+      }))
+      setProducts(mappedProducts);
     }
   };
 
@@ -72,22 +80,27 @@ export default function AdminPanel() {
       price: parseFloat(formData.price),
       volume: formData.volume,
       image_url: imageUrl,
-      description: formData.description
+      description: formData.description,
+      type: 'combo'
     };
 
-    if (editingProduct) {
-      await supabase.from('products').update(productData).eq('id', editingProduct.id);
-    } else {
-      await supabase.from('products').insert([productData]);
+    const { error } = editingProduct
+      ? await supabase.from('products').update(productData).eq('id', editingProduct.id)
+      : await supabase.from('products').insert([productData]);
+
+    if (error) {
+      console.error('Erro ao salvar produto:', error)
+      alert('Erro ao salvar produto: ' + error.message)
+      return
     }
 
+    await loadProducts();
     queryClient.invalidateQueries({ queryKey: ['products'] })
     setShowModal(false);
     setEditingProduct(null);
     setImageFile(null)
     setImagePreview('')
     setFormData({ name: '', price: '', volume: '', image: '', description: '' });
-    loadProducts();
   };
 
   const handleEdit = (product: Product) => {
