@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingCart, LogOut, User } from 'lucide-react';
+import { ShoppingCart, LogOut, User, Package } from 'lucide-react';
 import { Theme } from '../../types';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
@@ -63,6 +63,13 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
 
         {!loading && user && (
           <>
+            <button
+              onClick={() => window.location.href = '/orders'}
+              className="p-2 rounded-full transition-transform hover:scale-110 active:scale-95 hover:bg-blue-500/20 border border-blue-400/20"
+              title="Meus Pedidos"
+            >
+              <Package size={20} className="text-blue-400" />
+            </button>
             <span className="hidden md:flex items-center gap-2 text-sm text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
               <User size={14} />
               {user.email}

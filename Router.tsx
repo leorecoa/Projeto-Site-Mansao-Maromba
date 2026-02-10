@@ -3,6 +3,8 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './components/auth/LoginPage';
 import AuthCallback from './components/auth/AuthCallback';
 import AdminPanel from './components/admin/AdminPanel';
+import CheckoutPage from './components/checkout/CheckoutPage';
+import OrdersPage from './components/checkout/OrdersPage';
 import App from './App';
 
 export default function Router() {
@@ -47,6 +49,22 @@ export default function Router() {
       return null;
     }
     return <AdminPanel />;
+  }
+
+  if (path === '/checkout') {
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return null;
+    }
+    return <CheckoutPage />;
+  }
+
+  if (path === '/orders') {
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return null;
+    }
+    return <OrdersPage />;
   }
 
   if (!isAuthenticated) {

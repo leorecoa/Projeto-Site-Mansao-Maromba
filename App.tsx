@@ -32,7 +32,7 @@ const MainApp: React.FC = () => {
   }, []);
 
   const handleCheckout = () => {
-    alert('Redirecionando para o Checkout Seguro Mansão Maromba...');
+    window.location.href = '/checkout';
   };
 
   return (
