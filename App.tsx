@@ -31,8 +31,11 @@ const MainApp: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCheckout = () => {
-    window.location.href = '/checkout';
+  const handleCheckout = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setTimeout(() => {
+      window.location.href = '/checkout';
+    }, 100);
   };
 
   return (
