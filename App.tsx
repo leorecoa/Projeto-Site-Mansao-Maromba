@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
+import { useNavigation } from './hooks/useNavigation';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './sections/Hero/Hero';
@@ -17,6 +18,7 @@ const MainApp: React.FC = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
   const { products, loading } = useProducts();
+  const { navigate } = useNavigation();
 
   const activeProduct = products[activeProductIndex];
   const activeTheme = activeProduct?.theme;
@@ -31,11 +33,8 @@ const MainApp: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCheckout = (e?: React.MouseEvent) => {
-    if (e) e.preventDefault();
-    setTimeout(() => {
-      window.location.href = '/checkout';
-    }, 100);
+  const handleCheckout = () => {
+    navigate('/checkout');
   };
 
   return (

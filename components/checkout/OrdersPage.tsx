@@ -1,6 +1,7 @@
 import React from 'react'
 import { useOrders } from '../../hooks/useOrders'
 import { useAuth } from '../../hooks/useAuth'
+import { useNavigation } from '../../hooks/useNavigation'
 import { Package, Clock, Truck, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 const statusConfig = {
@@ -14,6 +15,7 @@ const statusConfig = {
 export default function OrdersPage() {
   const { user } = useAuth()
   const { orders, loading } = useOrders()
+  const { navigate } = useNavigation()
 
   if (!user) {
     window.location.href = '/login'
@@ -36,7 +38,7 @@ export default function OrdersPage() {
             Meus Pedidos
           </h1>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="px-6 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20"
           >
             Voltar
@@ -51,7 +53,7 @@ export default function OrdersPage() {
               Você ainda não fez nenhum pedido. Explore nossos produtos!
             </p>
             <button
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500"
             >
               Ver Produtos

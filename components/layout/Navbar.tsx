@@ -3,6 +3,7 @@ import { ShoppingCart, LogOut, User, Package } from 'lucide-react';
 import { Theme } from '../../types';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
+import { useNavigation } from '../../hooks/useNavigation';
 
 interface NavbarProps {
   theme: Theme;
@@ -11,6 +12,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ theme }) => {
   const { cartCount, setIsCartOpen } = useCart();
   const { user, signOut } = useAuth();
+  const { navigate } = useNavigation();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,10 +41,10 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
 
       <div className="flex items-center gap-8">
         <div className="hidden md:flex gap-6 font-semibold uppercase text-xs tracking-widest">
-          <a href="#hero" className="hover:opacity-70 transition-opacity">Home</a>
-          <a href="#products" className="hover:opacity-70 transition-opacity">Combos</a>
-          <a href="#about" className="hover:opacity-70 transition-opacity">Sobre</a>
-          <a href="#location" className="hover:opacity-70 transition-opacity">Local</a>
+          <button onClick={() => window.location.hash = 'hero'} className="hover:opacity-70 transition-opacity">Home</button>
+          <button onClick={() => window.location.hash = 'products'} className="hover:opacity-70 transition-opacity">Combos</button>
+          <button onClick={() => window.location.hash = 'about'} className="hover:opacity-70 transition-opacity">Sobre</button>
+          <button onClick={() => window.location.hash = 'location'} className="hover:opacity-70 transition-opacity">Local</button>
         </div>
 
         <button 
@@ -64,7 +66,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme }) => {
         {!loading && user && (
           <>
             <button
-              onClick={() => window.location.href = '/orders'}
+              onClick={() => navigate('/orders')}
               className="p-2 rounded-full transition-transform hover:scale-110 active:scale-95 hover:bg-blue-500/20 border border-blue-400/20"
               title="Meus Pedidos"
             >

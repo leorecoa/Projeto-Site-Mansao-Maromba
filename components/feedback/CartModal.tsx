@@ -70,7 +70,9 @@ const CartModal: React.FC<CartModalProps> = ({ activeTheme, onCheckout }) => {
               <span className="text-3xl font-syncopate font-bold">{formatCurrency(cartTotal)}</span>
             </div>
             <button 
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
                 setIsCartOpen(false)
                 onCheckout()
               }}

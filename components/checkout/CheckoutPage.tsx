@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useAuth } from '../../hooks/useAuth'
+import { useNavigation } from '../../hooks/useNavigation'
 import { ShoppingBag, CreditCard, Truck, CheckCircle, Loader2 } from 'lucide-react'
 
 export default function CheckoutPage() {
   const { user } = useAuth()
   const { cart, cartTotal, clearCart } = useCart()
   const { createOrder, isCreating } = useOrders()
+  const { navigate } = useNavigation()
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +29,7 @@ export default function CheckoutPage() {
   }
 
   if (cart.length === 0) {
-    window.location.href = '/'
+    navigate('/')
     return null
   }
 
@@ -96,13 +98,13 @@ export default function CheckoutPage() {
             </p>
             <div className="flex gap-4 justify-center">
               <button
-                onClick={() => window.location.href = '/orders'}
+                onClick={() => navigate('/orders')}
                 className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500"
               >
                 Ver Meus Pedidos
               </button>
               <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => navigate('/')}
                 className="px-6 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20"
               >
                 Voltar ao Início

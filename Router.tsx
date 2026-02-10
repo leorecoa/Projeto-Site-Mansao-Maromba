@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { useNavigation } from './hooks/useNavigation';
 import LoginPage from './components/auth/LoginPage';
 import AuthCallback from './components/auth/AuthCallback';
 import AdminPanel from './components/admin/AdminPanel';
@@ -9,8 +10,8 @@ import App from './App';
 
 export default function Router() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { currentPath } = useNavigation();
   const [loading, setLoading] = useState(true);
-  const path = window.location.pathname;
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
   if (hasOAuthCallback) {
@@ -35,7 +36,7 @@ export default function Router() {
     );
   }
 
-  if (path === '/login') {
+  if (currentPath === '/login') {
     if (isAuthenticated) {
       window.location.href = '/';
       return null;
@@ -43,7 +44,7 @@ export default function Router() {
     return <LoginPage />;
   }
 
-  if (path === '/admin') {
+  if (currentPath === '/admin') {
     if (!isAuthenticated) {
       window.location.href = '/login';
       return null;
@@ -51,7 +52,7 @@ export default function Router() {
     return <AdminPanel />;
   }
 
-  if (path === '/checkout') {
+  if (currentPath === '/checkout') {
     if (!isAuthenticated) {
       window.location.href = '/login';
       return null;
@@ -59,7 +60,7 @@ export default function Router() {
     return <CheckoutPage />;
   }
 
-  if (path === '/orders') {
+  if (currentPath === '/orders') {
     if (!isAuthenticated) {
       window.location.href = '/login';
       return null;
