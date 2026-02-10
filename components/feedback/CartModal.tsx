@@ -70,7 +70,10 @@ const CartModal: React.FC<CartModalProps> = ({ activeTheme, onCheckout }) => {
               <span className="text-3xl font-syncopate font-bold">{formatCurrency(cartTotal)}</span>
             </div>
             <button 
-              onClick={onCheckout}
+              onClick={() => {
+                setIsCartOpen(false)
+                onCheckout()
+              }}
               className="w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-2xl"
               style={{ backgroundColor: activeTheme.primary, color: '#000', boxShadow: `0 10px 40px ${activeTheme.glow}` }}
             >
