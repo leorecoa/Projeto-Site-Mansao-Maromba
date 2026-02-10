@@ -69,6 +69,7 @@ export const useCartStore = create<CartStore>()((
     }),
     {
       name: 'maromba-cart',
+      skipHydration: true,
     }
   )
 ))
