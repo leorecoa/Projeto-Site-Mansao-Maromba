@@ -5,8 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#000000" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="HandheldFriendly" content="true" />
     <title>Mansão Maromba | Depósito Digital Premium</title>
     
     <link rel="icon" type="image/png" href="https://i.imgur.com/2CMQ6GJ.png">
@@ -40,18 +43,61 @@
         -moz-osx-font-smoothing: grayscale;
         -webkit-tap-highlight-color: transparent;
         touch-action: pan-y;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+      }
+      
+      html {
+        height: -webkit-fill-available;
       }
       
       * {
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+      }
+      
+      button, a {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+      }
+      
+      img {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
       }
       
       @supports (padding: max(0px)) {
         body {
           padding-left: env(safe-area-inset-left);
           padding-right: env(safe-area-inset-right);
+          padding-bottom: env(safe-area-inset-bottom);
         }
       }
+      @media (max-width: 768px) {
+        .perspective-stage {
+          perspective: 1000px;
+        }
+      }
+      
+      @media (orientation: landscape) and (max-height: 500px) {
+        section {
+          min-height: auto;
+        }
+      }
+      
+      @media (hover: none) and (pointer: coarse) {
+        button:hover {
+          transform: none;
+        }
+        button:active {
+          transform: scale(0.95);
+        }
+      }
+      
       .font-syncopate { font-family: 'Syncopate', sans-serif; }
       
       ::-webkit-scrollbar { width: 6px; }
