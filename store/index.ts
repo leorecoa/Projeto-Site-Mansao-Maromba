@@ -69,7 +69,7 @@ export const useCartStore = create<CartStore>()((
     }),
     {
       name: 'maromba-cart',
-      skipHydration: true,
+      partialize: (state) => ({ cart: state.cart, cartTotal: state.cartTotal, cartCount: state.cartCount }),
     }
   )
 ))

@@ -1,4 +1,5 @@
 import { useCartStore } from '../store'
+import { useEffect } from 'react'
 
 export const useCart = () => {
   const cart = useCartStore(state => state.cart)
@@ -10,6 +11,10 @@ export const useCart = () => {
   const updateQuantity = useCartStore(state => state.updateQuantity)
   const clearCart = useCartStore(state => state.clearCart)
   const setIsCartOpen = useCartStore(state => state.setIsCartOpen)
+
+  useEffect(() => {
+    useCartStore.persist.rehydrate()
+  }, [])
 
   return {
     cart,

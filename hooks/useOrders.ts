@@ -32,14 +32,14 @@ export const useOrders = () => {
 
       const { data, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          order_items (*)
-        `)
+        .select('*,order_items(*)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Erro ao buscar pedidos:', error)
+        return []
+      }
       return data || []
     },
     staleTime: 1000 * 60 * 2,

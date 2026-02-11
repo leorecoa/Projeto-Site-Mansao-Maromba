@@ -10,7 +10,7 @@ import App from './App';
 
 export default function Router() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  const { currentPath } = useNavigation();
+  const { currentPath, navigate } = useNavigation();
   const [loading, setLoading] = useState(true);
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
@@ -25,6 +25,16 @@ export default function Router() {
     }
   }, [authLoading, user]);
 
+  useEffect(() => {
+    if (loading || authLoading) return;
+
+    if (!isAuthenticated && currentPath !== '/login') {
+      navigate('/login');
+    } else if (isAuthenticated && currentPath === '/login') {
+      navigate('/');
+    }
+  }, [isAuthenticated, currentPath, loading, authLoading, navigate]);
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -36,41 +46,27 @@ export default function Router() {
     );
   }
 
+  if (!isAuthenticated && currentPath !== '/login') {
+    return null;
+  }
+
   if (currentPath === '/login') {
     if (isAuthenticated) {
-      window.location.href = '/';
       return null;
     }
     return <LoginPage />;
   }
 
   if (currentPath === '/admin') {
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-      return null;
-    }
     return <AdminPanel />;
   }
 
   if (currentPath === '/checkout') {
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-      return null;
-    }
     return <CheckoutPage />;
   }
 
   if (currentPath === '/orders') {
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-      return null;
-    }
     return <OrdersPage />;
-  }
-
-  if (!isAuthenticated) {
-    window.location.href = '/login';
-    return null;
   }
 
   return <App />;

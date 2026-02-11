@@ -24,11 +24,12 @@ export default function CheckoutPage() {
   })
 
   if (!user) {
-    window.location.href = '/login'
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
-
-  // REMOVIDO: if (cart.length === 0) navigate('/')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
