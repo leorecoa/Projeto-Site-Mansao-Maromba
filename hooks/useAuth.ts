@@ -14,9 +14,11 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('[useAuth] Iniciando useAuth...')
     let isInitialized = false
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[useAuth] onAuthStateChange:', event, 'isInitialized:', isInitialized)
       if (!isInitialized) return
       
       setUser(session?.user ?? null)
@@ -39,22 +41,27 @@ export function useAuth() {
     })
     
     const initAuth = async () => {
+      console.log('[useAuth] initAuth começando...')
       try {
         const { data: { session } } = await supabase.auth.getSession()
+        console.log('[useAuth] getSession retornou:', !!session)
         setUser(session?.user ?? null)
         
         if (session?.user) {
+          console.log('[useAuth] Carregando perfil...')
           const { data } = await supabase
             .from('user_profiles')
             .select('id, email, role')
             .eq('id', session.user.id)
             .maybeSingle()
           
+          console.log('[useAuth] Perfil carregado:', !!data)
           if (data) setProfile(data)
         }
       } catch (err) {
         console.error('[useAuth] Erro:', err)
       } finally {
+        console.log('[useAuth] Finalizando loading, setLoading(false)')
         isInitialized = true
         setLoading(false)
       }
@@ -62,6 +69,7 @@ export function useAuth() {
 
     initAuth()
 
+    console.log('[useAuth] useEffect setup completo')
     return () => subscription.unsubscribe()
   }, [])
 
