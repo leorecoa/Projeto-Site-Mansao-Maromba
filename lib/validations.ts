@@ -36,8 +36,7 @@ export const checkoutSchema = z.object({
     .string()
     .regex(/^\d{5}-?\d{3}$/, 'CEP inválido (ex: 12345-678)'),
   
-  payment_method: z
-    .enum(['pix', 'card'], { errorMap: () => ({ message: 'Método de pagamento inválido' }) }),
+  payment_method: z.enum(['pix', 'card']),
   
   notes: z
     .string()
