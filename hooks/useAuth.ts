@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../services/supabase'
+import type { User } from '@supabase/supabase-js'
 
 interface UserProfile {
   id: string
@@ -8,60 +9,61 @@ interface UserProfile {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Processa hash fragment do OAuth (Google redirect)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    const accessToken = hashParams.get('access_token')
+    let isInitialized = false
 
-    // Verifica sessão inicial
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isInitialized) return
+      
       setUser(session?.user ?? null)
       
       if (session?.user) {
-        await loadUserProfile(session.user.id)
-      }
-      
-      setLoading(false)
-    })
-
-    // Escuta mudanças de autenticação
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        await loadUserProfile(session.user.id)
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('id, email, role')
+          .eq('id', session.user.id)
+          .maybeSingle()
+        
+        if (data) setProfile(data)
       } else {
         setProfile(null)
       }
       
-      setLoading(false)
-      
-      // Limpa hash da URL após processar OAuth
       if (event === 'SIGNED_IN' && window.location.hash) {
         window.history.replaceState(null, '', window.location.pathname)
       }
     })
+    
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          const { data } = await supabase
+            .from('user_profiles')
+            .select('id, email, role')
+            .eq('id', session.user.id)
+            .maybeSingle()
+          
+          if (data) setProfile(data)
+        }
+      } catch (err) {
+        console.error('[useAuth] Erro:', err)
+      } finally {
+        isInitialized = true
+        setLoading(false)
+      }
+    }
+
+    initAuth()
 
     return () => subscription.unsubscribe()
   }, [])
-
-  const loadUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('id, email, role')
-      .eq('id', userId)
-      .single()
-
-    if (!error && data) {
-      setProfile(data)
-    }
-  }
 
   const signOut = async () => {
     await supabase.auth.signOut()

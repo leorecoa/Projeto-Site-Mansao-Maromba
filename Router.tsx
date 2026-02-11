@@ -9,33 +9,25 @@ import OrdersPage from './components/checkout/OrdersPage';
 import App from './App';
 
 export default function Router() {
-  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { currentPath, navigate } = useNavigation();
-  const [loading, setLoading] = useState(true);
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
   useEffect(() => {
-    if (!authLoading) {
-      const timer = setTimeout(() => setLoading(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [authLoading, user]);
-
-  useEffect(() => {
-    if (loading || authLoading) return;
+    if (authLoading) return;
 
     if (!isAuthenticated && currentPath !== '/login') {
       navigate('/login');
     } else if (isAuthenticated && currentPath === '/login') {
       navigate('/');
     }
-  }, [isAuthenticated, currentPath, loading, authLoading]);
+  }, [isAuthenticated, currentPath, authLoading]);
 
   if (hasOAuthCallback) {
     return <AuthCallback />;
   }
 
-  if (loading || authLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
@@ -46,15 +38,12 @@ export default function Router() {
     );
   }
 
-  if (!isAuthenticated && currentPath !== '/login') {
-    return null;
+  if (currentPath === '/login') {
+    return <LoginPage />;
   }
 
-  if (currentPath === '/login') {
-    if (isAuthenticated) {
-      return null;
-    }
-    return <LoginPage />;
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (currentPath === '/admin') {
