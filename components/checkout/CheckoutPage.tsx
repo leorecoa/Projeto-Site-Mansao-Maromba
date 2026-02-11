@@ -3,7 +3,7 @@ import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigation } from '../../hooks/useNavigation'
-import { ShoppingBag, CreditCard, Truck, CheckCircle, Loader2 } from 'lucide-react'
+import { ShoppingBag, CreditCard, Truck, CheckCircle, Loader2, ArrowLeft } from 'lucide-react'
 
 export default function CheckoutPage() {
   const { user } = useAuth()
@@ -64,9 +64,17 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-black text-white py-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold font-syncopate text-yellow-400 mb-8 text-center">
-          Finalizar Pedido
-        </h1>
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <ArrowLeft size={24} className="text-yellow-400" />
+          </button>
+          <h1 className="text-4xl font-bold font-syncopate text-yellow-400">
+            Finalizar Pedido
+          </h1>
+        </div>
 
         <div className="flex justify-between mb-12">
           {[1, 2, 3, 4].map((s) => (
