@@ -8,7 +8,7 @@ interface NavigationStore {
 export const useNavigation = create<NavigationStore>((set) => ({
   currentPath: window.location.pathname,
   navigate: (path: string) => {
-    window.history.pushState({}, '', path)
+    window.history.replaceState({}, '', path)
     set({ currentPath: path })
     window.scrollTo(0, 0)
   }
