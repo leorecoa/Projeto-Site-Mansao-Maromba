@@ -29,7 +29,7 @@ export default function Router() {
     } else if (isAuthenticated && currentPath === '/login') {
       navigate('/');
     }
-  }, [isAuthenticated, currentPath, loading, authLoading, navigate]);
+  }, [isAuthenticated, currentPath, loading, authLoading]);
 
   if (hasOAuthCallback) {
     return <AuthCallback />;
