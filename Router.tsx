@@ -13,10 +13,7 @@ export default function Router() {
   const { currentPath, navigate } = useNavigation();
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
-  console.log('[Router] Render - authLoading:', authLoading, 'isAuth:', isAuthenticated, 'path:', currentPath)
-
   useEffect(() => {
-    console.log('[Router] useEffect - authLoading:', authLoading)
     if (authLoading) return;
 
     if (!isAuthenticated && currentPath !== '/login') {
