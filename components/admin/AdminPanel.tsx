@@ -3,7 +3,8 @@ import { supabase } from '../../services/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { useUploadImage } from '../../hooks/useUploadImage';
 import { useQueryClient } from '@tanstack/react-query';
-import { Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2, X, Upload, Loader2 } from 'lucide-react';
+import { productSchema } from '../../lib/validations';
+import { Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2, X, Upload, Loader2, Shield } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -15,7 +16,7 @@ interface Product {
 }
 
 export default function AdminPanel() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { uploadImage, uploading } = useUploadImage();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'stats'>('products');
@@ -24,6 +25,7 @@ export default function AdminPanel() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -31,8 +33,6 @@ export default function AdminPanel() {
     image: '',
     description: ''
   });
-
-  const isAdmin = !!user;
 
   useEffect(() => {
     if (activeTab === 'products') {
@@ -67,6 +67,7 @@ export default function AdminPanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors({});
     
     let imageUrl = formData.image
 
@@ -84,6 +85,21 @@ export default function AdminPanel() {
       type: 'combo'
     };
 
+    // Validação com Zod
+    const validation = productSchema.safeParse(productData);
+    
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      alert('Erro de validação: ' + Object.values(errors).join(', '));
+      return;
+    }
+
     const { error } = editingProduct
       ? await supabase.from('products').update(productData).eq('id', editingProduct.id)
       : await supabase.from('products').insert([productData]);
@@ -100,6 +116,7 @@ export default function AdminPanel() {
     setEditingProduct(null);
     setImageFile(null)
     setImagePreview('')
+    setValidationErrors({});
     setFormData({ name: '', price: '', volume: '', image: '', description: '' });
   };
 
@@ -126,8 +143,16 @@ export default function AdminPanel() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <p className="text-red-400">Acesso negado. Apenas administradores.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-black">
+        <Shield size={64} className="text-red-400 mb-4" />
+        <h1 className="text-2xl font-bold text-red-400 mb-2">Acesso Negado</h1>
+        <p className="text-gray-400 mb-6">Apenas administradores podem acessar esta página.</p>
+        <button
+          onClick={() => window.location.href = '/'}
+          className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500"
+        >
+          Voltar ao Início
+        </button>
       </div>
     );
   }
