@@ -51,8 +51,7 @@ serve(async (req) => {
     let result: any
 
     switch (action) {
-      case 'validate':
-        // Validar estoque dos produtos
+      case 'validate': {
         const productIds = order.order_items.map((item: any) => item.product_id)
         const { data: products } = await supabase
           .from('products')
@@ -74,9 +73,9 @@ serve(async (req) => {
           }
         }
         break
+      }
 
-      case 'confirm':
-        // Confirmar pedido
+      case 'confirm': {
         const { error: confirmError } = await supabase.rpc('update_order_status', {
           p_order_id: order_id,
           p_new_status: 'confirmed',
@@ -92,9 +91,9 @@ serve(async (req) => {
 
         result = { success: true, message: 'Pedido confirmado' }
         break
+      }
 
-      case 'ship':
-        // Marcar como enviado
+      case 'ship': {
         if (!tracking_code) {
           throw new Error('Tracking code required')
         }
@@ -115,9 +114,9 @@ serve(async (req) => {
 
         result = { success: true, message: 'Pedido enviado' }
         break
+      }
 
-      case 'deliver':
-        // Marcar como entregue
+      case 'deliver': {
         const { error: deliverError } = await supabase.rpc('update_order_status', {
           p_order_id: order_id,
           p_new_status: 'delivered',
@@ -128,6 +127,7 @@ serve(async (req) => {
 
         result = { success: true, message: 'Pedido entregue' }
         break
+      }
 
       default:
         throw new Error(`Unknown action: ${action}`)

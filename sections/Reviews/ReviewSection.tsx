@@ -22,7 +22,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ reviews, activeTheme }) =
                 </div>
                 <span className="text-xs text-gray-500 font-bold uppercase">{review.date}</span>
               </div>
-              <p className="text-lg italic text-white/80 mb-8 italic">"{review.comment}"</p>
+              <p className="text-lg italic text-white/80 mb-8 italic">&ldquo;{review.comment}&rdquo;</p>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold">{review.user[0]}</div>
                 <div>

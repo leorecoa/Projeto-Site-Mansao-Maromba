@@ -14,10 +14,6 @@ export default function Router() {
   const [loading, setLoading] = useState(true);
   const hasOAuthCallback = window.location.hash.includes('access_token');
 
-  if (hasOAuthCallback) {
-    return <AuthCallback />;
-  }
-
   useEffect(() => {
     if (!authLoading) {
       const timer = setTimeout(() => setLoading(false), 300);
@@ -34,6 +30,10 @@ export default function Router() {
       navigate('/');
     }
   }, [isAuthenticated, currentPath, loading, authLoading, navigate]);
+
+  if (hasOAuthCallback) {
+    return <AuthCallback />;
+  }
 
   if (loading || authLoading) {
     return (
