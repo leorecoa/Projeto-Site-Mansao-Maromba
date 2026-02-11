@@ -75,21 +75,21 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
         ))}
       </div>
 
-      <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10 relative">
-        <div className="flex flex-col items-start gap-8 order-2 lg:order-1 relative z-30 lg:-translate-x-24">
+      <div className="container mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center z-10 relative">
+        <div className="flex flex-col items-start gap-4 sm:gap-8 order-2 lg:order-1 relative z-30 lg:-translate-x-24">
           <div 
-            className="px-6 py-2.5 rounded-full text-[11px] font-black tracking-[0.5em] uppercase border-2 flex items-center gap-3 backdrop-blur-3xl transition-all duration-1000"
+            className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-[9px] sm:text-[11px] font-black tracking-[0.3em] sm:tracking-[0.5em] uppercase border-2 flex items-center gap-2 sm:gap-3 backdrop-blur-3xl transition-all duration-1000"
             style={{ 
               borderColor: `${activeProduct.theme.primary}aa`, 
               color: activeProduct.theme.primary,
               boxShadow: `0 0 20px ${activeProduct.theme.primary}44`
             }}
           >
-            <Crown size={16} fill={activeProduct.theme.primary} />
+            <Crown size={14} className="sm:w-4 sm:h-4" fill={activeProduct.theme.primary} />
             VIBE MANSÃO MAROMBA
           </div>
           
-          <h1 className="text-5xl md:text-[6.5rem] font-syncopate font-bold leading-[0.85] tracking-tighter">
+          <h1 className="text-4xl sm:text-5xl md:text-[6.5rem] font-syncopate font-bold leading-[0.85] tracking-tighter">
             {activeProduct.name.split(' ').map((word, i) => (
               <span 
                 key={i} 
@@ -104,22 +104,22 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
             ))}
           </h1>
           
-          <p className="max-w-md text-xl text-gray-400 font-medium leading-relaxed border-l-[6px] pl-10" style={{ borderColor: activeProduct.theme.primary }}>
+          <p className="max-w-md text-base sm:text-xl text-gray-400 font-medium leading-relaxed border-l-[4px] sm:border-l-[6px] pl-6 sm:pl-10" style={{ borderColor: activeProduct.theme.primary }}>
             {activeProduct.description}
           </p>
 
-          <div className="flex flex-wrap items-center gap-10 mt-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-10 mt-4 sm:mt-6 w-full">
             <button 
               onClick={() => addToCart(activeProduct)}
-              className="group relative px-14 py-7 rounded-3xl font-black text-black transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden shadow-2xl"
+              className="group relative px-8 sm:px-14 py-5 sm:py-7 rounded-2xl sm:rounded-3xl font-black text-black transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden shadow-2xl w-full sm:w-auto touch-manipulation"
               style={{ backgroundColor: activeProduct.theme.primary }}
             >
-              <span className="relative z-10 text-xl tracking-tighter uppercase">GARANTIR COMBO</span>
+              <span className="relative z-10 text-base sm:text-xl tracking-tighter uppercase">GARANTIR COMBO</span>
             </button>
           </div>
         </div>
 
-        <div className="relative order-1 lg:order-2 flex justify-center items-center h-[550px] md:h-[800px] perspective-stage lg:translate-x-24">
+        <div className="relative order-1 lg:order-2 flex justify-center items-center h-[400px] sm:h-[550px] md:h-[800px] perspective-stage lg:translate-x-24">
           <div className="relative w-full h-full flex items-center justify-center transform-gpu">
             {products.map((product, index) => {
               const isCenter = index === activeIndex;
@@ -150,7 +150,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                   <img 
                     src={product.image} 
                     alt={product.name}
-                    className={`h-[480px] md:h-[700px] object-contain ${isCenter ? 'animate-float' : ''}`}
+                    className={`h-[350px] sm:h-[480px] md:h-[700px] object-contain ${isCenter ? 'animate-float' : ''}`}
                   />
                   {isCenter && (
                     <div className="absolute inset-0 -z-10 pulse-glow-vogue rounded-full" style={{ backgroundColor: product.theme.primary }} />
@@ -160,12 +160,12 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
             })}
           </div>
 
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 lg:-mx-20 z-[100] pointer-events-none">
-             <button onClick={handlePrev} className="w-20 h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
-              <ChevronLeft size={40} style={{ color: activeProduct.theme.primary }} />
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 sm:px-4 lg:-mx-20 z-[100] pointer-events-none">
+             <button onClick={handlePrev} className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
+              <ChevronLeft size={28} className="sm:w-10 sm:h-10" style={{ color: activeProduct.theme.primary }} />
             </button>
-            <button onClick={handleNext} className="w-20 h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
-              <ChevronRight size={40} style={{ color: activeProduct.theme.primary }} />
+            <button onClick={handleNext} className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
+              <ChevronRight size={28} className="sm:w-10 sm:h-10" style={{ color: activeProduct.theme.primary }} />
             </button>
           </div>
         </div>
