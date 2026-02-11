@@ -1,56 +1,122 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { useStore } from '../store'
+import { useCartStore } from '../store'
 
-describe('Store', () => {
+describe('Cart Store', () => {
   beforeEach(() => {
-    useStore.setState({ cart: [], user: null })
+    useCartStore.setState({ cart: [], cartTotal: 0, cartCount: 0 })
   })
 
-  it('adiciona produto ao carrinho', () => {
-    const product = {
+  it('adds item to cart', () => {
+    const store = useCartStore.getState()
+    
+    store.addToCart({
       id: '1',
-      name: 'Combo Tigrinho',
-      price: 89.90,
-      image_url: 'test.png',
+      name: 'Test Product',
+      price: 99.90,
       volume: '1L',
-      type: 'Combo',
-      theme: { primary: '#ff0000', secondary: '#000', glow: 'red', text: '#fff', bg: '#000' }
-    }
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
 
-    useStore.getState().addToCart(product)
-    expect(useStore.getState().cart).toHaveLength(1)
-    expect(useStore.getState().cartCount).toBe(1)
+    const state = useCartStore.getState()
+    expect(state.cart).toHaveLength(1)
+    expect(state.cart[0].name).toBe('Test Product')
   })
 
-  it('remove produto do carrinho', () => {
+  it('increases quantity if item exists', () => {
+    const store = useCartStore.getState()
+    
     const product = {
       id: '1',
-      name: 'Test',
-      price: 10,
-      image_url: 'test.png',
+      name: 'Test Product',
+      price: 50.00,
       volume: '1L',
-      type: 'Combo',
-      theme: { primary: '#ff0000', secondary: '#000', glow: 'red', text: '#fff', bg: '#000' }
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
     }
 
-    useStore.getState().addToCart(product)
-    useStore.getState().removeFromCart('1')
-    expect(useStore.getState().cart).toHaveLength(0)
+    store.addToCart(product)
+    store.addToCart(product)
+
+    const state = useCartStore.getState()
+    expect(state.cart).toHaveLength(1)
+    expect(state.cart[0].quantity).toBe(2)
   })
 
-  it('calcula total corretamente', () => {
-    const product = {
+  it('removes item from cart', () => {
+    const store = useCartStore.getState()
+    
+    store.addToCart({
       id: '1',
-      name: 'Test',
-      price: 50,
-      image_url: 'test.png',
+      name: 'Test Product',
+      price: 99.90,
       volume: '1L',
-      type: 'Combo',
-      theme: { primary: '#ff0000', secondary: '#000', glow: 'red', text: '#fff', bg: '#000' }
-    }
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
 
-    useStore.getState().addToCart(product)
-    useStore.getState().addToCart(product)
-    expect(useStore.getState().cartTotal).toBe(100)
+    store.removeFromCart('1')
+    
+    const state = useCartStore.getState()
+    expect(state.cart).toHaveLength(0)
+  })
+
+  it('calculates total correctly', () => {
+    const store = useCartStore.getState()
+    
+    store.addToCart({
+      id: '1',
+      name: 'Product 1',
+      price: 50.00,
+      volume: '1L',
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
+
+    store.addToCart({
+      id: '1',
+      name: 'Product 1',
+      price: 50.00,
+      volume: '1L',
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
+
+    store.addToCart({
+      id: '2',
+      name: 'Product 2',
+      price: 30.00,
+      volume: '1L',
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
+
+    const state = useCartStore.getState()
+    expect(state.cartTotal).toBe(130.00)
+  })
+
+  it('clears cart', () => {
+    const store = useCartStore.getState()
+    
+    store.addToCart({
+      id: '1',
+      name: 'Test Product',
+      price: 99.90,
+      volume: '1L',
+      image: '/test.png',
+      description: 'Test',
+      type: 'combo'
+    })
+
+    store.clearCart()
+    
+    const state = useCartStore.getState()
+    expect(state.cart).toHaveLength(0)
+    expect(state.cartTotal).toBe(0)
   })
 })
