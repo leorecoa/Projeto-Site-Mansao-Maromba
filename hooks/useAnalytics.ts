@@ -10,20 +10,21 @@ export function useAnalytics() {
   useEffect(() => {
     if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return
 
+    // Inicializa dataLayer e gtag imediatamente
+    window.dataLayer = window.dataLayer || []
+    window.gtag = window.gtag || function() { window.dataLayer.push(arguments) }
+
     // Carrega script do Google Analytics dinamicamente (apenas 1x)
     if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
       const script = document.createElement('script')
       script.async = true
       script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
       document.head.appendChild(script)
-
-      script.onload = () => {
-        window.dataLayer = window.dataLayer || []
-        window.gtag = function() { window.dataLayer.push(arguments) }
-        window.gtag('js', new Date())
-        window.gtag('config', GA_MEASUREMENT_ID)
-      }
     }
+
+    // Configura GA
+    window.gtag('js', new Date())
+    window.gtag('config', GA_MEASUREMENT_ID)
   }, [])
 
   useEffect(() => {
