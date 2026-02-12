@@ -10,29 +10,29 @@ export function useAnalytics() {
   useEffect(() => {
     if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return
 
-    // Carrega script do Google Analytics dinamicamente
+    // Carrega script do Google Analytics dinamicamente (apenas 1x)
     if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
       const script = document.createElement('script')
       script.async = true
       script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
       document.head.appendChild(script)
 
-      window.dataLayer = window.dataLayer || []
-      window.gtag = function() { window.dataLayer.push(arguments) }
-      window.gtag('js', new Date())
-      window.gtag('config', GA_MEASUREMENT_ID)
+      script.onload = () => {
+        window.dataLayer = window.dataLayer || []
+        window.gtag = function() { window.dataLayer.push(arguments) }
+        window.gtag('js', new Date())
+        window.gtag('config', GA_MEASUREMENT_ID)
+      }
     }
   }, [])
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return
+    if (!GA_MEASUREMENT_ID || typeof window === 'undefined' || !window.gtag) return
 
-    // Track page view
-    if (window.gtag) {
-      window.gtag('config', GA_MEASUREMENT_ID, {
-        page_path: currentPath,
-      })
-    }
+    // Track page view apenas quando mudar de página
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      page_path: currentPath,
+    })
   }, [currentPath])
 
   const trackEvent = (eventName: string, params?: Record<string, any>) => {
