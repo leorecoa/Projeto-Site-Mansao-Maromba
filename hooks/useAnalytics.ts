@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { useNavigation } from './useNavigation'
 
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
+const GA_MEASUREMENT_ID = 'G-GF264GFHB4'
 
 export function useAnalytics() {
   const { currentPath } = useNavigation()
