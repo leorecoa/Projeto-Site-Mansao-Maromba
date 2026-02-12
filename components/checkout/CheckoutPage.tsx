@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { supabase } from '../../services/supabase'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useAuth } from '../../hooks/useAuth'
@@ -35,11 +36,30 @@ export default function CheckoutPage() {
     e.preventDefault()
 
     try {
+      // Validar estoque antes de criar o pedido
+      const { data: productsCheck, error: stockError } = await supabase
+        .from('products')
+        .select('id, name, stock_quantity')
+        .in('id', cart.map(item => item.id))
+
+      if (stockError) throw stockError
+
+      for (const item of cart) {
+        const product = productsCheck?.find(p => p.id === item.id)
+        if (!product) throw new Error(`Produto ${item.name} não encontrado.`)
+
+        if ((product.stock_quantity || 0) < item.quantity) {
+          throw new Error(`Estoque insuficiente para ${item.name}. Disponível: ${product.stock_quantity || 0}`)
+        }
+      }
+
       const orderData = {
         customer_name: formData.name,
         customer_email: formData.email,
         customer_phone: formData.phone,
-        customer_address: `${formData.address}, ${formData.city} - ${formData.state}, ${formData.zip}`,
+        customer_address: formData.address,
+        customer_city: formData.city,
+        customer_zipcode: formData.zip,
         payment_method: formData.payment,
         notes: formData.notes,
         total_amount: cartTotal,
@@ -56,8 +76,17 @@ export default function CheckoutPage() {
       await createOrder(orderData)
       clearCart()
       setStep(4)
-    } catch (error: any) {
-      alert('Erro ao criar pedido: ' + error.message)
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : (error as { message?: string })?.message || 'Erro desconhecido'
+
+      // Traduzir erro de constraint do banco para mensagem amigável
+      if (message.includes('products_stock_quantity_check')) {
+        alert('Desculpe, um ou mais itens do seu carrinho acabaram de esgotar.')
+      } else {
+        alert('Erro ao criar pedido: ' + message)
+      }
     }
   }
 
@@ -79,15 +108,13 @@ export default function CheckoutPage() {
         <div className="flex justify-between mb-12">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className={`flex items-center ${s < 4 ? 'flex-1' : ''}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                step >= s ? 'bg-yellow-400 text-black' : 'bg-white/10 text-gray-500'
-              }`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= s ? 'bg-yellow-400 text-black' : 'bg-white/10 text-gray-500'
+                }`}>
                 {s === 4 && step === 4 ? <CheckCircle size={24} /> : s}
               </div>
               {s < 4 && (
-                <div className={`flex-1 h-1 mx-2 ${
-                  step > s ? 'bg-yellow-400' : 'bg-white/10'
-                }`} />
+                <div className={`flex-1 h-1 mx-2 ${step > s ? 'bg-yellow-400' : 'bg-white/10'
+                  }`} />
               )}
             </div>
           ))}
