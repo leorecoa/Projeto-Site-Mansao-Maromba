@@ -2,10 +2,27 @@
 import { useEffect } from 'react'
 import { useNavigation } from './useNavigation'
 
-const GA_MEASUREMENT_ID = 'G-GF264GFHB4'
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
 
 export function useAnalytics() {
   const { currentPath } = useNavigation()
+
+  useEffect(() => {
+    if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return
+
+    // Carrega script do Google Analytics dinamicamente
+    if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
+      const script = document.createElement('script')
+      script.async = true
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
+      document.head.appendChild(script)
+
+      window.dataLayer = window.dataLayer || []
+      window.gtag = function() { window.dataLayer.push(arguments) }
+      window.gtag('js', new Date())
+      window.gtag('config', GA_MEASUREMENT_ID)
+    }
+  }, [])
 
   useEffect(() => {
     if (!GA_MEASUREMENT_ID || typeof window === 'undefined') return
