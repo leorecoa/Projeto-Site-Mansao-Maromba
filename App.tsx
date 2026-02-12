@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigation } from './hooks/useNavigation';
+import { useAnalytics } from './hooks/useAnalytics';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './sections/Hero/Hero';
@@ -18,6 +19,9 @@ export default function App() {
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
   const { products, loading } = useProducts();
   const { navigate } = useNavigation();
+  
+  // Analytics
+  useAnalytics();
 
   const activeProduct = products[activeProductIndex];
   const activeTheme = activeProduct?.theme;
