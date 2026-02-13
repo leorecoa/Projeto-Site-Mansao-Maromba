@@ -12,6 +12,28 @@ const statusConfig = {
   cancelled: { label: 'Cancelado', icon: XCircle, color: 'text-red-400' }
 }
 
+interface OrderItem {
+  id: string
+  product_name: string
+  product_image: string
+  quantity: number
+  unit_price: number
+  subtotal: number
+}
+
+interface Order {
+  id: string
+  created_at: string
+  status: string
+  total_amount: number
+  payment_method: string
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  customer_address: string
+  order_items: OrderItem[]
+}
+
 export default function OrdersPage() {
   const { user } = useAuth()
   const { orders, loading } = useOrders()
@@ -64,7 +86,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order: any) => {
+            {orders.map((order: Order) => {
               const status = statusConfig[order.status as keyof typeof statusConfig]
               const StatusIcon = status.icon
 
@@ -102,7 +124,7 @@ export default function OrdersPage() {
                   <div className="border-t border-white/10 pt-4">
                     <h3 className="font-bold mb-3">Itens do Pedido</h3>
                     <div className="space-y-3">
-                      {order.order_items?.map((item: any) => (
+                      {order.order_items?.map((item: OrderItem) => (
                         <div key={item.id} className="flex items-center gap-4 p-3 bg-white/5 rounded-lg">
                           <img
                             src={item.product_image}

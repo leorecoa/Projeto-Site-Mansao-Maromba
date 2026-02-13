@@ -10,14 +10,13 @@
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_city TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_zipcode TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address_snapshot JSONB;
+-- Adicionar colunas faltantes em order_items para suportar a RPC
+ALTER TABLE order_items ADD COLUMN IF NOT EXISTS unit_price NUMERIC;
+ALTER TABLE order_items ADD COLUMN IF NOT EXISTS subtotal NUMERIC;
 
 -- Adicionar trava de segurança no estoque (IMPEDE venda sem estoque no nível do banco)
-DO $$ 
-BEGIN 
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'products_stock_quantity_check') THEN 
-        ALTER TABLE products ADD CONSTRAINT products_stock_quantity_check CHECK (stock_quantity >= 0); 
-    END IF; 
-END $$;
+ALTER TABLE products DROP CONSTRAINT IF EXISTS products_stock_quantity_check;
+ALTER TABLE products ADD CONSTRAINT products_stock_quantity_check CHECK (stock_quantity >= 0);
 
 -- 1. Corrigir função is_admin
 -- ============================================
@@ -27,7 +26,7 @@ RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $$
+AS $func$
 DECLARE
   user_role TEXT;
 BEGIN
@@ -37,7 +36,7 @@ BEGIN
   
   RETURN user_role = 'admin';
 END;
-$$;
+$func$;
 
 -- 2. Corrigir função create_user_profile
 -- ============================================
@@ -47,14 +46,14 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $$
+AS $func$
 BEGIN
   INSERT INTO user_profiles (id, email, role)
   VALUES (NEW.id, NEW.email, 'customer')
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
-$$;
+$func$;
 
 -- 3. Remover acesso API às views materializadas
 -- ============================================
@@ -74,12 +73,13 @@ REVOKE SELECT ON top_customers FROM authenticated;
 -- 4. Função Transacional create_order (Corrigida e Segura)
 -- ============================================
 
+DROP FUNCTION IF EXISTS create_order(JSONB);
 CREATE OR REPLACE FUNCTION create_order(payload JSONB)
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $$
+AS $func$
 DECLARE
   new_order_id UUID;
   item JSONB;
@@ -139,7 +139,7 @@ BEGIN
 
   RETURN jsonb_build_object('id', new_order_id);
 END;
-$$;
+$func$;
 
 -- ============================================
 -- VERIFICAR CORREÇÕES
