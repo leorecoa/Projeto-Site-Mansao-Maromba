@@ -1,0 +1,210 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - img "Mansão Maromba Logo" [ref=e6]
+      - generic [ref=e7]: MANSÃO MAROMBA
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - button "Home" [ref=e10] [cursor=pointer]
+        - button "Combos" [ref=e11] [cursor=pointer]
+        - button "Sobre" [ref=e12] [cursor=pointer]
+        - button "Local" [ref=e13] [cursor=pointer]
+      - button "Carrinho" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+      - button "Meus Pedidos" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e24]:
+        - img [ref=e25]
+        - generic [ref=e28]: admin-e2e@test.com
+      - button "Sair" [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+  - main [ref=e33]:
+    - generic [ref=e34]:
+      - generic:
+        - heading "DARKNESS" [level=2]
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - text: VIBE MANSÃO MAROMBA
+          - heading "Double Darkness" [level=1] [ref=e40]:
+            - generic [ref=e41]: Double
+            - generic [ref=e42]: Darkness
+          - paragraph [ref=e43]: PRETO FOSCO. MISTÉRIO E ELEGÂNCIA PARA O ROLÊ URBANO.
+          - button "GARANTIR COMBO" [ref=e45] [cursor=pointer]
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - img "Double Darkness" [ref=e49]
+            - img "Vodka Combo" [ref=e52]
+            - img "Combo Tigrinho" [ref=e54]
+            - img "Combo Pink" [ref=e56]
+            - img "Produto Teste E2E" [ref=e58]
+          - generic:
+            - button [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+            - button [ref=e62] [cursor=pointer]:
+              - img [ref=e63]
+    - generic [ref=e66]:
+      - generic [ref=e68]:
+        - text: Catálogo Premium
+        - heading "OS BRABOS." [level=2] [ref=e69]
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - img "Double Darkness" [ref=e73]
+          - generic [ref=e74]:
+            - heading "Double Darkness" [level=3] [ref=e75]
+            - paragraph [ref=e76]: 1L · Cocktail Alcoólico Gaseificado
+            - generic [ref=e77]:
+              - generic [ref=e78]: R$ 99,90
+              - button [ref=e79] [cursor=pointer]:
+                - img [ref=e80]
+        - generic [ref=e81]:
+          - img "Vodka Combo" [ref=e83]
+          - generic [ref=e84]:
+            - heading "Vodka Combo" [level=3] [ref=e85]
+            - paragraph [ref=e86]: 1L · Cocktail Alcoólico Gaseificado
+            - generic [ref=e87]:
+              - generic [ref=e88]: R$ 84,90
+              - button [ref=e89] [cursor=pointer]:
+                - img [ref=e90]
+        - generic [ref=e91]:
+          - img "Combo Tigrinho" [ref=e93]
+          - generic [ref=e94]:
+            - heading "Combo Tigrinho" [level=3] [ref=e95]
+            - paragraph [ref=e96]: 1L · Cocktail Alcoólico Gaseificado
+            - generic [ref=e97]:
+              - generic [ref=e98]: R$ 89,90
+              - button [ref=e99] [cursor=pointer]:
+                - img [ref=e100]
+        - generic [ref=e101]:
+          - img "Combo Pink" [ref=e103]
+          - generic [ref=e104]:
+            - heading "Combo Pink" [level=3] [ref=e105]
+            - paragraph [ref=e106]: 1L · Cocktail Alcoólico Gaseificado
+            - generic [ref=e107]:
+              - generic [ref=e108]: R$ 94,90
+              - button [ref=e109] [cursor=pointer]:
+                - img [ref=e110]
+        - generic [ref=e111]:
+          - img "Produto Teste E2E" [ref=e113]
+          - generic [ref=e114]:
+            - heading "Produto Teste E2E" [level=3] [ref=e115]
+            - paragraph [ref=e116]: ·
+            - generic [ref=e117]:
+              - generic [ref=e118]: R$ 50,00
+              - button [ref=e119] [cursor=pointer]:
+                - img [ref=e120]
+    - generic [ref=e122]:
+      - heading "Sobre Nós" [level=2] [ref=e123]
+      - paragraph [ref=e124]: A Mansão Maromba é o depósito digital mais brabo de São Paulo. Experiência premium, combos exclusivos e entrega veloz.
+    - generic [ref=e126]:
+      - heading "RECONHECIMENTO." [level=2] [ref=e127]
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - img [ref=e132]
+              - img [ref=e134]
+              - img [ref=e136]
+              - img [ref=e138]
+              - img [ref=e140]
+            - generic [ref=e142]: 2 dias atrás
+          - paragraph [ref=e143]: “Melhor combo de SP. Entrega rápida demais!”
+          - generic [ref=e144]:
+            - generic [ref=e145]: L
+            - generic [ref=e146]:
+              - heading "Lucas Silva" [level=4] [ref=e147]
+              - paragraph [ref=e148]: Cliente Verificado
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - img [ref=e152]
+              - img [ref=e154]
+              - img [ref=e156]
+              - img [ref=e158]
+              - img [ref=e160]
+            - generic [ref=e162]: 1 semana atrás
+          - paragraph [ref=e163]: “O Tigrinho é sensacional, voltarei a pedir com certeza.”
+          - generic [ref=e164]:
+            - generic [ref=e165]: A
+            - generic [ref=e166]:
+              - heading "Ana Paula" [level=4] [ref=e167]
+              - paragraph [ref=e168]: Cliente Verificado
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - generic [ref=e171]:
+              - img [ref=e172]
+              - img [ref=e174]
+              - img [ref=e176]
+              - img [ref=e178]
+              - img [ref=e180]
+            - generic [ref=e182]: 1 mês atrás
+          - paragraph [ref=e183]: “O Double Darkness é o brabo. Visual do site tá animal.”
+          - generic [ref=e184]:
+            - generic [ref=e185]: R
+            - generic [ref=e186]:
+              - heading "Ricardo" [level=4] [ref=e187]
+              - paragraph [ref=e188]: Cliente Verificado
+    - generic [ref=e190]:
+      - generic [ref=e191]:
+        - heading "ESTAMOS NA PISTA." [level=2] [ref=e192]
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - img [ref=e195]
+            - generic [ref=e198]: R. Augusta, 506 – SP
+          - generic [ref=e199]:
+            - img [ref=e200]
+            - link "(11) 99851-6263" [ref=e202] [cursor=pointer]:
+              - /url: tel:11998516263
+          - generic [ref=e203]:
+            - img [ref=e204]
+            - generic [ref=e207]: "@mansaomaromba"
+        - button "TRAÇAR ROTA" [ref=e208] [cursor=pointer]:
+          - img [ref=e209]
+          - text: TRAÇAR ROTA
+      - iframe [ref=e212]:
+        
+  - contentinfo [ref=e213]:
+    - generic [ref=e214]:
+      - generic [ref=e215]:
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - img "Mansão Maromba Logo" [ref=e218]
+            - generic [ref=e219]: MANSÃO MAROMBA
+          - paragraph [ref=e220]: O depósito digital mais brabo de São Paulo. Experiência premium.
+          - generic [ref=e221]:
+            - link [ref=e222] [cursor=pointer]:
+              - /url: "#"
+              - img [ref=e223]
+            - link [ref=e226] [cursor=pointer]:
+              - /url: "#"
+              - img [ref=e227]
+        - generic [ref=e229]:
+          - heading "Explore" [level=4] [ref=e230]
+          - list [ref=e231]:
+            - listitem [ref=e232]:
+              - link "Home" [ref=e233] [cursor=pointer]:
+                - /url: "#hero"
+            - listitem [ref=e234]:
+              - link "Combos" [ref=e235] [cursor=pointer]:
+                - /url: "#products"
+        - generic [ref=e236]:
+          - heading "Contato" [level=4] [ref=e237]
+          - list [ref=e238]:
+            - listitem [ref=e239]:
+              - img [ref=e240]
+              - generic [ref=e243]: R. Augusta, 506, SP
+            - listitem [ref=e244]:
+              - img [ref=e245]
+              - link "(11) 99851-6263" [ref=e247] [cursor=pointer]:
+                - /url: tel:11998516263
+        - generic [ref=e248]:
+          - heading "Horários" [level=4] [ref=e249]
+          - generic [ref=e250]:
+            - paragraph [ref=e251]: Segunda à Sábado
+            - paragraph [ref=e252]: 10h00 às 22h00
+      - paragraph [ref=e254]: © 2024 MANSÃO MAROMBA DISTRIBUIDORA.
+```

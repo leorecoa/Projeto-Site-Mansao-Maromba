@@ -21,6 +21,9 @@ build/
 .env.production
 .env.*.local
 
+# Playwright session files
+playwright/.auth/
+
 # IDE
 .vscode/
 .idea/

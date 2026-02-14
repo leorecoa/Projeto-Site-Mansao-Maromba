@@ -1,34 +1,39 @@
 import { test, expect } from '@playwright/test'
+import { login, ADD_TO_CART_SELECTOR } from './utils'
 
 test.describe('Landing Page', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page)
+  })
+
   test('should load homepage', async ({ page }) => {
-    await page.goto('/')
     await expect(page).toHaveTitle(/Mansão Maromba/i)
   })
 
   test('should display navbar', async ({ page }) => {
-    await page.goto('/')
     const navbar = page.locator('nav')
     await expect(navbar).toBeVisible()
   })
 
   test('should display hero section', async ({ page }) => {
-    await page.goto('/')
     const hero = page.locator('text=/ENERGIA|ATITUDE/i')
     await expect(hero).toBeVisible()
   })
 
   test('should display products section', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('text=/produtos/i').first().scrollIntoViewIfNeeded()
-    const products = page.locator('[data-testid="product-card"]').first()
-    await expect(products).toBeVisible({ timeout: 10000 })
+    // Fix: Use button selector as proxy for product card existence
+    const products = page.locator(ADD_TO_CART_SELECTOR).first()
+    // Aumentado timeout para 20s para lidar com cold start do backend/banco
+    await expect(products).toBeVisible({ timeout: 30000 })
   })
 
   test('should open cart modal', async ({ page }) => {
-    await page.goto('/')
-    await page.click('[aria-label="Carrinho"]')
-    const modal = page.locator('text=/carrinho/i')
-    await expect(modal).toBeVisible()
+    // Garante que o botão está interativo antes de clicar
+    const cartButton = page.getByRole('button', { name: /carrinho/i }).first()
+    await cartButton.waitFor({ state: 'visible', timeout: 20000 })
+    await cartButton.click()
+
+    const cartHeading = page.locator('h2', { hasText: 'CARRINHO' })
+    await expect(cartHeading).toBeVisible()
   })
 })

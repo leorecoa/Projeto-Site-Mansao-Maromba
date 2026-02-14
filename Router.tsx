@@ -1,62 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from './hooks/useAuth';
-import { useNavigation } from './hooks/useNavigation';
-import LoginPage from './components/auth/LoginPage';
-import AuthCallback from './components/auth/AuthCallback';
-import AdminPanel from './components/admin/AdminPanel';
-import CheckoutPage from './components/checkout/CheckoutPage';
-import OrdersPage from './components/checkout/OrdersPage';
+import { Routes, Route } from 'react-router-dom';
+
 import App from './App';
+import AuthCallback from '@/components/auth/AuthCallback';
+import LoginPage from '@/components/auth/LoginPage';
+import { AdminRoute } from '@/components/auth/AdminRoute';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import AdminPanel from '@/components/admin/AdminPanel';
+import CheckoutPage from '@/components/checkout/CheckoutPage';
+import OrdersPage from '@/components/checkout/OrdersPage';
 
 export default function Router() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { currentPath, navigate } = useNavigation();
-  const hasOAuthCallback = window.location.hash.includes('access_token');
+  // A lógica de roteamento agora é declarativa e gerenciada pelo react-router-dom.
+  // A verificação de autenticação foi movida para os componentes ProtectedRoute e AdminRoute.
 
-  useEffect(() => {
-    if (authLoading) return;
+  return (
+    <Routes>
+      {/* Rotas Públicas */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
-    if (!isAuthenticated && currentPath !== '/login') {
-      navigate('/login');
-    } else if (isAuthenticated && currentPath === '/login') {
-      navigate('/');
-    }
-  }, [isAuthenticated, currentPath, authLoading]);
+      {/* Rotas Protegidas para usuários autenticados */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<App />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+      </Route>
 
-  if (hasOAuthCallback) {
-    return <AuthCallback />;
-  }
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-300">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentPath === '/login') {
-    return <LoginPage />;
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  if (currentPath === '/admin') {
-    return <AdminPanel />;
-  }
-
-  if (currentPath === '/checkout') {
-    return <CheckoutPage />;
-  }
-
-  if (currentPath === '/orders') {
-    return <OrdersPage />;
-  }
-
-  return <App />;
+      {/* Rotas Protegidas de Administrador */}
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<AdminPanel />} />
+      </Route>
+    </Routes>
+  );
 }
