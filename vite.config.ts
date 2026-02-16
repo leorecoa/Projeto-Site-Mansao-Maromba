@@ -1,33 +1,25 @@
+/// <reference types="vitest" />
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, '.'),
-      '@components': path.resolve(__dirname, './components'),
+      '@': path.resolve(__dirname, './'),
       '@hooks': path.resolve(__dirname, './hooks'),
+      '@components': path.resolve(__dirname, './components'),
+      '@lib': path.resolve(__dirname, './lib'),
       '@store': path.resolve(__dirname, './store'),
-      '@services': path.resolve(__dirname, './services'),
-      '@utils': path.resolve(__dirname, './utils'),
       '@types': path.resolve(__dirname, './types'),
+      '@utils': path.resolve(__dirname, './utils'),
     },
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['lucide-react'],
-        },
-      },
-    },
-    minify: 'esbuild',
-    sourcemap: false,
-  },
-  server: {
-    port: 3001,
+  test: {
+    globals: true,
+    environment: 'jsdom',
   },
 })
