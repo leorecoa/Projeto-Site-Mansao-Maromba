@@ -1,92 +1,124 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
-import { Theme } from '../../types';
+import { X, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
-import { formatCurrency } from '../../utils/format';
+import { Theme } from '../../types';
 
 interface CartModalProps {
-  activeTheme: Theme;
+  activeTheme?: Theme;
   onCheckout: () => void;
 }
 
-const CartModal: React.FC<CartModalProps> = ({ activeTheme, onCheckout }) => {
-  const { isCartOpen, setIsCartOpen, cart, cartTotal, updateQuantity, removeFromCart } = useCart();
+export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
 
   if (!isCartOpen) return null;
 
+  const primaryColor = activeTheme?.primary || '#FACC15';
+
+  // Função auxiliar para formatar moeda
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
-      <div className="relative w-full max-w-md bg-[#0a0a0a] h-full shadow-2xl flex flex-col border-l border-white/5 transition-transform duration-500">
-        <div className="p-6 flex justify-between items-center border-b border-white/5">
-          <h2 className="text-2xl font-syncopate font-bold">CARRINHO</h2>
-          <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+      {/* Backdrop - Clicar fora fecha o modal */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={() => setIsCartOpen(false)}
+      />
+
+      {/* Modal */}
+      <div className="relative w-full max-w-md bg-[#111] border-l border-white/10 shadow-2xl flex flex-col h-full transform transition-transform duration-300 animate-in slide-in-from-right">
+
+        {/* Header */}
+        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/50">
+          <h2 className="text-xl font-bold font-syncopate text-white flex items-center gap-2">
+            <ShoppingBag style={{ color: primaryColor }} />
+            SEU CARRINHO
+          </h2>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
+          >
             <X size={24} />
           </button>
         </div>
-        
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+
+        {/* Items */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {cart.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center opacity-40">
-              <Minus size={32} className="mb-4" />
-              <p className="font-bold uppercase tracking-widest">Seu carrinho está vazio</p>
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+              <ShoppingBag size={64} className="text-gray-600" />
+              <p className="text-gray-400 text-lg">Seu carrinho está vazio.</p>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="text-white underline hover:text-yellow-400"
+              >
+                Continuar comprando
+              </button>
             </div>
           ) : (
             cart.map((item) => (
-              <div key={item.id} className="flex gap-4 glass-card p-4 rounded-2xl relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: item.theme.primary }} />
-                <div className="w-20 h-20 bg-white/5 rounded-xl flex items-center justify-center shrink-0">
-                  <img src={item.image} alt={item.name} className="h-16 object-contain" />
+              <div key={item.id} className="flex gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                <div className="w-20 h-20 bg-white/5 rounded-lg flex items-center justify-center p-2">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                 </div>
-                <div className="flex-grow flex flex-col justify-between">
+                <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="font-bold text-sm leading-tight">{item.name}</h4>
-                    <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{item.volume}</p>
+                    <h3 className="font-bold text-white line-clamp-1">{item.name}</h3>
+                    <p className="text-xs text-gray-400">{item.volume}</p>
                   </div>
-                  <div className="flex justify-between items-end">
-                    <div className="flex items-center gap-3 bg-white/5 rounded-lg px-2 py-1">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 hover:text-white"><Minus size={14} /></button>
-                      <span className="font-bold text-sm min-w-[20px] text-center">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 hover:text-white"><Plus size={14} /></button>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-3 bg-black/50 rounded-lg px-2 py-1 border border-white/10">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
+                      >
+                        +
+                      </button>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">{formatCurrency(item.price)}</p>
-                      <p className="font-bold text-lg">{formatCurrency(item.price * item.quantity)}</p>
-                    </div>
+                    <p className="font-bold text-white">{formatCurrency(item.price * item.quantity)}</p>
                   </div>
                 </div>
-                <button onClick={() => removeFromCart(item.id)} className="absolute top-2 right-2 text-red-500/40 hover:text-red-500 transition-colors">
-                  <Trash2 size={16} />
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="text-gray-500 hover:text-red-400 self-start p-1"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))
           )}
         </div>
 
+        {/* Footer */}
         {cart.length > 0 && (
-          <div className="p-6 bg-white/5 border-t border-white/5 space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">Total do Pedido</span>
-              <span className="text-3xl font-syncopate font-bold">{formatCurrency(cartTotal)}</span>
+          <div className="p-6 border-t border-white/10 bg-black/50 space-y-4">
+            <div className="flex items-center justify-between text-lg font-bold">
+              <span className="text-gray-400">Total</span>
+              <span className="text-2xl text-white">{formatCurrency(cartTotal)}</span>
             </div>
-            <button 
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setIsCartOpen(false)
-                onCheckout()
-              }}
-              className="w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-2xl"
-              style={{ backgroundColor: activeTheme.primary, color: '#000', boxShadow: `0 10px 40px ${activeTheme.glow}` }}
+            <button
+              onClick={onCheckout}
+              className="w-full py-4 rounded-xl font-bold text-black text-lg uppercase tracking-wider hover:brightness-110 transition-all active:scale-[0.98]"
+              style={{ backgroundColor: primaryColor }}
             >
-              <CreditCard size={20} />
-              FINALIZAR PEDIDO
+              Finalizar Pedido
             </button>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default CartModal;
+}

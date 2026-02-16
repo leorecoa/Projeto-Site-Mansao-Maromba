@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabase';
 
 export default function AdminPanel() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     orders: 0,
     products: 0,
@@ -46,10 +48,16 @@ export default function AdminPanel() {
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
           <h2 className="text-xl font-bold text-yellow-400 mb-4">Ações Rápidas</h2>
           <div className="flex gap-4">
-            <button className="px-4 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition">
+            <button
+              onClick={() => navigate('/admin/products/new')}
+              className="px-4 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition"
+            >
               Adicionar Produto
             </button>
-            <button className="px-4 py-2 bg-white/10 text-white font-bold rounded hover:bg-white/20 transition">
+            <button
+              onClick={() => navigate('/admin/orders')}
+              className="px-4 py-2 bg-white/10 text-white font-bold rounded hover:bg-white/20 transition"
+            >
               Ver Todos os Pedidos
             </button>
           </div>

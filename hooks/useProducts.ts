@@ -1,65 +1,66 @@
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '../services/supabase'
-import { Product } from '../types'
-import { PRODUCTS } from '../data/products'
+import { useEffect, useState } from 'react';
+import { supabase } from '@/services/supabase';
+import { Product } from '@/types';
 
-const fetchProducts = async (): Promise<Product[]> => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: true })
-
-  if (error) throw error
-
-  if (data && data.length > 0) {
-    return data.map((p: any) => {
-      let theme = p.theme
-      
-      if (typeof theme === 'string') {
-        try {
-          theme = JSON.parse(theme)
-        } catch {
-          theme = null
-        }
-      }
-      
-      if (!theme) {
-        theme = {
-          primary: '#ff0000',
-          secondary: '#4b0000',
-          glow: 'rgba(255, 0, 0, 0.8)',
-          text: '#FFFFFF',
-          bg: 'linear-gradient(180deg, #1a0000 0%, #000000 100%)'
-        }
-      }
-      
-      return {
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        volume: p.volume,
-        type: p.type,
-        image: p.image_url || p.image,
-        theme
-      }
-    })
-  }
-
-  return PRODUCTS
+interface ProductDBRow {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number | string;
+    image_url: string | null;
+    volume: string | null;
+    type: string | null;
+    theme: Product['theme'] | null;
 }
 
-export const useProducts = () => {
-  const { data: products = PRODUCTS, isLoading, error, refetch } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts,
-    staleTime: 1000 * 60 * 5,
-  })
+export function useProducts() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  return { 
-    products, 
-    loading: isLoading, 
-    error: error?.message || null, 
-    refetch 
-  }
+    useEffect(() => {
+        async function fetchProducts() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                if (data) {
+                    // Mapeamento resiliente para garantir compatibilidade com a interface Product
+                    const mappedProducts: Product[] = data.map((item: ProductDBRow) => ({
+                        id: item.id,
+                        name: item.name,
+                        description: item.description || '',
+                        price: Number(item.price),
+                        // O frontend espera 'image', mas o banco tem 'image_url'
+                        image: item.image_url || 'https://via.placeholder.com/300',
+                        volume: item.volume || 'N/A',
+                        type: item.type || 'Geral',
+                        // Garante que o tema nunca seja nulo para não quebrar o App.tsx
+                        theme: item.theme || {
+                            primary: '#FFD700',
+                            secondary: '#000000',
+                            glow: 'rgba(255, 215, 0, 0.5)',
+                            text: '#FFFFFF',
+                            bg: '#111111'
+                        }
+                    }));
+                    setProducts(mappedProducts);
+                }
+            } catch (err) {
+                console.error('Erro ao buscar produtos:', err);
+                setError('Falha ao carregar produtos. Verifique sua conexão.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchProducts();
+    }, []);
+
+    return { products, loading, error };
 }

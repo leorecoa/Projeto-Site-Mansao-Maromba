@@ -1,21 +1,24 @@
 
 export interface Theme {
+  bg: string;
   primary: string;
   secondary: string;
-  glow: string;
-  text: string;
-  bg: string;
+  accent?: string;
+  glow?: string;
+  text?: string;
 }
 
 export interface Product {
   id: string;
   name: string;
-  description: string;
   price: number;
-  image: string;
-  volume: string;
-  type: string;
-  theme: Theme;
+  image_url: string;
+  image?: string;
+  description?: string;
+  ingredients?: string;
+  volume?: string;
+  type?: string;
+  theme?: Theme;
 }
 
 export interface CartItem extends Product {

@@ -1,96 +1,176 @@
-import React, { useEffect, useState } from 'react';
-import { ShoppingCart, LogOut, User, Package } from 'lucide-react';
-import { Theme } from '../../types';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ShoppingCart, Menu, X, LogOut, Package } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
-import { useNavigation } from '../../hooks/useNavigation';
+import { Theme } from '../../types';
 
 interface NavbarProps {
-  theme: Theme;
+  theme?: Theme;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ theme }) => {
+export default function Navbar({ theme }: NavbarProps) {
+  const navigate = useNavigate();
   const { cartCount, setIsCartOpen } = useCart();
   const { user, signOut } = useAuth();
-  const { navigate } = useNavigation();
-  const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [user]);
+  const primaryColor = theme?.primary || '#FACC15';
 
-  const handleLogout = async () => {
+  const handleSignOut = async () => {
     await signOut();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center transition-all duration-500 glass-card safe-area-top">
-      <div className="flex items-center gap-2">
-        <img 
-          src="https://i.imgur.com/2CMQ6GJ.png" 
-          alt="Mansão Maromba Logo" 
-          className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-all duration-300"
-          style={{ filter: `contrast(1.2) brightness(1.1) saturate(1.3) drop-shadow(0 0 10px ${theme.glow})` }}
-        />
-        <span className="font-syncopate font-bold text-sm sm:text-lg tracking-tighter hidden sm:block">
-          MANSÃO MAROMBA
-        </span>
-      </div>
+    <nav className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <div
+            className="flex-shrink-0 cursor-pointer flex items-center gap-3"
+            onClick={() => navigate('/')}
+          >
+            <img
+              src="https://i.imgur.com/2CMQ6GJ.png"
+              alt="Mansão Maromba"
+              className="h-10 w-10 rounded-lg"
+            />
+            <span className="font-syncopate font-bold text-white tracking-wider hidden sm:block">
+              MANSÃO <span style={{ color: primaryColor }}>MAROMBA</span>
+            </span>
+          </div>
 
-      <div className="flex items-center gap-3 sm:gap-8">
-        <div className="hidden md:flex gap-6 font-semibold uppercase text-xs tracking-widest">
-          <button onClick={() => window.location.hash = 'hero'} className="hover:opacity-70 transition-opacity">Home</button>
-          <button onClick={() => window.location.hash = 'products'} className="hover:opacity-70 transition-opacity">Combos</button>
-          <button onClick={() => window.location.hash = 'about'} className="hover:opacity-70 transition-opacity">Sobre</button>
-          <button onClick={() => window.location.hash = 'location'} className="hover:opacity-70 transition-opacity">Local</button>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-8">
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-300 hover:text-white transition-colors text-sm font-medium uppercase tracking-widest"
+            >
+              Home
+            </button>
+
+            {user && (
+              <button
+                onClick={() => navigate('/orders')}
+                className="text-gray-300 hover:text-white transition-colors text-sm font-medium uppercase tracking-widest flex items-center gap-2"
+              >
+                <Package size={16} />
+                Meus Pedidos
+              </button>
+            )}
+
+            {/* Cart Icon */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <ShoppingCart size={24} />
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-black"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* User Menu */}
+            {user ? (
+              <div className="flex items-center gap-4 pl-4 border-l border-white/10">
+                <div className="text-right hidden lg:block">
+                  <p className="text-xs text-gray-400">Olá,</p>
+                  <p className="text-sm font-bold text-white max-w-[100px] truncate">
+                    {user.user_metadata?.full_name?.split(' ')[0] || 'Marombeiro'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 text-gray-300 hover:text-red-400 transition-colors"
+                  title="Sair"
+                >
+                  <LogOut size={20} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="px-6 py-2 rounded-full font-bold text-black transition-transform hover:scale-105"
+                style={{ backgroundColor: primaryColor }}
+              >
+                ENTRAR
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-4">
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 text-gray-300 hover:text-white"
+            >
+              <ShoppingCart size={24} />
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-black"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-white p-2"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
-
-        <button 
-          onClick={() => setIsCartOpen(true)}
-          aria-label="Carrinho"
-          className="relative p-2 rounded-full transition-transform hover:scale-110 active:scale-95 touch-manipulation"
-          style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: `1px solid ${theme.primary}` }}
-        >
-          <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
-          {cartCount > 0 && (
-            <span 
-              className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-              style={{ backgroundColor: theme.primary }}
-            >
-              {cartCount}
-            </span>
-          )}
-        </button>
-
-        {!loading && user && (
-          <>
-            <button
-              onClick={() => navigate('/orders')}
-              className="p-2 rounded-full transition-transform hover:scale-110 active:scale-95 hover:bg-blue-500/20 border border-blue-400/20 touch-manipulation"
-              title="Meus Pedidos"
-              aria-label="Meus Pedidos"
-            >
-              <Package size={18} className="text-blue-400 sm:w-5 sm:h-5" />
-            </button>
-            <span className="hidden lg:flex items-center gap-2 text-xs sm:text-sm text-gray-400 bg-white/5 px-2 sm:px-3 py-1.5 rounded-full border border-white/10 max-w-[120px] truncate">
-              <User size={14} />
-              <span className="truncate">{user.email}</span>
-            </span>
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-full transition-transform hover:scale-110 active:scale-95 hover:bg-red-500/20 border border-red-400/20 touch-manipulation"
-              title="Sair"
-              aria-label="Sair"
-            >
-              <LogOut size={18} className="text-red-400 sm:w-5 sm:h-5" />
-            </button>
-          </>
-        )}
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 absolute w-full">
+          <div className="px-4 pt-2 pb-6 space-y-2">
+            <button
+              onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg"
+            >
+              HOME
+            </button>
+
+            {user && (
+              <button
+                onClick={() => { navigate('/orders'); setIsMobileMenuOpen(false); }}
+                className="block w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
+              >
+                <Package size={18} />
+                MEUS PEDIDOS
+              </button>
+            )}
+
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="block w-full text-left px-4 py-3 text-red-400 hover:bg-white/5 rounded-lg flex items-center gap-2"
+              >
+                <LogOut size={18} />
+                SAIR
+              </button>
+            ) : (
+              <button
+                onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}
+                className="block w-full text-center px-4 py-3 mt-4 rounded-lg font-bold text-black"
+                style={{ backgroundColor: primaryColor }}
+              >
+                ENTRAR
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
-};
-
-export default Navbar;
+}

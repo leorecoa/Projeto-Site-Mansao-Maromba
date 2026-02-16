@@ -15,6 +15,11 @@ ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS cancellation_reason TEXT,
 ADD COLUMN IF NOT EXISTS notes TEXT;
 
+-- Adicionar campos de endereço estruturado e snapshot
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_city TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_zipcode TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address_snapshot JSONB;
+
 -- Adicionar constraint para status válidos
 ALTER TABLE orders 
 DROP CONSTRAINT IF EXISTS orders_status_check;
@@ -22,6 +27,10 @@ DROP CONSTRAINT IF EXISTS orders_status_check;
 ALTER TABLE orders 
 ADD CONSTRAINT orders_status_check 
 CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'));
+
+-- Garantir colunas em order_items para valores históricos
+ALTER TABLE order_items ADD COLUMN IF NOT EXISTS unit_price NUMERIC;
+ALTER TABLE order_items ADD COLUMN IF NOT EXISTS subtotal NUMERIC;
 
 -- 2. FUNÇÃO PARA ATUALIZAR STATUS DO PEDIDO
 -- ============================================
@@ -265,13 +274,158 @@ BEGIN
 END;
 $$;
 
--- 8. GRANTS
+-- 8. FUNÇÃO DE CHECKOUT (CREATE_ORDER)
+-- ============================================
+
+CREATE OR REPLACE FUNCTION create_order(
+  p_user_id UUID,
+  p_customer_name TEXT,
+  p_customer_email TEXT,
+  p_customer_phone TEXT,
+  p_customer_city TEXT,
+  p_customer_zipcode TEXT,
+  p_customer_address TEXT,
+  p_shipping_address JSONB,
+  p_items JSONB
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_customer_id UUID;
+  v_order_id UUID;
+  v_total_amount NUMERIC := 0;
+  v_item JSONB;
+  v_product_price NUMERIC;
+  v_product_stock INTEGER;
+  v_product_active BOOLEAN;
+  v_product_name TEXT;
+  v_item_subtotal NUMERIC;
+BEGIN
+  -- 1. Gestão de Cliente (Upsert ou Criação)
+  IF p_user_id IS NOT NULL THEN
+    -- Tenta encontrar cliente vinculado ao usuário
+    SELECT id INTO v_customer_id FROM customers WHERE auth_user_id = p_user_id LIMIT 1;
+  ELSE
+    -- Tenta encontrar cliente por email (para guests)
+    SELECT id INTO v_customer_id FROM customers WHERE email = p_customer_email LIMIT 1;
+  END IF;
+
+  -- Se não existir, cria
+  IF v_customer_id IS NULL THEN
+    INSERT INTO customers (auth_user_id, full_name, email, phone)
+    VALUES (p_user_id, p_customer_name, p_customer_email, p_customer_phone)
+    RETURNING id INTO v_customer_id;
+  ELSE
+    -- Atualiza dados do cliente existente
+    UPDATE customers 
+    SET full_name = p_customer_name, phone = COALESCE(p_customer_phone, phone)
+    WHERE id = v_customer_id;
+  END IF;
+
+  -- 2. Validar Estoque e Calcular Total (Loop de Validação)
+  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+  LOOP
+    -- Bloqueia a linha do produto para evitar Race Condition (FOR UPDATE)
+    SELECT price, stock_quantity, is_active, name 
+    INTO v_product_price, v_product_stock, v_product_active, v_product_name
+    FROM products
+    WHERE id = (v_item->>'product_id')::UUID
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Produto não encontrado: %', (v_item->>'product_id');
+    END IF;
+
+    -- Validação: Produto Ativo
+    IF v_product_active IS FALSE THEN
+      RAISE EXCEPTION 'O produto "%" não está mais disponível para venda.', v_product_name;
+    END IF;
+
+    -- Validação: Estoque
+    IF v_product_stock < (v_item->>'quantity')::INTEGER THEN
+      RAISE EXCEPTION 'Estoque insuficiente para o produto "%". Restam apenas % unidades.', v_product_name, v_product_stock;
+    END IF;
+
+    -- Soma ao total (Cálculo Backend)
+    v_total_amount := v_total_amount + (v_product_price * (v_item->>'quantity')::INTEGER);
+  END LOOP;
+
+  -- 3. Criar Pedido
+  INSERT INTO orders (
+    user_id,
+    customer_id, -- Vincula ao registro na tabela customers
+    customer_name,
+    customer_email,
+    customer_address,
+    customer_city,
+    customer_zipcode,
+    shipping_address_snapshot,
+    total_amount,
+    final_charge_amount, -- Igual ao total pois não há descontos/taxas extras ainda
+    used_wallet_balance, -- Inicializa com 0
+    status
+    payment_method -- Será definido no próximo passo, mas iniciamos como 'pending'
+  ) VALUES (
+    p_user_id,
+    v_customer_id,
+    p_customer_name,
+    p_customer_email,
+    p_customer_address,
+    p_customer_city,
+    p_customer_zipcode,
+    p_shipping_address,
+    v_total_amount,
+    v_total_amount,
+    0.00,
+    'pending',
+    'pending' 
+  ) RETURNING id INTO v_order_id;
+
+  -- 4. Inserir Itens e Baixar Estoque (Loop de Execução)
+  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+  LOOP
+    SELECT price INTO v_product_price
+    FROM products
+    WHERE id = (v_item->>'product_id')::UUID;
+
+    v_item_subtotal := v_product_price * (v_item->>'quantity')::INTEGER;
+
+    INSERT INTO order_items (
+      order_id,
+      product_id,
+      quantity,
+      unit_price,
+      subtotal
+    ) VALUES (
+      v_order_id,
+      (v_item->>'product_id')::UUID,
+      (v_item->>'quantity')::INTEGER,
+      v_product_price,
+      v_item_subtotal
+    );
+
+    -- Atualiza estoque
+    UPDATE products
+    SET stock_quantity = stock_quantity - (v_item->>'quantity')::INTEGER
+    WHERE id = (v_item->>'product_id')::UUID;
+  END LOOP;
+
+  RETURN jsonb_build_object('success', true, 'order_id', v_order_id);
+END;
+$$;
+
+-- 9. GRANTS
 -- ============================================
 
 GRANT EXECUTE ON FUNCTION update_order_status TO authenticated;
 GRANT EXECUTE ON FUNCTION cancel_order TO authenticated;
 GRANT EXECUTE ON FUNCTION get_order_history TO authenticated;
 GRANT EXECUTE ON FUNCTION get_order_stats TO authenticated;
+GRANT EXECUTE ON FUNCTION create_order(uuid, text, text, text, text, text, text, jsonb, jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION create_order(uuid, text, text, text, text, text, text, jsonb, jsonb) TO anon;
 
 -- ============================================
 -- INSTRUÇÕES DE USO
