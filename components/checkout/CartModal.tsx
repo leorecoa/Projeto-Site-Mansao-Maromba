@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/store/useCart';
 import { X, Minus, Plus, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import type { Theme } from '@/types';
 

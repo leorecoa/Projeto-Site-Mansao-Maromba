@@ -21,7 +21,8 @@ export default function CheckoutPage() {
       customer: {
         fullName: user?.user_metadata?.full_name || '',
         email: user?.email || '',
-        phone: ''
+        phone: '',
+        cpf: ''
       },
       shipping: {
         zip: '',
