@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag } from 'lucide-react';
-import { useCart } from '../../hooks/useCart';
+import { useCart } from '../../store/useCart';
 import { Theme } from '../../types';
 
 interface CartModalProps {

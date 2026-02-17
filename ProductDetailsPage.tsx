@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabase';
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/store/useCart';
 import type { Product } from '@/types';
 import { ArrowLeft, ShoppingCart } from 'lucide-react';
 

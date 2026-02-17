@@ -1,7 +1,7 @@
 /// <reference types="vitest/globals" />
 import { renderHook, act } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useCart } from '@/hooks/useCart'
+import { useCart } from '@/store/useCart'
 import { useCheckout } from '@/components/checkout/useCheckout'
 import { supabase } from '@/services/supabase'
 import { useAuth } from '@/hooks/useAuth'

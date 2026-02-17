@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 
-import { useCart } from '@/hooks/useCart'
+import { useCart } from '@/store/useCart'
 import type { Product } from '@/types'
 
 // Factory tipado para garantir conformidade com Product

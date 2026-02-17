@@ -4,7 +4,7 @@ import { vi, type Mock } from 'vitest'
 
 import { useCheckout } from '@/components/checkout/useCheckout'
 import { supabase } from '@/services/supabase'
-import { useCart } from '@/hooks/useCart'
+import { useCart } from '@/store/useCart'
 import { useAuth } from '@/hooks/useAuth'
 import type { CheckoutFormData } from '@/types/checkout'
 import { useNavigate } from 'react-router-dom'

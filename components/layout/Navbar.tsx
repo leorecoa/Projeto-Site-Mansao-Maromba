@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, LogOut, Package } from 'lucide-react';
-import { useCart } from '../../hooks/useCart';
+import { useCart } from '../../store/useCart';
 import { useAuth } from '../../hooks/useAuth';
 import { Theme } from '../../types';
 
