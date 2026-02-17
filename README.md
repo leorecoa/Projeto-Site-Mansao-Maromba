@@ -335,7 +335,16 @@ Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhe
 
 ---
 
-## 🙏 Agradecimentos
+## 🔄 Changelog Recente
+
+### v1.1.0 - Estabilização e Features
+- **Infraestrutura:** Correção de aliases (`@/`), portas de teste (Playwright) e configuração do Vite.
+- **Features:** Validação de estoque no carrinho (`useCart`), busca automática de CEP e melhorias no fluxo de checkout.
+- **Documentação:** Atualização do status do projeto, arquitetura e remoção de referências obsoletas (`src/`).
+
+---
+
+## � Agradecimentos
 
 - [React](https://react.dev) - Framework incrível
 - [Supabase](https://supabase.com) - Backend poderoso
