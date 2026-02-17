@@ -55,7 +55,12 @@ export function usePayment() {
         } catch (err: unknown) { // 'unknown' é mais seguro que 'any' pois obriga a verificação de tipo
             console.error('Erro no pagamento:', err);
             // Type Guard: Verifica se é um erro padrão antes de acessar .message
-            const message = err instanceof Error ? err.message : 'Erro ao processar pagamento';
+            let message = 'Erro ao processar pagamento';
+            if (err instanceof Error) {
+                message = err.message;
+            } else if (typeof err === 'object' && err !== null && 'message' in err) {
+                message = String((err as { message: unknown }).message);
+            }
             setError(message);
             return { success: false, error: message };
         } finally {
