@@ -11,7 +11,7 @@ import MapSection from './sections/Map/MapSection';
 import CartModal from './components/feedback/CartModal';
 import SplashScreen from './components/feedback/SplashScreen';
 import { PRODUCTS, REVIEWS } from './data/products';
-import { useCart } from './store/useCart';
+import { useCartStore as useCart } from './store/useCart';
 import type { Product, Theme } from '@/types';
 import { useAuth } from './hooks/useAuth';
 import { supabase } from './services/supabase';
