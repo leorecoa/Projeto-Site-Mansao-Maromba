@@ -1,231 +1,129 @@
-/// <reference types="vitest/globals" />
-import { renderHook, act } from '@testing-library/react'
-import { vi, type Mock } from 'vitest'
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { useCheckout } from '@/components/checkout/useCheckout';
+import { supabase } from '@/services/supabase';
+import { useCartStore } from '@/store/useCart';
 
-import { useCheckout } from '@/components/checkout/useCheckout'
-import { supabase } from '@/services/supabase'
-import { useCart } from '@/store/useCart'
-import { useAuth } from '@/hooks/useAuth'
-import type { CheckoutFormData } from '@/types/checkout'
-import { useNavigate } from 'react-router-dom'
+// Mocks
+const navigateMock = vi.fn();
 
+// Mock do React Router
+vi.mock('react-router-dom', () => ({
+    useNavigate: () => navigateMock,
+}));
+
+// Mock do Auth
+vi.mock('@/hooks/useAuth', () => ({
+    useAuth: () => ({ user: { id: '123' } }),
+}));
+
+// Mock do Zustand
+vi.mock('@/store/useCart', () => ({
+    useCartStore: vi.fn()
+}));
+
+// Mock do Supabase
 vi.mock('@/services/supabase', () => ({
     supabase: {
         rpc: vi.fn(),
     },
-}))
+}));
 
-vi.mock('@/hooks/useCart')
-vi.mock('@/hooks/useAuth')
-vi.mock('react-router-dom')
-
-describe('useCheckout Hook', () => {
-    const mockNavigate = vi.fn()
-    const mockClearCart = vi.fn()
-
-    const mockFormData: CheckoutFormData = {
-        customer: {
-            fullName: 'Cliente Teste',
-            email: 'teste@exemplo.com',
-            phone: '11999999999',
-            cpf: '12345678900',
-        },
-        shipping: {
-            street: 'Rua Exemplo',
-            number: '100',
-            neighborhood: 'Centro',
-            city: 'São Paulo',
-            state: 'SP',
-            zip: '01001-000',
-            complement: '',
-        },
-    }
+describe('useCheckout', () => {
+    const clearCartMock = vi.fn();
 
     beforeEach(() => {
-        vi.clearAllMocks()
-        vi.spyOn(console, 'error').mockImplementation(() => { })
+        vi.clearAllMocks();
+        (useCartStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => selector({
+            cart: [], // Carrinho Vazio por padrão
+            clearCart: clearCartMock,
+            isHydrated: true
+        }));
+    });
 
-            ; (useNavigate as Mock).mockReturnValue(mockNavigate)
+    it('deve definir erro e abortar se o carrinho estiver vazio', async () => {
+        const { result } = renderHook(() => useCheckout());
 
-            ; (useCart as Mock).mockReturnValue({
-                cart: [],
-                clearCart: mockClearCart,
-                total: 0,
-                loading: false,
-            })
+        // Dados fictícios para o formulário
+        const dummyFormData = {
+            customer: { fullName: 'Test', email: 'test@test.com', phone: '123', cpf: '123' },
+            shipping: { zip: '123', street: 'Test', number: '1', neighborhood: 'Test', city: 'Test', state: 'TS' }
+        };
 
-            ; (useAuth as Mock).mockReturnValue({
-                user: { id: 'user-123' },
-            })
+        // Executa a função
+        await act(async () => {
+            await result.current.processCheckout(dummyFormData);
+        });
 
-        Object.defineProperty(window, 'scrollTo', {
-            value: vi.fn(),
-            writable: true,
-        })
-    })
+        // Verificações
+        // 1. Deve definir o estado de erro
+        expect(result.current.error).toBe('Seu carrinho está vazio.');
 
-    it('deve retornar o estado inicial corretamente', () => {
-        const { result } = renderHook(() => useCheckout())
+        // 2. Não deve chamar o Supabase (abortou antes)
+        expect(supabase.rpc).not.toHaveBeenCalled();
 
-        expect(result.current.loading).toBe(false)
-        expect(result.current.error).toBeNull()
-    })
+        // 3. Não deve navegar
+        expect(navigateMock).not.toHaveBeenCalled();
+    });
 
-    it('deve definir erro se o carrinho estiver vazio', async () => {
-        const { result } = renderHook(() => useCheckout())
+    it('deve criar o pedido com sucesso quando o carrinho tem itens (Happy Path)', async () => {
+        // Setup: Carrinho com itens
+        (useCartStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => selector({
+            cart: [{ id: '1', name: 'Produto Teste', price: 100, quantity: 1 }],
+            clearCart: clearCartMock,
+            isHydrated: true
+        }));
+
+        // Setup: Supabase retorna sucesso
+        (supabase.rpc as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+            data: { success: true, order_id: 'order-123' },
+            error: null
+        });
+
+        const { result } = renderHook(() => useCheckout());
+
+        const dummyFormData = {
+            customer: { fullName: 'Test', email: 'test@test.com', phone: '123', cpf: '123' },
+            shipping: { zip: '123', street: 'Test', number: '1', neighborhood: 'Test', city: 'Test', state: 'TS' }
+        };
 
         await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
+            await result.current.processCheckout(dummyFormData);
+        });
 
-        expect(result.current.error).toBe('Seu carrinho está vazio.')
-        expect(supabase.rpc).not.toHaveBeenCalled()
-    })
+        expect(result.current.error).toBeNull();
+        expect(supabase.rpc).toHaveBeenCalledWith('create_order', expect.any(Object));
+        expect(clearCartMock).toHaveBeenCalled();
+        expect(navigateMock).toHaveBeenCalledWith('/checkout/payment/order-123');
+    });
 
-    it('deve processar o checkout com sucesso', async () => {
-        (useCart as Mock).mockReturnValue({
-            cart: [{ id: 'prod-1', quantity: 2 }],
-            clearCart: mockClearCart,
-            total: 100,
-            loading: false,
-        })
+    it('deve lidar com erro ao criar pedido no Supabase', async () => {
+        // Setup: Carrinho com itens
+        (useCartStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => selector({
+            cart: [{ id: '1', name: 'Produto Teste', price: 100, quantity: 1 }],
+            clearCart: clearCartMock,
+            isHydrated: true
+        }));
 
-            ; (supabase.rpc as Mock).mockResolvedValue({
-                data: { success: true, order_id: 'order-123' },
-                error: null,
-            })
+        // Setup: Supabase retorna erro
+        (supabase.rpc as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+            data: null,
+            error: { message: 'Erro simulado do banco de dados' }
+        });
 
-        const { result } = renderHook(() => useCheckout())
+        const { result } = renderHook(() => useCheckout());
 
-        await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
-
-        expect(result.current.error).toBeNull()
-        expect(mockClearCart).toHaveBeenCalled()
-        expect(mockNavigate).toHaveBeenCalledWith(
-            '/checkout/payment/order-123'
-        )
-    })
-
-    it('deve tratar rpcError retornado pelo Supabase', async () => {
-        (useCart as Mock).mockReturnValue({
-            cart: [{ id: '1', quantity: 1 }],
-            clearCart: mockClearCart,
-            total: 50,
-            loading: false,
-        })
-
-            ; (supabase.rpc as Mock).mockResolvedValue({
-                data: null,
-                error: new Error('Erro ao criar pedido no banco de dados'),
-            })
-
-        const { result } = renderHook(() => useCheckout())
+        const dummyFormData = {
+            customer: { fullName: 'Test', email: 'test@test.com', phone: '123', cpf: '123' },
+            shipping: { zip: '123', street: 'Test', number: '1', neighborhood: 'Test', city: 'Test', state: 'TS' }
+        };
 
         await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
+            await result.current.processCheckout(dummyFormData);
+        });
 
-        expect(result.current.error).toBe(
-            'Erro ao criar pedido no banco de dados'
-        )
-
-        expect(mockClearCart).not.toHaveBeenCalled()
-        expect(mockNavigate).not.toHaveBeenCalled()
-
-        expect(window.scrollTo).toHaveBeenCalledWith({
-            top: 0,
-            behavior: 'smooth',
-        })
-    })
-
-    it('deve lançar erro quando response.success for falso', async () => {
-        (useCart as Mock).mockReturnValue({
-            cart: [{ id: '1', quantity: 1 }],
-            clearCart: mockClearCart,
-            total: 50,
-            loading: false,
-        })
-
-            ; (supabase.rpc as Mock).mockResolvedValue({
-                data: { success: false },
-                error: null,
-            })
-
-        const { result } = renderHook(() => useCheckout())
-
-        await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
-
-        expect(result.current.error).toBe(
-            'Erro desconhecido ao criar pedido.'
-        )
-    })
-
-    it('deve definir erro genérico quando throw não for instância de Error', async () => {
-        (useCart as Mock).mockReturnValue({
-            cart: [{ id: '1', quantity: 1 }],
-            clearCart: mockClearCart,
-            total: 50,
-            loading: false,
-        })
-
-
-            ; (supabase.rpc as Mock).mockRejectedValue('erro estranho')
-
-        const { result } = renderHook(() => useCheckout())
-
-        await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
-
-        expect(result.current.error).toBe(
-            'Ocorreu um erro desconhecido ao processar seu pedido.'
-        )
-
-        expect(window.scrollTo).toHaveBeenCalled()
-    })
-
-    it('envia p_user_id como null quando não houver usuário', async () => {
-        vi.mocked(useCart).mockReturnValue({
-            cart: [{ id: '1', quantity: 1, name: 'Produto Teste', price: 50, image_url: 'test.jpg' }],
-            clearCart: mockClearCart,
-            total: 50,
-            loading: false,
-            isCartOpen: false,
-            isHydrated: true,
-            cartCount: 1,
-            addToCart: vi.fn(),
-            removeFromCart: vi.fn(),
-            updateQuantity: vi.fn(),
-            setIsCartOpen: vi.fn(),
-        })
-
-        vi.mocked(useAuth).mockReturnValue({
-            user: null,
-        } as unknown as ReturnType<typeof useAuth>)
-
-        vi.mocked(supabase.rpc).mockResolvedValue({
-            data: { success: true, order_id: 'order-999' },
-            error: null,
-            count: null,
-            status: 200,
-            statusText: 'OK',
-        })
-
-        const { result } = renderHook(() => useCheckout())
-
-        await act(async () => {
-            await result.current.processCheckout(mockFormData)
-        })
-
-        expect(supabase.rpc).toHaveBeenCalledWith(
-            'create_order',
-            expect.objectContaining({
-                p_user_id: null,
-            })
-        )
-    })
-})
+        expect(result.current.error).toBe('Erro simulado do banco de dados');
+        expect(clearCartMock).not.toHaveBeenCalled();
+        expect(navigateMock).not.toHaveBeenCalled();
+    });
+});

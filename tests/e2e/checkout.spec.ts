@@ -1,70 +1,178 @@
 import { test, expect } from '@playwright/test'
-import { login, getAddToCartBtn } from './utils'
 
 test.describe('Fluxo de Checkout Completo', () => {
-    // Configuração para rodar antes de cada teste
     test.beforeEach(async ({ page }) => {
-        await login(page)
-    })
+        // 1. Mock da API de Produtos (Supabase)
+        // Intercepta a chamada para buscar produtos e retorna um produto de teste
+        await page.route('**/rest/v1/products*', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify([
+                    {
+                        id: 'prod-e2e-1',
+                        name: 'Whey Protein E2E',
+                        price: 150.00,
+                        image_url: 'https://via.placeholder.com/150',
+                        description: 'Produto de teste automatizado',
+                        volume: '900g',
+                        type: 'suplemento',
+                        theme: { primary: '#FFD700', secondary: '#000000', bg: '#111111' }
+                    }
+                ])
+            });
+        });
+
+        // 2. Mock da Criação de Pedido (RPC create_order)
+        await page.route('**/rest/v1/rpc/create_order', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    success: true,
+                    order_id: 'order-e2e-123'
+                })
+            });
+        });
+
+        // 3. Mock da Sessão de Auth (Para simular usuário logado)
+        // Isso evita o redirecionamento para /login
+        await page.addInitScript(() => {
+            window.localStorage.setItem('sb-project-auth-token', JSON.stringify({
+                access_token: 'fake-jwt-token',
+                refresh_token: 'fake-refresh-token',
+                user: {
+                    id: 'user-e2e-123',
+                    email: 'teste@e2e.com',
+                    user_metadata: { full_name: 'Usuário E2E' }
+                }
+            }));
+        });
+    });
 
     test('deve realizar uma compra completa com sucesso (Happy Path)', async ({ page }) => {
-        // 2. Adicionar produto ao carrinho
-        // Aguarda carregar a lista de produtos
-        // IMPORTANTE: Certifique-se de que há produtos cadastrados no banco de dados
-        // Atualizado para encontrar "GARANTIR COMBO" (Hero) ou "Adicionar" (Legado/Lista)
-        const addProductBtn = await getAddToCartBtn(page)
-        await addProductBtn.waitFor({ state: 'visible', timeout: 20000 })
+        // --- PASSO 1: Home e Adicionar ao Carrinho ---
+        await page.goto('/');
 
-        await addProductBtn.click()
+        // Aguarda o produto renderizar
+        await expect(page.getByText('Whey Protein E2E')).toBeVisible();
 
-        // 3. Abrir carrinho e ir para checkout
-        // O carrinho costuma abrir automaticamente ao adicionar item.
-        // Verificamos se o título "CARRINHO" já está visível para evitar erro de clique interceptado.
-        const cartHeading = page.locator('h2', { hasText: 'CARRINHO' })
+        // Clica no botão de adicionar (procura por texto comum em botões de compra)
+        // Ajuste o seletor conforme seu componente Hero ou ProductCard
+        const addBtn = page.locator('button').filter({ hasText: /Adicionar|Comprar|Garantir/ }).first();
+        await addBtn.click();
 
-        if (!(await cartHeading.isVisible())) {
-            await page.click('[aria-label="Carrinho"]')
-        }
+        // --- PASSO 2: Modal do Carrinho ---
+        // Verifica se o modal abriu
+        await expect(page.getByText('Carrinho', { exact: false })).toBeVisible();
+        await expect(page.getByText('R$ 150,00')).toBeVisible();
 
-        await expect(cartHeading).toBeVisible()
-        await page.click('button:has-text("FINALIZAR PEDIDO")')
+        // Clica em Finalizar Compra
+        await page.getByRole('button', { name: 'Finalizar Compra' }).click();
 
-        // 4. Checkout Passo 1 - Resumo
-        await expect(page).toHaveURL('/checkout')
-        await expect(page.locator('h2')).toContainText('Resumo do Pedido')
-        await page.click('button:has-text("Continuar")')
+        // --- PASSO 3: Página de Checkout (Formulários) ---
+        await expect(page).toHaveURL(/\/checkout/);
 
-        // 5. Checkout Passo 2 - Endereço (Usa os IDs que adicionamos)
-        await expect(page.locator('h2')).toContainText('Dados de Entrega')
+        // Preencher Dados Pessoais
+        // O nome já deve vir preenchido pelo mock do Auth, mas vamos garantir
+        await expect(page.locator('input[name="customer.fullName"]')).toHaveValue('Usuário E2E');
 
-        await page.fill('#customer_name', 'Tester Playwright')
-        await page.fill('#customer_email', 'tester@playwright.com')
-        await page.fill('#customer_phone', '11999999999')
-        await page.fill('#customer_zipcode', '01001-000')
-        await page.fill('#customer_address', 'Rua de Teste Automatizado, 123')
-        await page.fill('#customer_city', 'São Paulo')
-        await page.fill('#customer_state', 'SP')
+        await page.locator('input[name="customer.cpf"]').fill('123.456.789-00');
+        await page.locator('input[name="customer.phone"]').fill('(11) 99999-9999');
 
-        await page.click('button:has-text("Continuar")')
+        // Preencher Endereço
+        // Simulamos a digitação do CEP. O ShippingForm dispara busca no onBlur.
+        // Como estamos mockando apenas Supabase, a API do ViaCEP será chamada de verdade ou falhará.
+        // Para robustez, preenchemos manualmente os campos que seriam auto-completados.
+        await page.locator('input[name="shipping.zip"]').fill('01001-000');
+        await page.locator('input[name="shipping.zip"]').blur(); // Dispara onBlur
 
-        // 6. Checkout Passo 3 - Pagamento
-        await expect(page.locator('h2')).toContainText('Pagamento')
-        await page.click('#payment_pix') // Seleciona PIX
-        await page.fill('#order_notes', 'Pedido de teste automatizado via Playwright')
+        // Preenchimento manual para garantir
+        await page.locator('input[name="shipping.street"]').fill('Praça da Sé');
+        await page.locator('input[name="shipping.number"]').fill('100');
+        await page.locator('input[name="shipping.neighborhood"]').fill('Sé');
+        await page.locator('input[name="shipping.city"]').fill('São Paulo');
+        await page.locator('input[name="shipping.state"]').fill('SP');
 
-        // Finalizar Pedido
-        await page.click('button:has-text("Finalizar Pedido")')
+        // Submeter Formulário
+        await page.getByRole('button', { name: 'Confirmar e Ir para Pagamento' }).click();
 
-        // 7. Validar Tela de Sucesso
-        // Aumentamos o timeout pois a RPC do banco pode levar alguns segundos
-        await expect(page.locator('text=Pedido Realizado!')).toBeVisible({ timeout: 20000 })
-        await expect(page.locator('text=Número do Pedido')).toBeVisible()
+        // --- PASSO 4: Pagamento ---
+        // O formulário de pagamento é renderizado após o sucesso do create_order no useCheckout
+        // O useCheckout navega para /checkout/payment/:id
+        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
 
-        // 8. Verificar redirecionamento para Meus Pedidos
-        await page.click('button:has-text("Ver Meus Pedidos")')
-        await expect(page).toHaveURL('/orders')
-        // Opcional: Verificar se a página de pedidos carregou (ex: título)
+        // Verifica elementos da página de sucesso/pagamento
+        await expect(page.getByText('Pedido Realizado!')).toBeVisible();
+        await expect(page.getByText('Pagamento via PIX')).toBeVisible(); // Default mockado
 
-        console.log('✅ Fluxo de checkout completado com sucesso!')
-    })
-})
+        // Verifica se o valor está correto
+        await expect(page.getByText('R$ 150,00')).toBeVisible();
+
+        // --- PASSO 5: Navegação Final ---
+        await page.getByRole('button', { name: 'Ver Meus Pedidos' }).click();
+        await expect(page).toHaveURL(/\/orders/);
+    });
+
+    test('deve exibir erro quando o pagamento falha (Unhappy Path)', async ({ page }) => {
+        // --- PASSO 1: Home e Adicionar ao Carrinho ---
+        await page.goto('/');
+
+        // Aguarda o produto renderizar
+        await expect(page.getByText('Whey Protein E2E')).toBeVisible();
+
+        // Clica no botão de adicionar
+        const addBtn = page.locator('button').filter({ hasText: /Adicionar|Comprar|Garantir/ }).first();
+        await addBtn.click();
+
+        // --- PASSO 2: Modal do Carrinho ---
+        await expect(page.getByText('Carrinho', { exact: false })).toBeVisible();
+        await page.getByRole('button', { name: 'Finalizar Compra' }).click();
+
+        // --- PASSO 3: Página de Checkout (Formulários) ---
+        await expect(page).toHaveURL(/\/checkout/);
+
+        // Preencher formulários
+        await page.locator('input[name="customer.cpf"]').fill('123.456.789-00');
+        await page.locator('input[name="customer.phone"]').fill('(11) 99999-9999');
+        await page.locator('input[name="shipping.zip"]').fill('01001-000');
+        await page.locator('input[name="shipping.zip"]').blur();
+
+        // Preenchimento manual
+        await page.locator('input[name="shipping.street"]').fill('Rua Falha');
+        await page.locator('input[name="shipping.number"]').fill('000');
+        await page.locator('input[name="shipping.neighborhood"]').fill('Bairro Erro');
+        await page.locator('input[name="shipping.city"]').fill('São Paulo');
+        await page.locator('input[name="shipping.state"]').fill('SP');
+
+        // Submeter Formulário
+        await page.getByRole('button', { name: 'Confirmar e Ir para Pagamento' }).click();
+
+        // --- PASSO 4: Pagamento ---
+        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
+
+        // Interceptar a requisição de atualização do pedido para simular falha
+        await page.route('**/rest/v1/orders*', async (route) => {
+            if (route.request().method() === 'PATCH') {
+                await route.fulfill({
+                    status: 402,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        message: 'Cartão recusado: Saldo insuficiente'
+                    })
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        // Tentar pagar com Cartão
+        await page.getByRole('button', { name: /Pagar com Cartão/ }).click();
+
+        // Verificar se a mensagem de erro aparece
+        await expect(page.getByText('Cartão recusado: Saldo insuficiente')).toBeVisible();
+
+        // Verificar que NÃO redirecionou (ainda na página de pagamento)
+        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
+    });
+});
