@@ -8,7 +8,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import AdminPanel from '@/components/admin/AdminPanel';
 import ProductForm from '@/components/admin/ProductForm';
 import CheckoutPage from '@/components/checkout/CheckoutPage';
-import OrdersPage from '@/components/checkout/OrdersPage';
+import OrdersPage from './components/checkout/OrdersPage';
 import PaymentPage from '@/components/checkout/PaymentPage';
 import ProductDetailsPage from './ProductDetailsPage';
 
