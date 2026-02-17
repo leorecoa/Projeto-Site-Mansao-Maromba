@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from '@/store/useCart';
+import { useCartStore as useCart } from '@/store/useCart';
 import { X, Minus, Plus, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import type { Theme } from '@/types';
 
@@ -9,7 +9,10 @@ interface CartModalProps {
 }
 
 export default function CartModal({ onCheckout }: CartModalProps) {
-    const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, total, clearCart, loading } = useCart();
+    const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, clearCart, isHydrated } = useCart();
+
+    const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const loading = !isHydrated;
 
     if (!isCartOpen) return null;
 

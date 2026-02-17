@@ -65,10 +65,13 @@ export function useCheckout() {
         clearCart()
         navigate(`/checkout/payment/${result.order_id}`)
       } catch (err: unknown) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : 'Ocorreu um erro desconhecido ao processar seu pedido.'
+        let message = 'Ocorreu um erro desconhecido ao processar seu pedido.'
+
+        if (err instanceof Error) {
+          message = err.message
+        } else if (typeof err === 'object' && err !== null && 'message' in err) {
+          message = String((err as { message: unknown }).message)
+        }
 
         setError(message)
         window.scrollTo({ top: 0, behavior: 'smooth' })
