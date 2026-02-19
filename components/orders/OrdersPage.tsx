@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { ArrowLeft, XCircle, Loader2, Package, Calendar, CheckCircle, Clock, Truck, CreditCard } from 'lucide-react';
+import { useToast } from '../../store/useToast';
+import { logError } from '../../utils/logger';
 
 interface OrderItem {
     id: string;
@@ -30,6 +32,7 @@ interface Order {
 export default function OrdersPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -38,9 +41,10 @@ export default function OrdersPage() {
         if (!user) return;
 
         async function fetchOrders() {
-            const { data, error } = await supabase
-                .from('orders')
-                .select(`
+            try {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select(`
           *,
           order_items (
             id,
@@ -52,20 +56,24 @@ export default function OrdersPage() {
             )
           )
         `)
-                .eq('user_id', user!.id)
-                .order('created_at', { ascending: false });
+                    .eq('user_id', user!.id)
+                    .order('created_at', { ascending: false });
 
-            if (!error && data) {
-                setOrders(data as unknown as Order[]);
+                if (error) throw error;
+                if (data) setOrders(data as unknown as Order[]);
+            } catch (error) {
+                logError('OrdersPage.fetchOrders', error);
+                addToast('Nao foi possivel carregar seus pedidos.', 'error');
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         }
 
         fetchOrders();
-    }, [user]);
+    }, [user, addToast]);
 
     const handleCancelOrder = async (orderId: string) => {
-        if (!confirm('Tem certeza que deseja cancelar este pedido? Esta ação não pode ser desfeita.')) {
+        if (!confirm('Tem certeza que deseja cancelar este pedido? Esta acao nao pode ser desfeita.')) {
             return;
         }
 
@@ -81,12 +89,13 @@ export default function OrdersPage() {
 
             if (data && data.success) {
                 setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+                addToast('Pedido cancelado com sucesso.', 'success');
             } else {
-                alert('Não foi possível cancelar o pedido: ' + (data?.error || 'Erro desconhecido'));
+                addToast(`Nao foi possivel cancelar o pedido: ${data?.error || 'erro desconhecido'}.`, 'error');
             }
         } catch (err) {
-            console.error('Erro ao cancelar:', err);
-            alert('Erro ao processar o cancelamento.');
+            logError('OrdersPage.handleCancelOrder', err);
+            addToast('Nao foi possivel processar o cancelamento.', 'error');
         } finally {
             setCancellingId(null);
         }
@@ -115,7 +124,7 @@ export default function OrdersPage() {
                         <div className="bg-zinc-900 border border-white/10 rounded-xl p-12 text-center">
                             <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                             <h3 className="text-xl font-bold text-white mb-2">Nenhum pedido encontrado</h3>
-                            <p className="text-gray-400">Você ainda não fez nenhuma compra na Mansão Maromba.</p>
+                            <p className="text-gray-400">Voce ainda nao fez nenhuma compra na Mansao Maromba.</p>
                         </div>
                     ) : (
                         orders.map((order) => (
@@ -124,7 +133,7 @@ export default function OrdersPage() {
                                     <div>
                                         <p className="text-sm text-gray-400 flex items-center gap-2">
                                             <Calendar className="w-4 h-4" />
-                                            {new Date(order.created_at).toLocaleDateString()} às {new Date(order.created_at).toLocaleTimeString()}
+                                            {new Date(order.created_at).toLocaleDateString()} as {new Date(order.created_at).toLocaleTimeString()}
                                         </p>
                                         <p className="text-xs text-gray-500 font-mono mt-1">ID: {order.id}</p>
                                     </div>
@@ -163,7 +172,7 @@ export default function OrdersPage() {
                                                     )}
                                                 </div>
                                                 <span className="text-gray-300">
-                                                    <span className="text-yellow-400 font-bold">{item.quantity}x</span> {item.products?.name || 'Produto indisponível'}
+                                                    <span className="text-yellow-400 font-bold">{item.quantity}x</span> {item.products?.name || 'Produto indisponivel'}
                                                 </span>
                                             </div>
                                             <span className="text-white font-medium">R$ {item.unit_price.toFixed(2)}</span>

@@ -52,7 +52,7 @@ export default function Navbar({ theme }: NavbarProps) {
 
             {user && (
               <button
-                onClick={() => navigate('/orders')}
+                onClick={() => navigate('/minha-conta')}
                 className="text-gray-300 hover:text-white transition-colors text-sm font-medium uppercase tracking-widest flex items-center gap-2"
               >
                 <Package size={16} />
@@ -143,7 +143,7 @@ export default function Navbar({ theme }: NavbarProps) {
 
             {user && (
               <button
-                onClick={() => { navigate('/orders'); setIsMobileMenuOpen(false); }}
+                onClick={() => { navigate('/minha-conta'); setIsMobileMenuOpen(false); }}
                 className="block w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
               >
                 <Package size={18} />

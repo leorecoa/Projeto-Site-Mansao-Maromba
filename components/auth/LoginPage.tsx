@@ -1,13 +1,26 @@
 import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 import { Sparkles } from 'lucide-react';
+import { useToast as useToastStore } from '../../store/useToast';
+import { mapAuthErrorMessage } from '../../utils/authErrors';
+
+function sanitizeRedirectPath(input: string | null): string {
+  if (!input) return '/';
+  if (!input.startsWith('/') || input.startsWith('//')) return '/';
+  return input;
+}
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [isSignUp, setIsSignUp] = React.useState(false);
+  const { addToast } = useToastStore();
+  const redirectPath = sanitizeRedirectPath(searchParams.get('redirect'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,15 +31,20 @@ export default function LoginPage() {
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        alert('Cadastro realizado! Verifique seu email.');
+
+        addToast('Cadastro realizado. Verifique seu email para confirmar a conta.', 'success');
+        setIsSignUp(false);
+        setPassword('');
+        setLoading(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        window.location.href = '/';
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+        navigate(redirectPath, { replace: true });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao autenticar');
-    } finally {
+      setError(mapAuthErrorMessage(err));
       setLoading(false);
     }
   };
@@ -34,44 +52,40 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
-          skipBrowserRedirect: false,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`,
+          skipBrowserRedirect: false
         }
       });
+
       if (error) throw error;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao autenticar com Google');
+      setError(mapAuthErrorMessage(err));
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-black">
-      {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/5" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo Section */}
           <div className="text-center mb-8">
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
-              alt="Mansão Maromba Logo"
+              alt="Mansao Maromba Logo"
               className="w-20 h-20 object-cover mx-auto mb-4 shadow-lg shadow-yellow-400/20"
               style={{ borderRadius: '1rem' }}
             />
             <h1 className="text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2">
-              Mansão Maromba
+              Mansao Maromba
             </h1>
             <p className="text-gray-400 flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4 text-yellow-400" />
@@ -79,9 +93,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Form Card */}
           <div className="glass-card rounded-2xl p-8 border border-yellow-400/10 shadow-2xl">
-
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm backdrop-blur-sm">
                 {error}
@@ -90,9 +102,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Email</label>
                 <input
                   type="email"
                   value={email}
@@ -104,15 +114,13 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  Senha
-                </label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Senha</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
-                  placeholder="••••••••"
+                  placeholder="........"
                   required
                   minLength={6}
                 />
@@ -152,7 +160,7 @@ export default function LoginPage() {
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-yellow-400 hover:text-yellow-300 font-medium text-sm transition-colors"
               >
-                {isSignUp ? 'Já tem conta? Entrar' : 'Não tem conta? Cadastre-se'}
+                {isSignUp ? 'Ja tem conta? Entrar' : 'Nao tem conta? Cadastre-se'}
               </button>
             </div>
           </div>

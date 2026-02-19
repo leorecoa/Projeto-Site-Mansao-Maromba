@@ -63,7 +63,7 @@ export function useCheckout() {
         }
 
         clearCart()
-        navigate(`/checkout/payment/${result.order_id}`)
+        navigate('/checkout/success', { state: { orderId: result.order_id } })
       } catch (err: unknown) {
         let message = 'Ocorreu um erro desconhecido ao processar seu pedido.'
 

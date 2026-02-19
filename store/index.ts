@@ -7,7 +7,6 @@ interface CartState {
   isCartOpen: boolean;
   cartTotal: number;
   cartCount: number;
-
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;

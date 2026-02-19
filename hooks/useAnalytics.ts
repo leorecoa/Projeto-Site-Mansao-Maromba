@@ -4,6 +4,16 @@ import { useNavigation } from './useNavigation'
 
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
 
+// Tipos para window.gtag
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gtag?: (...args: any[]) => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dataLayer?: any[]
+  }
+}
+
 export function useAnalytics() {
   const { currentPath } = useNavigation()
 
@@ -12,7 +22,7 @@ export function useAnalytics() {
 
     // Inicializa dataLayer e gtag imediatamente
     window.dataLayer = window.dataLayer || []
-    window.gtag = window.gtag || function() { window.dataLayer.push(arguments) }
+    window.gtag = window.gtag || function (...args: unknown[]) { window.dataLayer?.push(args) }
 
     // Carrega script do Google Analytics dinamicamente (apenas 1x)
     if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
@@ -36,19 +46,11 @@ export function useAnalytics() {
     })
   }, [currentPath])
 
-  const trackEvent = (eventName: string, params?: Record<string, any>) => {
+  const trackEvent = (eventName: string, params?: Record<string, unknown>) => {
     if (!GA_MEASUREMENT_ID || !window.gtag) return
-    
+
     window.gtag('event', eventName, params)
   }
 
   return { trackEvent }
-}
-
-// Tipos para window.gtag
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void
-    dataLayer?: any[]
-  }
 }

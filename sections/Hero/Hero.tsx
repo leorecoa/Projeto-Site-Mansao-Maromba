@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Zap, Crown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Crown } from 'lucide-react';
 import { Product } from '../../types';
 import { useCart } from '../../store/useCart';
 
@@ -13,7 +13,6 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
   const { addToCart } = useCart();
   const activeProduct = products[activeIndex];
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showFlash, setShowFlash] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
 
@@ -26,11 +25,9 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
   const triggerChange = (newIndex: number, moveDirection: 'next' | 'prev') => {
     if (isTransitioning) return;
     setIsTransitioning(true);
-    setShowFlash(true);
     setDirection(moveDirection);
     setActiveIndex(newIndex);
 
-    setTimeout(() => setShowFlash(false), 800);
     setTimeout(() => {
       setIsTransitioning(false);
       setDirection(null);

@@ -1,6 +1,8 @@
-// VERSÃO OTIMIZADA PARA PRODUÇÃO
+// VERSAO OTIMIZADA PARA PRODUCAO
 import { useEffect, useState } from 'react'
 import { supabase } from '../services/supabase'
+import type { User } from '@supabase/supabase-js'
+import { logError } from '../utils/logger'
 
 interface UserProfile {
   id: string
@@ -9,7 +11,7 @@ interface UserProfile {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -17,26 +19,24 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true
 
-    // Inicialização
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
         if (!isMounted) return
-        
+
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
-          // Carrega perfil com retry
           const { data, error } = await supabase
             .from('user_profiles')
             .select('id, email, role')
             .eq('id', session.user.id)
             .maybeSingle()
-          
+
           if (!isMounted) return
-          
+
           if (error) {
-            console.error('Erro ao carregar perfil:', error)
-            setError('Erro ao carregar perfil do usuário')
+            logError('useAuth.PRODUCTION.loadProfile', error)
+            setError('Erro ao carregar perfil do usuario')
           } else if (data) {
             setProfile(data)
           }
@@ -44,35 +44,32 @@ export function useAuth() {
       })
       .catch((err) => {
         if (!isMounted) return
-        console.error('Erro na autenticação:', err)
-        setError('Erro ao verificar autenticação')
+        logError('useAuth.PRODUCTION.getSession', err)
+        setError('Erro ao verificar autenticacao')
       })
       .finally(() => {
         if (isMounted) setLoading(false)
       })
 
-    // Listener de mudanças
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return
-      
+
       setUser(session?.user ?? null)
-      
+
       if (session?.user) {
-        // Recarrega perfil quando faz login
         const { data } = await supabase
           .from('user_profiles')
           .select('id, email, role')
           .eq('id', session.user.id)
           .maybeSingle()
-        
+
         if (isMounted && data) {
           setProfile(data)
         }
       } else {
         setProfile(null)
       }
-      
-      // Limpa hash OAuth
+
       if (event === 'SIGNED_IN' && window.location.hash) {
         window.history.replaceState(null, '', window.location.pathname)
       }
@@ -91,7 +88,7 @@ export function useAuth() {
       setProfile(null)
       setError(null)
     } catch (err) {
-      console.error('Erro ao fazer logout:', err)
+      logError('useAuth.PRODUCTION.signOut', err)
       setError('Erro ao fazer logout')
     }
   }
@@ -104,6 +101,6 @@ export function useAuth() {
     signOut,
     isAuthenticated: !!user,
     loading,
-    error, // Novo: expõe erros para UI
+    error,
   }
 }

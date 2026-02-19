@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/supabase';
+import { useToast } from '@/store/useToast';
+import { logError } from '@/utils/logger';
 
 export default function ProductForm() {
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -23,10 +26,10 @@ export default function ProductForm() {
         setLoading(true);
 
         const price = parseFloat(formData.price);
-        const stock = parseInt(formData.stock_quantity);
+        const stock = parseInt(formData.stock_quantity, 10);
 
         if (isNaN(price) || isNaN(stock)) {
-            alert('Por favor, insira valores válidos para preço e estoque.');
+            addToast('Insira valores validos para preco e estoque.', 'error');
             setLoading(false);
             return;
         }
@@ -37,11 +40,10 @@ export default function ProductForm() {
                 .insert([{
                     name: formData.name,
                     description: formData.description,
-                    price: price,
+                    price,
                     image_url: formData.image_url,
                     stock_quantity: stock,
                     is_active: true,
-                    // Tema padrão para evitar quebra no frontend
                     theme: {
                         primary: '#FFD700',
                         secondary: '#000000',
@@ -53,11 +55,11 @@ export default function ProductForm() {
 
             if (error) throw error;
 
-            alert('Produto criado com sucesso!');
+            addToast('Produto criado com sucesso!', 'success');
             navigate('/admin');
         } catch (error) {
-            console.error('Erro ao criar produto:', error);
-            alert('Erro ao criar produto.');
+            logError('AdminProductForm.handleSubmit', error);
+            addToast('Nao foi possivel criar o produto.', 'error');
         } finally {
             setLoading(false);
         }
@@ -91,7 +93,7 @@ export default function ProductForm() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-1">Descrição</label>
+                            <label className="block text-sm font-medium text-gray-300 mb-1">Descricao</label>
                             <textarea
                                 name="description"
                                 rows={3}
@@ -103,7 +105,7 @@ export default function ProductForm() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-1">Preço (R$)</label>
+                                <label className="block text-sm font-medium text-gray-300 mb-1">Preco (R$)</label>
                                 <input
                                     type="number"
                                     name="price"

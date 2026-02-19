@@ -1,38 +1,16 @@
-import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/services/supabase';
+import { Loader2 } from 'lucide-react';
 
 export function AdminRoute() {
-    const { user, isAuthenticated, loading: authLoading } = useAuth();
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const [checkingRole, setCheckingRole] = useState<boolean>(true);
+    const { isAdmin, isAuthenticated, loading, profileError } = useAuth();
 
-    useEffect(() => {
-        async function checkAdminRole() {
-            if (user) {
-                const { data, error } = await supabase
-                    .from('user_profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                if (!error && data && data.role === 'admin') {
-                    setIsAdmin(true);
-                }
-            }
-            setCheckingRole(false);
-        }
-
-        if (!authLoading) checkAdminRole();
-    }, [user, authLoading]);
-
-    if (authLoading || checkingRole) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-black">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-300">Verificando permissões...</p>
+                    <Loader2 className="w-16 h-16 animate-spin text-yellow-400 mx-auto mb-4" />
+                    <p className="text-gray-300">Verificando permissoes...</p>
                 </div>
             </div>
         );
@@ -40,6 +18,24 @@ export function AdminRoute() {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
+    }
+
+    // Falha transitória de perfil não deve forçar logout imediato.
+    if (profileError) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-black px-4">
+                <div className="max-w-md text-center bg-zinc-900 border border-white/10 rounded-xl p-6">
+                    <p className="text-red-400 font-semibold mb-2">Falha ao verificar permissoes</p>
+                    <p className="text-gray-400 text-sm mb-4">{profileError}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-4 py-2 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-colors"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     if (!isAdmin) {

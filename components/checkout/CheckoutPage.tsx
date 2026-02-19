@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { useCheckout } from './useCheckout';
 import { useAuth } from '@/hooks/useAuth';
-import CustomerForm from './CustomerForm';
+import { CustomerForm } from './CustomerForm';
 import ShippingForm from './ShippingForm';
 import OrderSummary from './OrderSummary';
 import CheckoutSteps from './CheckoutSteps';

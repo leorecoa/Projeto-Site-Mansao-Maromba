@@ -6,9 +6,21 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const allowedOrigins = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+function buildCorsHeaders(origin: string | null): HeadersInit {
+  const allowOrigin = origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))
+    ? origin
+    : (allowedOrigins[0] ?? 'null')
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  }
 }
 
 interface ProcessOrderRequest {
@@ -17,17 +29,69 @@ interface ProcessOrderRequest {
   tracking_code?: string
 }
 
+function getBearerToken(req: Request): string | null {
+  const authHeader = req.headers.get('authorization') ?? ''
+  const [scheme, token] = authHeader.split(' ')
+  if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    return null
+  }
+  return token
+}
+
 serve(async (req) => {
+  const origin = req.headers.get('origin')
+  const corsHeaders = buildCorsHeaders(origin)
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Method not allowed' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 405 }
+    )
+  }
+
   try {
+    const token = getBearerToken(req)
+    if (!token) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing bearer token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
     const { order_id, action, tracking_code }: ProcessOrderRequest = await req.json()
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    const { data: authData, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !authData.user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid auth token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', authData.user.id)
+      .maybeSingle()
+
+    if (profileError) {
+      throw profileError
+    }
+
+    if (profile?.role !== 'admin') {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Forbidden' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      )
+    }
 
     // Buscar pedido com itens
     const { data: order, error: orderError } = await supabase
@@ -138,10 +202,11 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Process order error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     )
   }

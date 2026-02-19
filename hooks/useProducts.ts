@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/services/supabase';
 import { Product } from '@/types';
+import { logError } from '@/utils/logger';
 
 interface ProductDBRow {
     id: string;
@@ -30,17 +31,14 @@ export function useProducts() {
                 if (error) throw error;
 
                 if (data) {
-                    // Mapeamento resiliente para garantir compatibilidade com a interface Product
                     const mappedProducts: Product[] = data.map((item: ProductDBRow) => ({
                         id: item.id,
                         name: item.name,
                         description: item.description || '',
                         price: Number(item.price),
-                        // O frontend espera 'image', mas o banco tem 'image_url'
                         image: item.image_url || 'https://via.placeholder.com/300',
                         volume: item.volume || 'N/A',
                         type: item.type || 'Geral',
-                        // Garante que o tema nunca seja nulo para não quebrar o App.tsx
                         theme: item.theme || {
                             primary: '#FFD700',
                             secondary: '#000000',
@@ -52,8 +50,8 @@ export function useProducts() {
                     setProducts(mappedProducts);
                 }
             } catch (err) {
-                console.error('Erro ao buscar produtos:', err);
-                setError('Falha ao carregar produtos. Verifique sua conexão.');
+                logError('useProducts.fetchProducts', err);
+                setError('Falha ao carregar produtos. Verifique sua conexao.');
             } finally {
                 setLoading(false);
             }

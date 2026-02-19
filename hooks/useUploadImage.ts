@@ -28,8 +28,8 @@ export const useUploadImage = () => {
         .getPublicUrl(filePath)
 
       return data.publicUrl
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer upload')
       return null
     } finally {
       setUploading(false)

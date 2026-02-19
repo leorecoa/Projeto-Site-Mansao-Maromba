@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../store/useCart';
-import { Theme } from '../../types';
+import { Theme, CartItem } from '../../types';
 
 interface CartModalProps {
   activeTheme?: Theme;
@@ -9,7 +9,9 @@ interface CartModalProps {
 }
 
 export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
+
+  const cartTotal = cart.reduce((total: number, item: CartItem) => total + (item.price * item.quantity), 0);
 
   if (!isCartOpen) return null;
 
@@ -62,8 +64,8 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
               </button>
             </div>
           ) : (
-            cart.map((item) => (
-              <div key={item.id} className="flex gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+            cart.map((item: CartItem) => (
+              <div key={item.id} data-testid="cart-item" className="flex gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
                 <div className="w-20 h-20 bg-white/5 rounded-lg flex items-center justify-center p-2">
                   <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                 </div>
@@ -80,7 +82,7 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
                       >
                         -
                       </button>
-                      <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                      <span data-testid="item-quantity" className="text-sm font-bold w-4 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
@@ -93,6 +95,7 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
                 </div>
                 <button
                   onClick={() => removeFromCart(item.id)}
+                  aria-label="Remover"
                   className="text-gray-500 hover:text-red-400 self-start p-1"
                 >
                   <Trash2 size={18} />

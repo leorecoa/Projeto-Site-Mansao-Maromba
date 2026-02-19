@@ -12,13 +12,14 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  image_url: string;
+  image_url?: string;
   image?: string;
   description?: string;
   ingredients?: string;
   volume?: string;
   type?: string;
-  theme?: Theme;
+  stock_quantity?: number;
+  theme: Theme;
 }
 
 export interface CartItem extends Product {

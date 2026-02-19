@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/services/supabase';
+import { getErrorMessage } from '@/utils/errors';
+import { logError } from '@/utils/logger';
 
 interface PaymentResult {
     success: boolean;
@@ -17,14 +19,11 @@ export function usePayment() {
         setError(null);
 
         try {
-            // Simulação de delay de processamento (API)
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             if (method === 'pix') {
-                // Código PIX estático para simulação
-                const pixCode = "00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540510.005802BR5913Mansao Maromba6008Sao Paulo62070503***6304E2CA";
+                const pixCode = '00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540510.005802BR5913Mansao Maromba6008Sao Paulo62070503***6304E2CA';
 
-                // Atualiza o status do pedido para pendente/aguardando pagamento
                 const { error: updateError } = await supabase
                     .from('orders')
                     .update({
@@ -38,7 +37,6 @@ export function usePayment() {
                 return { success: true, qrCode: pixCode };
             }
 
-            // Para Cartão e Boleto, simulamos aprovação imediata
             const { error: updateError } = await supabase
                 .from('orders')
                 .update({
@@ -52,15 +50,9 @@ export function usePayment() {
 
             return { success: true, paymentId: `PAY-${Math.random().toString(36).substr(2, 9).toUpperCase()}` };
 
-        } catch (err: unknown) { // 'unknown' é mais seguro que 'any' pois obriga a verificação de tipo
-            console.error('Erro no pagamento:', err);
-            // Type Guard: Verifica se é um erro padrão antes de acessar .message
-            let message = 'Erro ao processar pagamento';
-            if (err instanceof Error) {
-                message = err.message;
-            } else if (typeof err === 'object' && err !== null && 'message' in err) {
-                message = String((err as { message: unknown }).message);
-            }
+        } catch (err: unknown) {
+            logError('usePayment.processPayment', err);
+            const message = getErrorMessage(err, 'Erro ao processar pagamento');
             setError(message);
             return { success: false, error: message };
         } finally {

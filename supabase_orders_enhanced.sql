@@ -26,7 +26,7 @@ DROP CONSTRAINT IF EXISTS orders_status_check;
 
 ALTER TABLE orders 
 ADD CONSTRAINT orders_status_check 
-CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'));
+CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'paid'));
 
 -- Garantir colunas em order_items para valores históricos
 ALTER TABLE order_items ADD COLUMN IF NOT EXISTS unit_price NUMERIC;
@@ -366,7 +366,7 @@ BEGIN
     total_amount,
     final_charge_amount, -- Igual ao total pois não há descontos/taxas extras ainda
     used_wallet_balance, -- Inicializa com 0
-    status
+    status,
     payment_method -- Será definido no próximo passo, mas iniciamos como 'pending'
   ) VALUES (
     p_user_id,

@@ -5,7 +5,7 @@ interface AboutSectionProps {
   activeTheme: Theme;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ activeTheme }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ activeTheme: _activeTheme }) => {
   return (
     <section id="about" className="py-24 px-6">
       <div className="container mx-auto">

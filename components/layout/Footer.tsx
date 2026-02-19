@@ -2,6 +2,7 @@
 import React from 'react';
 import { Theme } from '../../types';
 import { Instagram, MapPin, Phone, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface FooterProps {
   activeTheme: Theme;
@@ -33,6 +34,9 @@ const Footer: React.FC<FooterProps> = ({ activeTheme }) => {
             <ul className="space-y-4 text-gray-500 text-sm font-medium">
               <li><a href="#hero" className="hover:text-white transition-colors">Home</a></li>
               <li><a href="#products" className="hover:text-white transition-colors">Combos</a></li>
+              <li><Link to="/terms" className="hover:text-white transition-colors">Termos</Link></li>
+              <li><Link to="/privacy" className="hover:text-white transition-colors">Privacidade</Link></li>
+              <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
             </ul>
           </div>
           <div>

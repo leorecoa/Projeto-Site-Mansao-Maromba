@@ -1,54 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { CheckoutFormData } from '@/types/checkout';
-import { fetchAddressByCep } from '@/utils/viacep';
 import { Loader2 } from 'lucide-react';
+import { useCep } from './useCep';
 
 interface Props {
     disabled?: boolean;
 }
 
 export default function ShippingForm({ disabled }: Props) {
-    const { register, setValue, formState: { errors } } = useFormContext<CheckoutFormData>();
-    const [isLoadingCep, setIsLoadingCep] = useState(false);
-
-    // Mantém a máscara visual enquanto digita
-    const handleZipChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const rawValue = e.target.value;
-        let formattedValue = rawValue.replace(/\D/g, '');
-        if (formattedValue.length > 5) {
-            formattedValue = formattedValue.replace(/^(\d{5})(\d)/, '$1-$2');
-        }
-        e.target.value = formattedValue;
-    };
-
-    // Dispara a busca apenas no onBlur (ao sair do campo)
-    const handleZipBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const cep = e.target.value.replace(/\D/g, '');
-
-        if (cep.length === 8) {
-            setIsLoadingCep(true);
-            try {
-                const data = await fetchAddressByCep(cep);
-
-                // Preenche os campos
-                setValue('shipping.street', data.logradouro, { shouldValidate: true });
-                setValue('shipping.neighborhood', data.bairro, { shouldValidate: true });
-                setValue('shipping.city', data.localidade, { shouldValidate: true });
-                setValue('shipping.state', data.uf, { shouldValidate: true });
-
-                // Foca no campo número automaticamente
-                document.getElementById('shipping_number')?.focus();
-
-            } catch (error) {
-                console.error(error);
-                // Aqui você poderia setar um erro no formulário se quisesse
-                // setError('shipping.zip', { message: 'CEP não encontrado' });
-            } finally {
-                setIsLoadingCep(false);
-            }
-        }
-    };
+    const { register, formState: { errors } } = useFormContext<CheckoutFormData>();
+    const { isLoadingCep, handleZipChange, handleZipBlur } = useCep();
 
     return (
         <div className="bg-zinc-900 p-6 rounded-xl border border-white/10 space-y-4 mt-6">
