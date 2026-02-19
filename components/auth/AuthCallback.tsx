@@ -9,6 +9,8 @@ function sanitizeRedirectPath(input: string | null): string {
   return input;
 }
 
+const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -22,16 +24,42 @@ export default function AuthCallback() {
     hasProcessed.current = true;
 
     const code = searchParams.get('code');
-    const redirectPath = sanitizeRedirectPath(searchParams.get('redirect'));
-
-    if (!code) {
-      navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true });
-      return;
-    }
+    const oauthError = searchParams.get('error_description') || searchParams.get('error');
+    const redirectPath = sanitizeRedirectPath(
+      searchParams.get('redirect') || sessionStorage.getItem(OAUTH_REDIRECT_STORAGE_KEY)
+    );
 
     const exchangeCode = async () => {
       try {
+        if (oauthError) {
+          const readableError = (() => {
+            try {
+              return decodeURIComponent(oauthError.replace(/\+/g, ' '));
+            } catch {
+              return oauthError;
+            }
+          })();
+          setStatus(readableError);
+          setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+          return;
+        }
+
         setStatus('Finalizando autenticacao...');
+
+        // If session is already available (implicit flow or pre-processed URL), continue gracefully.
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) {
+          sessionStorage.removeItem(OAUTH_REDIRECT_STORAGE_KEY);
+          setStatus('Login concluido. Redirecionando...');
+          setTimeout(() => navigate(redirectPath, { replace: true }), 900);
+          return;
+        }
+
+        if (!code) {
+          setStatus('Nao foi possivel concluir o login. Tente novamente.');
+          setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+          return;
+        }
 
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -42,6 +70,7 @@ export default function AuthCallback() {
         }
 
         if (data?.session) {
+          sessionStorage.removeItem(OAUTH_REDIRECT_STORAGE_KEY);
           setStatus('Login concluido. Redirecionando...');
           setTimeout(() => {
             navigate(redirectPath, { replace: true });

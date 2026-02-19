@@ -37,6 +37,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    flowType: 'pkce',
     storage: customStorage as any,
     storageKey: 'sb-auth-token'
   }

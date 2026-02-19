@@ -11,6 +11,8 @@ function sanitizeRedirectPath(input: string | null): string {
   return input;
 }
 
+const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -54,11 +56,17 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // Persist redirect target to avoid query-string mismatches in OAuth redirect URL allowlist.
+      sessionStorage.setItem(OAUTH_REDIRECT_STORAGE_KEY, redirectPath);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`,
-          skipBrowserRedirect: false
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            prompt: 'select_account'
+          }
         }
       });
 
