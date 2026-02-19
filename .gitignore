@@ -23,6 +23,11 @@ build/
 
 # Playwright session files
 playwright/.auth/
+tests/e2e/.auth/
+playwright-report/
+test-results/
+global-setup-error.png
+test-navegacao.js
 
 # IDE
 .vscode/
