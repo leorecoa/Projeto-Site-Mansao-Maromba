@@ -33,6 +33,16 @@ interface PaymentWebhook {
 }
 
 const encoder = new TextEncoder()
+const createRequestId = () => `wh_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
+
+function logEvent(level: 'info' | 'error', event: string, payload: Record<string, unknown>) {
+  const base = { ts: new Date().toISOString(), level, event, ...payload }
+  if (level === 'error') {
+    console.error(JSON.stringify(base))
+  } else {
+    console.log(JSON.stringify(base))
+  }
+}
 
 function normalizeHex(hex: string): string {
   return hex.trim().toLowerCase().replace(/^sha256=/, '')
@@ -68,6 +78,7 @@ async function signPayload(secret: string, payload: string): Promise<string> {
 }
 
 serve(async (req) => {
+  const requestId = createRequestId()
   const origin = req.headers.get('origin')
   const corsHeaders = buildCorsHeaders(origin)
 
@@ -105,16 +116,44 @@ serve(async (req) => {
     }
 
     const payload: PaymentWebhook = JSON.parse(rawBody)
+    logEvent('info', 'payment_webhook_received', {
+      request_id: requestId,
+      event_type: payload.event,
+      order_id: payload.order_id,
+      payment_id: payload.payment_id,
+    })
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
+
+    const { data: currentOrder, error: currentOrderError } = await supabase
+      .from('orders')
+      .select('id, status')
+      .eq('id', payload.order_id)
+      .maybeSingle()
+
+    if (currentOrderError || !currentOrder) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Order not found' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
 
     let newStatus: string
     let notes: string
 
     switch (payload.event) {
       case 'payment.success':
+        if (['confirmed', 'processing', 'shipped', 'delivered'].includes(currentOrder.status)) {
+          logEvent('info', 'payment_webhook_idempotent_skip', {
+            request_id: requestId,
+            order_id: payload.order_id,
+            current_status: currentOrder.status,
+            event_type: payload.event,
+          })
+          break
+        }
         newStatus = 'confirmed'
         notes = `Pagamento confirmado. ID: ${payload.payment_id}`
         
@@ -134,6 +173,15 @@ serve(async (req) => {
         break
 
       case 'payment.failed':
+        if (currentOrder.status === 'cancelled') {
+          logEvent('info', 'payment_webhook_idempotent_skip', {
+            request_id: requestId,
+            order_id: payload.order_id,
+            current_status: currentOrder.status,
+            event_type: payload.event,
+          })
+          break
+        }
         await supabase.rpc('cancel_order', {
           p_order_id: payload.order_id,
           p_reason: `Pagamento falhou. ID: ${payload.payment_id}`
@@ -145,6 +193,15 @@ serve(async (req) => {
         break
 
       case 'payment.refunded':
+        if (currentOrder.status === 'cancelled') {
+          logEvent('info', 'payment_webhook_idempotent_skip', {
+            request_id: requestId,
+            order_id: payload.order_id,
+            current_status: currentOrder.status,
+            event_type: payload.event,
+          })
+          break
+        }
         await supabase.rpc('cancel_order', {
           p_order_id: payload.order_id,
           p_reason: `Pagamento reembolsado. ID: ${payload.payment_id}`
@@ -166,7 +223,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Webhook error:', error)
+    logEvent('error', 'payment_webhook_error', { request_id: requestId, message })
     return new Response(
       JSON.stringify({ success: false, error: message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }

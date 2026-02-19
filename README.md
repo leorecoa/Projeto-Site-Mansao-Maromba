@@ -360,3 +360,69 @@ Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhe
   <br/>
   ⭐ Se este projeto te ajudou, considere dar uma estrela!
 </div>
+
+---
+
+## Transactional Architecture (Senior Notes)
+
+### Checkout sequence (authoritative backend flow)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant UI as React Checkout
+  participant RPC as Supabase RPC create_order
+  participant DB as Postgres Transaction
+  participant WH as payment-webhook
+
+  UI->>RPC: create_order(user, shipping, items)
+  RPC->>DB: BEGIN
+  DB->>DB: lock products rows (FOR UPDATE)
+  DB->>DB: validate stock + active products
+  DB->>DB: insert order + order_items
+  DB->>DB: decrement stock
+  DB-->>RPC: COMMIT (order_id)
+  RPC-->>UI: success(order_id)
+
+  WH->>DB: payment.success (signed webhook)
+  DB->>DB: validate signature + idempotent guard
+  DB->>DB: update status via update_order_status()
+  DB-->>WH: processed
+```
+
+### Atomicity guarantees
+
+- `create_order(...)` executes in a single SQL transaction.
+- Product rows are locked with `FOR UPDATE` before stock mutation.
+- If any validation fails, the transaction aborts and no partial order is persisted.
+- `cancel_order(...)` restores stock and refunds wallet balance (idempotent by order metadata).
+
+### Domain consistency rules
+
+- Status transition is controlled by state machine in `update_order_status(...)`.
+- Invalid transitions are rejected (`pending -> delivered` is blocked).
+- Webhook updates are idempotent when order is already in terminal/advanced status.
+- Cancellation is blocked for `shipped`/`delivered` and idempotent for already cancelled orders.
+
+## Observability
+
+### Structured logging
+
+- Edge Functions log JSON events with `request_id`, `event`, `order_id`.
+- Frontend emits product events via `trackEvent(...)` in checkout/payment hooks.
+
+### Conversion/operational events
+
+- `checkout_started`
+- `checkout_order_created`
+- `checkout_failed`
+- `payment_started`
+- `payment_marked_paid`
+- `payment_failed`
+
+### Suggested monitoring setup
+
+- Errors: Sentry (frontend + edge functions)
+- Logs: Supabase logs/Logflare with `request_id` correlation
+- Funnel: GA4 events mapped from `trackEvent(...)`
+

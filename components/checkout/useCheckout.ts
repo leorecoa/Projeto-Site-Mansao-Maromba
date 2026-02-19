@@ -4,6 +4,8 @@ import { supabase } from '@/services/supabase'
 import { useCartStore } from '@/store/useCart'
 import { useAuth } from '@/hooks/useAuth'
 import type { CheckoutFormData } from '@/types/checkout'
+import { createRequestId, trackEvent } from '@/utils/observability'
+import { logError } from '@/utils/logger'
 
 interface CreateOrderResponse {
   success: boolean
@@ -13,11 +15,9 @@ interface CreateOrderResponse {
 export function useCheckout() {
   const navigate = useNavigate()
 
-  // Zustand store direto
   const cart = useCartStore((state) => state.cart)
   const clearCart = useCartStore((state) => state.clearCart)
   const isHydrated = useCartStore((state) => state.isHydrated)
-
   const { user } = useAuth()
 
   const [loading, setLoading] = useState(false)
@@ -25,13 +25,25 @@ export function useCheckout() {
 
   const processCheckout = useCallback(
     async (data: CheckoutFormData) => {
+      const requestId = createRequestId('checkout')
+
       if (cart.length === 0) {
-        setError('Seu carrinho está vazio.')
+        setError('Seu carrinho esta vazio.')
+        trackEvent('checkout_validation_failed', {
+          request_id: requestId,
+          reason: 'empty_cart',
+        })
         return
       }
 
       setLoading(true)
       setError(null)
+      trackEvent('checkout_started', {
+        request_id: requestId,
+        user_id: user?.id ?? 'guest',
+        item_count: cart.length,
+        cart_total: cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
+      })
 
       try {
         const itemsPayload = cart.map((item) => ({
@@ -57,10 +69,14 @@ export function useCheckout() {
         if (rpcError) throw rpcError
 
         const result = response as CreateOrderResponse | null
-
         if (!result?.success) {
           throw new Error('Erro desconhecido ao criar pedido.')
         }
+
+        trackEvent('checkout_order_created', {
+          request_id: requestId,
+          order_id: result.order_id,
+        })
 
         clearCart()
         navigate('/checkout/success', { state: { orderId: result.order_id } })
@@ -72,6 +88,13 @@ export function useCheckout() {
         } else if (typeof err === 'object' && err !== null && 'message' in err) {
           message = String((err as { message: unknown }).message)
         }
+
+        logError('useCheckout.processCheckout', { requestId, err })
+        trackEvent('checkout_failed', {
+          request_id: requestId,
+          user_id: user?.id ?? 'guest',
+          error_message: message,
+        })
 
         setError(message)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -87,10 +110,7 @@ export function useCheckout() {
     loading,
     error,
     cart,
-    cartTotal: cart.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    ),
+    cartTotal: cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
     isCartLoading: !isHydrated,
   }
 }

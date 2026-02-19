@@ -448,3 +448,177 @@ GRANT EXECUTE ON FUNCTION create_order(uuid, text, text, text, text, text, text,
 -- Obter estatísticas:
 -- SELECT get_order_stats(); -- Próprio usuário
 -- SELECT get_order_stats('user-uuid'); -- Admin pode ver de qualquer usuário
+
+-- ============================================
+-- 10. DOMAIN CONSISTENCY PATCH (STATE MACHINE + REFUND + STOCK ROLLBACK)
+-- ============================================
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_wallet_refund_by_order
+ON wallet_transactions (wallet_id, type, (metadata->>'order_id'))
+WHERE type = 'REFUND';
+
+CREATE OR REPLACE FUNCTION update_order_status(
+  p_order_id UUID,
+  p_new_status VARCHAR(20),
+  p_tracking_code VARCHAR(50) DEFAULT NULL,
+  p_notes TEXT DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_current_status VARCHAR(20);
+  v_result json;
+  v_transition_allowed BOOLEAN := FALSE;
+BEGIN
+  SELECT status INTO v_current_status
+  FROM orders
+  WHERE id = p_order_id;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('success', false, 'error', 'Pedido nao encontrado');
+  END IF;
+
+  IF v_current_status = p_new_status THEN
+    RETURN json_build_object('success', true, 'order_id', p_order_id, 'status', v_current_status, 'idempotent', true);
+  END IF;
+
+  IF v_current_status = 'pending' AND p_new_status IN ('confirmed', 'cancelled') THEN
+    v_transition_allowed := TRUE;
+  ELSIF v_current_status = 'paid' AND p_new_status IN ('confirmed', 'cancelled') THEN
+    v_transition_allowed := TRUE;
+  ELSIF v_current_status = 'confirmed' AND p_new_status IN ('processing', 'cancelled') THEN
+    v_transition_allowed := TRUE;
+  ELSIF v_current_status = 'processing' AND p_new_status IN ('shipped', 'cancelled') THEN
+    v_transition_allowed := TRUE;
+  ELSIF v_current_status = 'shipped' AND p_new_status = 'delivered' THEN
+    v_transition_allowed := TRUE;
+  END IF;
+
+  IF NOT v_transition_allowed THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', format('Transicao invalida de status: %s -> %s', v_current_status, p_new_status)
+    );
+  END IF;
+
+  UPDATE orders
+  SET
+    status = p_new_status,
+    tracking_code = COALESCE(p_tracking_code, tracking_code),
+    notes = COALESCE(p_notes, notes),
+    shipped_at = CASE WHEN p_new_status = 'shipped' THEN NOW() ELSE shipped_at END,
+    delivered_at = CASE WHEN p_new_status = 'delivered' THEN NOW() ELSE delivered_at END,
+    cancelled_at = CASE WHEN p_new_status = 'cancelled' THEN NOW() ELSE cancelled_at END,
+    updated_at = NOW()
+  WHERE id = p_order_id;
+
+  SELECT json_build_object(
+    'success', true,
+    'order_id', id,
+    'status', status,
+    'tracking_code', tracking_code,
+    'updated_at', updated_at
+  ) INTO v_result
+  FROM orders
+  WHERE id = p_order_id;
+
+  RETURN v_result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION cancel_order(
+  p_order_id UUID,
+  p_reason TEXT
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_user_id UUID;
+  v_current_status VARCHAR(20);
+  v_order_customer_id UUID;
+  v_used_wallet_balance NUMERIC := 0;
+  v_wallet_id UUID;
+  v_existing_refund_id UUID;
+  v_item RECORD;
+BEGIN
+  SELECT user_id, status, customer_id, COALESCE(used_wallet_balance, 0)
+  INTO v_user_id, v_current_status, v_order_customer_id, v_used_wallet_balance
+  FROM orders
+  WHERE id = p_order_id;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('success', false, 'error', 'Pedido nao encontrado');
+  END IF;
+
+  IF v_user_id != auth.uid() AND NOT is_admin(auth.uid()) THEN
+    RETURN json_build_object('success', false, 'error', 'Sem permissao');
+  END IF;
+
+  IF v_current_status IN ('shipped', 'delivered', 'cancelled') THEN
+    RETURN json_build_object('success', false, 'error', 'Pedido nao pode ser cancelado');
+  END IF;
+
+  FOR v_item IN
+    SELECT product_id, quantity
+    FROM order_items
+    WHERE order_id = p_order_id
+  LOOP
+    UPDATE products
+    SET stock_quantity = stock_quantity + v_item.quantity
+    WHERE id = v_item.product_id;
+  END LOOP;
+
+  IF v_used_wallet_balance > 0 AND v_order_customer_id IS NOT NULL THEN
+    SELECT id INTO v_wallet_id
+    FROM user_wallet
+    WHERE customer_id = v_order_customer_id
+    LIMIT 1;
+
+    IF v_wallet_id IS NOT NULL THEN
+      SELECT id INTO v_existing_refund_id
+      FROM wallet_transactions
+      WHERE wallet_id = v_wallet_id
+        AND type = 'REFUND'
+        AND metadata->>'order_id' = p_order_id::TEXT
+      LIMIT 1;
+
+      IF v_existing_refund_id IS NULL THEN
+        UPDATE user_wallet
+        SET balance = balance + v_used_wallet_balance,
+            updated_at = NOW()
+        WHERE id = v_wallet_id;
+
+        INSERT INTO wallet_transactions (
+          wallet_id,
+          type,
+          amount,
+          description,
+          status,
+          metadata
+        ) VALUES (
+          v_wallet_id,
+          'REFUND',
+          v_used_wallet_balance,
+          format('Reembolso automatico por cancelamento do pedido %s', p_order_id),
+          'COMPLETED',
+          jsonb_build_object('order_id', p_order_id::TEXT, 'reason', p_reason)
+        );
+      END IF;
+    END IF;
+  END IF;
+
+  UPDATE orders
+  SET
+    status = 'cancelled',
+    cancelled_at = NOW(),
+    cancellation_reason = p_reason,
+    updated_at = NOW()
+  WHERE id = p_order_id;
+
+  RETURN json_build_object('success', true, 'message', 'Pedido cancelado com sucesso');
+END;
+$$;

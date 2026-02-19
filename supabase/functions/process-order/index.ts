@@ -29,6 +29,17 @@ interface ProcessOrderRequest {
   tracking_code?: string
 }
 
+const createRequestId = () => `po_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
+
+function logEvent(level: 'info' | 'error', event: string, payload: Record<string, unknown>) {
+  const base = { ts: new Date().toISOString(), level, event, ...payload }
+  if (level === 'error') {
+    console.error(JSON.stringify(base))
+  } else {
+    console.log(JSON.stringify(base))
+  }
+}
+
 function getBearerToken(req: Request): string | null {
   const authHeader = req.headers.get('authorization') ?? ''
   const [scheme, token] = authHeader.split(' ')
@@ -39,6 +50,7 @@ function getBearerToken(req: Request): string | null {
 }
 
 serve(async (req) => {
+  const requestId = createRequestId()
   const origin = req.headers.get('origin')
   const corsHeaders = buildCorsHeaders(origin)
 
@@ -63,6 +75,7 @@ serve(async (req) => {
     }
 
     const { order_id, action, tracking_code }: ProcessOrderRequest = await req.json()
+    logEvent('info', 'process_order_request', { request_id: requestId, order_id, action })
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -102,7 +115,7 @@ serve(async (req) => {
           id,
           product_id,
           quantity,
-          price
+          unit_price
         )
       `)
       .eq('id', order_id)
@@ -119,10 +132,18 @@ serve(async (req) => {
         const productIds = order.order_items.map((item: any) => item.product_id)
         const { data: products } = await supabase
           .from('products')
-          .select('id, name, available')
+          .select('id, name, is_active, stock_quantity')
           .in('id', productIds)
 
-        const unavailable = products?.filter(p => !p.available) || []
+        const qtyByProduct = new Map<string, number>()
+        for (const item of order.order_items) {
+          qtyByProduct.set(item.product_id, Number(item.quantity))
+        }
+
+        const unavailable = (products ?? []).filter((product) => {
+          const requested = qtyByProduct.get(product.id) ?? 0
+          return !product.is_active || Number(product.stock_quantity) < requested
+        })
         
         if (unavailable.length > 0) {
           result = {
@@ -204,7 +225,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Process order error:', error)
+    logEvent('error', 'process_order_error', { request_id: requestId, message })
     return new Response(
       JSON.stringify({ success: false, error: message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
