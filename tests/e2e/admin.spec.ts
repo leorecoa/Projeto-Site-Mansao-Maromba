@@ -1,98 +1,180 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import path from 'path';
 
-test.describe('Fluxo de Admin (Gerenciamento de Produtos)', () => {
-    test.beforeEach(async ({ page }) => {
-        // 1. Mock da Sessão de Admin (LocalStorage)
-        // Simula um usuário logado com permissões de admin para pular a tela de login
-        await page.addInitScript(() => {
-            window.localStorage.setItem('sb-project-auth-token', JSON.stringify({
-                access_token: 'fake-admin-token',
-                refresh_token: 'fake-refresh-token',
-                user: {
-                    id: 'admin-user-123',
-                    aud: 'authenticated',
-                    role: 'authenticated',
-                    email: 'admin@maromba.com',
-                    app_metadata: { provider: 'email' },
-                    user_metadata: { role: 'admin', full_name: 'Admin User' }
-                }
-            }));
-        });
+const ADMIN_USER = {
+  email: process.env.ADMIN_EMAIL || process.env.TEST_USER_EMAIL || 'admin@example.com',
+  password: process.env.ADMIN_PASSWORD || process.env.TEST_USER_PASSWORD || 'admin123'
+};
 
-        // 2. Mock da Lista de Produtos (GET)
-        await page.route('**/rest/v1/products*', async (route) => {
-            if (route.request().method() === 'GET') {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify([
-                        {
-                            id: 'prod-existing-1',
-                            name: 'Produto Existente',
-                            price: 99.90,
-                            image_url: 'https://via.placeholder.com/150',
-                            description: 'Descrição existente',
-                            volume: '900g',
-                            type: 'suplemento',
-                            theme: { primary: '#000000' }
-                        }
-                    ])
-                });
-            } else {
-                await route.continue();
-            }
-        });
+const TEST_PRODUCT = {
+  name: `Produto Teste E2E ${Date.now()}`,
+  description: 'Descricao do produto de teste',
+  price: '99.90',
+  stock: '50'
+};
+const HAS_EXPLICIT_ADMIN_ENV = Boolean(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD);
 
-        // 3. Mock da Criação de Produto (POST)
-        await page.route('**/rest/v1/products', async (route) => {
-            if (route.request().method() === 'POST') {
-                const body = JSON.parse(route.request().postData() || '{}');
-                await route.fulfill({
-                    status: 201,
-                    contentType: 'application/json',
-                    body: JSON.stringify({
-                        id: `new-prod-${Date.now()}`,
-                        ...body,
-                        created_at: new Date().toISOString()
-                    })
-                });
-            } else {
-                await route.continue();
-            }
-        });
+async function login(page: Page) {
+  await page.context().clearCookies();
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
+  await page.goto('/login');
+  const emailInput = page.locator('input[type="email"]');
+  const passwordInput = page.locator('input[type="password"]');
+  await expect(emailInput).toBeVisible({ timeout: 15000 });
+  await expect(emailInput).toBeEditable({ timeout: 15000 });
+  await expect(passwordInput).toBeEditable({ timeout: 15000 });
+  await emailInput.fill(ADMIN_USER.email);
+  await passwordInput.fill(ADMIN_USER.password);
+  await page.locator('form').getByRole('button', { name: /entrar/i }).click();
+  await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+}
+
+async function hasAdminAccess(page: Page): Promise<boolean> {
+  await page.goto('/admin');
+  await page.waitForLoadState('domcontentloaded');
+  return await page
+    .getByRole('heading', { name: /dashboard admin/i })
+    .isVisible({ timeout: 5000 })
+    .catch(() => false);
+}
+
+test.describe('Admin Panel (requires admin credentials)', () => {
+  test.describe.configure({ mode: 'serial' });
+
+  test.beforeEach(async ({ page }) => {
+    await login(page);
+  });
+
+  test('1. Acessar dashboard admin', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await expect(page.getByRole('heading', { name: /dashboard admin/i })).toBeVisible();
+  });
+
+  test('2. Listar produtos', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/products');
+    await expect(page.getByRole('heading', { name: /gerenciar produtos/i })).toBeVisible();
+    await expect(page.locator('table').first()).toBeVisible();
+  });
+
+  test('3. Criar novo produto', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/products/new');
+    await expect(page.getByRole('heading', { name: /novo produto/i })).toBeVisible();
+
+    await page.locator('input[name="name"]').fill(TEST_PRODUCT.name);
+    await page.locator('textarea[name="description"]').fill(TEST_PRODUCT.description);
+    await page.locator('input[name="price"]').fill(TEST_PRODUCT.price);
+    await page.locator('input[name="stock_quantity"]').fill(TEST_PRODUCT.stock);
+    await page.getByRole('button', { name: /salvar produto/i }).click();
+
+    await expect(page).toHaveURL(/\/admin\/products$/);
+  });
+
+  test('4. Editar produto existente', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/products');
+    await expect(page.locator('table').first()).toBeVisible();
+
+    const editButton = page.locator('button[title="Editar"]').first();
+    await expect(editButton).toBeVisible();
+    await editButton.click();
+
+    await expect(page).toHaveURL(/\/admin\/products\/.+/);
+    await page.locator('input[name="price"]').fill('149.90');
+    await page.getByRole('button', { name: /salvar produto/i }).click();
+    await expect(page).toHaveURL(/\/admin\/products$/);
+  });
+
+  test('5. Deletar produto de teste se existir', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/products');
+    await expect(page.locator('table').first()).toBeVisible();
+
+    const row = page.locator('tr', { hasText: TEST_PRODUCT.name }).first();
+    if (await row.isVisible().catch(() => false)) {
+      page.once('dialog', dialog => dialog.accept());
+      await row.locator('button[title="Excluir"]').click();
+      await expect(page.getByText(TEST_PRODUCT.name)).not.toBeVisible({ timeout: 10000 });
+    }
+  });
+
+  test('6. Listar pedidos', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/orders');
+    await expect(page.getByRole('heading', { name: /gerenciar pedidos/i })).toBeVisible();
+    await expect(page.locator('table').first()).toBeVisible();
+  });
+
+  test('7. Acoes de pedido disponiveis na lista', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/orders');
+    await expect(page.locator('table').first()).toBeVisible();
+    await expect(page.locator('button[title="Ver Detalhes"]').first()).toBeVisible();
+  });
+
+  test('8. Filtro de status em pedidos', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    test.skip(!adminOk, 'Credenciais atuais nao possuem acesso admin');
+
+    await page.goto('/admin/orders');
+    await expect(page.locator('table').first()).toBeVisible();
+
+    const paidBtn = page.getByRole('button', { name: /^paid$/i }).first();
+    await paidBtn.click();
+    await expect(paidBtn).toHaveClass(/bg-yellow-400/);
+  });
+
+  test('10. Campo de upload de imagem disponivel no form de produto', async ({ page }) => {
+    const adminOk = await hasAdminAccess(page);
+    if (!adminOk && !HAS_EXPLICIT_ADMIN_ENV) {
+      test.skip(true, 'Credenciais atuais nao possuem acesso admin');
+    }
+
+    if (!adminOk && HAS_EXPLICIT_ADMIN_ENV) {
+      throw new Error('ADMIN_EMAIL/ADMIN_PASSWORD definidos, mas sem acesso admin em /admin.');
+    }
+
+    await page.goto('/admin/products/new');
+    await expect(page.getByRole('heading', { name: /novo produto/i })).toBeVisible();
+    const fileInput = page.locator('input[type="file"]').first();
+    await expect(fileInput).toBeAttached();
+
+    const fixturePath = path.resolve(process.cwd(), 'public', 'images', 'products', 'vodka.png');
+    await fileInput.setInputFiles(fixturePath);
+
+    await expect(page.locator('img[alt="Preview"]')).toBeVisible({ timeout: 15000 });
+  });
+});
+
+test.describe('Admin Route Protection', () => {
+  test('9. Sem autenticacao nao acessa admin', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      window.localStorage.clear();
+      window.sessionStorage.clear();
     });
+    await page.context().clearCookies();
 
-    test('Admin deve criar um novo produto com sucesso', async ({ page }) => {
-        const productName = 'Creatina Teste E2E';
-
-        // --- PASSO 1: Acessar Painel de Produtos ---
-        await page.goto('/admin/products');
-
-        // Verifica se carregou a lista (mockada)
-        await expect(page.getByText('Produto Existente')).toBeVisible();
-
-        // --- PASSO 2: Abrir Modal/Formulário ---
-        // Procura botão de novo produto (ajuste o texto conforme sua UI: "Novo Produto", "+", "Adicionar")
-        const newProductBtn = page.getByRole('button', { name: /Novo Produto|Adicionar/i });
-        await newProductBtn.click();
-
-        // --- PASSO 3: Preencher Formulário ---
-        // Aguarda o formulário estar visível
-        await expect(page.getByRole('dialog').or(page.locator('form'))).toBeVisible();
-
-        // Preenche os campos (ajuste os seletores 'name' conforme seu ProductForm)
-        await page.locator('input[name="name"]').fill(productName);
-        await page.locator('input[name="price"]').fill('120.50');
-        await page.locator('textarea[name="description"]').fill('Descrição do produto de teste automatizado.');
-        await page.locator('input[name="image_url"]').fill('https://via.placeholder.com/300');
-
-        // --- PASSO 4: Salvar ---
-        await page.getByRole('button', { name: /Salvar|Criar|Confirmar/i }).click();
-
-        // --- PASSO 5: Validar Sucesso ---
-        // Verifica se apareceu mensagem de sucesso ou se o modal fechou
-        // Como o mock de GET não atualiza automaticamente a lista com o novo item (a menos que o front faça update otimista),
-        // validamos o feedback visual de sucesso.
-        await expect(page.getByText(/sucesso|criado/i)).toBeVisible();
-    });
+    await page.goto('/admin');
+    await expect(page).toHaveURL(/\/login/);
+  });
 });

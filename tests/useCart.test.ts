@@ -9,8 +9,13 @@ const createProduct = (overrides?: Partial<Product>): Product => ({
     name: 'Produto Teste',
     price: 100,
     image_url: 'image.jpg',
+    theme: {
+        bg: '#000000',
+        primary: '#FACC15',
+        secondary: '#FFFFFF'
+    },
     ...overrides,
-})
+} as Product)
 
 // Mock do localStorage isolado
 const localStorageMock = (() => {
@@ -49,7 +54,7 @@ describe('useCart Hook', () => {
         const { result } = renderHook(() => useCart())
 
         expect(result.current.cart).toEqual([])
-        expect(result.current.total).toBe(0)
+        expect(result.current.cartTotal).toBe(0)
     })
 
     it('deve adicionar um item ao carrinho', () => {
@@ -70,7 +75,7 @@ describe('useCart Hook', () => {
             id: '1',
             quantity: 1,
         })
-        expect(result.current.total).toBe(100)
+        expect(result.current.cartTotal).toBe(100)
     })
 
     it('deve incrementar a quantidade se o item já existir', () => {
@@ -89,7 +94,7 @@ describe('useCart Hook', () => {
 
         expect(result.current.cart).toHaveLength(1)
         expect(result.current.cart[0].quantity).toBe(2)
-        expect(result.current.total).toBe(100)
+        expect(result.current.cartTotal).toBe(100)
     })
 
     it('deve remover um item do carrinho', () => {
@@ -112,7 +117,7 @@ describe('useCart Hook', () => {
         })
 
         expect(result.current.cart).toHaveLength(0)
-        expect(result.current.total).toBe(0)
+        expect(result.current.cartTotal).toBe(0)
     })
 
     it('deve limpar todo o carrinho', () => {
@@ -134,7 +139,7 @@ describe('useCart Hook', () => {
         })
 
         expect(result.current.cart).toHaveLength(0)
-        expect(result.current.total).toBe(0)
+        expect(result.current.cartTotal).toBe(0)
     })
 
     it('deve calcular o total corretamente com múltiplos itens', () => {
@@ -152,7 +157,7 @@ describe('useCart Hook', () => {
             )
         })
 
-        expect(result.current.total).toBe(250)
+        expect(result.current.cartTotal).toBe(250)
     })
 
     it('deve lidar graciosamente ao tentar remover item inexistente', () => {
@@ -169,6 +174,43 @@ describe('useCart Hook', () => {
         })
 
         expect(result.current.cart).toHaveLength(1)
-        expect(result.current.total).toBe(100)
+        expect(result.current.cartTotal).toBe(100)
+    })
+
+    it('deve atualizar a quantidade de um item diretamente', () => {
+        const { result } = renderHook(() => useCart())
+        const product = createProduct({ id: '1', price: 100 })
+
+        act(() => {
+            result.current.addToCart(product)
+        })
+
+        act(() => {
+            result.current.updateQuantity('1', 5)
+        })
+
+        expect(result.current.cart[0].quantity).toBe(5)
+        expect(result.current.cartTotal).toBe(500)
+    })
+
+    it('deve remover item via updateQuantity se quantidade for definida como 0', () => {
+        const { result } = renderHook(() => useCart())
+        const product = createProduct({ id: '1', price: 100 })
+
+        act(() => {
+            result.current.addToCart(product)
+        })
+
+        act(() => {
+            result.current.updateQuantity('1', 0)
+        })
+
+        expect(result.current.cart).toHaveLength(0)
+        expect(result.current.cartTotal).toBe(0)
+    })
+
+    it('deve marcar a store como hidratada após inicialização', () => {
+        const { result } = renderHook(() => useCart())
+        expect(result.current.isHydrated).toBe(true)
     })
 })

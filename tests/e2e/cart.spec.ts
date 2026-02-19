@@ -13,12 +13,19 @@ test.describe('Cart Flow', () => {
     await addBtn.waitFor({ state: 'visible', timeout: 30000 })
     await addBtn.click()
 
-    // Open cart
-    await page.click('[aria-label="Carrinho"]')
-
     // Check cart has items
     const cartItems = page.locator('[data-testid="cart-item"]')
     await expect(cartItems.first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('should show toast notification when adding item', async ({ page }) => {
+    // Add product
+    const addBtn = await getAddToCartBtn(page)
+    await addBtn.waitFor({ state: 'visible', timeout: 30000 })
+    await addBtn.click()
+
+    // Check for toast notification
+    await expect(page.locator('text=/adicionado!/i')).toBeVisible({ timeout: 5000 })
   })
 
   test('should update quantity in cart', async ({ page }) => {
@@ -26,9 +33,6 @@ test.describe('Cart Flow', () => {
     const addBtn = await getAddToCartBtn(page)
     await addBtn.waitFor({ state: 'visible', timeout: 30000 })
     await addBtn.click()
-
-    // Open cart
-    await page.click('[aria-label="Carrinho"]')
 
     // Increase quantity
     const increaseBtn = page.locator('button:has-text("+")').first()
@@ -45,15 +49,18 @@ test.describe('Cart Flow', () => {
     await addBtn.waitFor({ state: 'visible', timeout: 30000 })
     await addBtn.click()
 
-    // Open cart
-    await page.click('[aria-label="Carrinho"]')
+    // Wait for cart item to be visible (modal animation finished)
+    const cartItem = page.locator('[data-testid="cart-item"]').first()
+    await expect(cartItem).toBeVisible()
 
     // Remove item
-    await page.click('button[aria-label="Remover"]').catch(() => { })
+    await page.locator('button[aria-label="Remover"]').first().click()
+
+    // Verify item is removed (action confirmation)
+    await expect(cartItem).not.toBeVisible()
 
     // Check cart is empty
-    const emptyMessage = page.locator('text=/carrinho vazio/i')
-    await expect(emptyMessage).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText('Seu carrinho está vazio.')).toBeVisible()
   })
 
   test('should navigate to checkout', async ({ page }) => {
@@ -61,9 +68,6 @@ test.describe('Cart Flow', () => {
     const addBtn = await getAddToCartBtn(page)
     await addBtn.waitFor({ state: 'visible', timeout: 30000 })
     await addBtn.click()
-
-    // Open cart
-    await page.click('[aria-label="Carrinho"]')
 
     // Click checkout
     await page.click('button:has-text("FINALIZAR PEDIDO"), button:has-text("Finalizar")')

@@ -94,7 +94,7 @@ describe('useCheckout', () => {
         expect(result.current.error).toBeNull();
         expect(supabase.rpc).toHaveBeenCalledWith('create_order', expect.any(Object));
         expect(clearCartMock).toHaveBeenCalled();
-        expect(navigateMock).toHaveBeenCalledWith('/checkout/payment/order-123');
+        expect(navigateMock).toHaveBeenCalledWith('/checkout/success', { state: { orderId: 'order-123' } });
     });
 
     it('deve lidar com erro ao criar pedido no Supabase', async () => {

@@ -64,7 +64,12 @@ describe('Fluxo de Integração: Carrinho e Checkout', () => {
             image_url: 'img.jpg',
             description: 'Teste',
             volume: '1kg',
-            type: 'suplemento'
+            type: 'suplemento',
+            theme: {
+                bg: '#000000',
+                primary: '#FACC15',
+                secondary: '#FFFFFF'
+            }
         }
 
         act(() => {
@@ -73,7 +78,7 @@ describe('Fluxo de Integração: Carrinho e Checkout', () => {
 
         // Validação intermediária: Carrinho tem o item
         expect(cartResult.current.cart).toHaveLength(1)
-        expect(cartResult.current.total).toBe(100.00)
+        expect(cartResult.current.cartTotal).toBe(100.00)
 
         // 4. Ação: Processar Checkout (usando lógica real que lê do carrinho)
         const { result: checkoutResult } = renderHook(() => useCheckout())
@@ -107,16 +112,26 @@ describe('Fluxo de Integração: Carrinho e Checkout', () => {
         expect(supabase.rpc).toHaveBeenCalledWith(
             'create_order',
             expect.objectContaining({
-                payload: expect.objectContaining({
-                    customer_email: 'test@integration.com',
-                    total_amount: 100,
-                    items: expect.arrayContaining([
-                        expect.objectContaining({
-                            product_id: 'prod-1',
-                            quantity: 1,
-                            unit_price: 100
-                        })
-                    ])
+                p_customer_email: 'test@integration.com',
+                p_customer_name: 'Integration User',
+                p_customer_phone: '11999999999',
+                p_customer_zipcode: '01000-000',
+                p_customer_address: 'Rua Teste, 123 - Centro',
+                p_customer_city: 'São Paulo',
+                p_user_id: 'user-integration-123',
+                p_items: expect.arrayContaining([
+                    expect.objectContaining({
+                        product_id: 'prod-1',
+                        quantity: 1
+                    })
+                ]),
+                p_shipping_address: expect.objectContaining({
+                    street: 'Rua Teste',
+                    number: '123',
+                    neighborhood: 'Centro',
+                    city: 'São Paulo',
+                    state: 'SP',
+                    zip: '01000-000'
                 })
             })
         )
@@ -124,6 +139,6 @@ describe('Fluxo de Integração: Carrinho e Checkout', () => {
         // Verifica se o carrinho foi limpo automaticamente após o sucesso
         // Isso confirma que useCheckout interagiu corretamente com useCart
         expect(cartResult.current.cart).toHaveLength(0)
-        expect(cartResult.current.total).toBe(0)
+        expect(cartResult.current.cartTotal).toBe(0)
     })
 })
