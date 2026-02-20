@@ -57,7 +57,7 @@ describe('useCheckout', () => {
 
         // Verificações
         // 1. Deve definir o estado de erro
-        expect(result.current.error).toBe('Seu carrinho está vazio.');
+        expect(result.current.error).toBe('Seu carrinho esta vazio.');
 
         // 2. Não deve chamar o Supabase (abortou antes)
         expect(supabase.rpc).not.toHaveBeenCalled();

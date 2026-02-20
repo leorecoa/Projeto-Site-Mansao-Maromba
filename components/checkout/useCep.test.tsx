@@ -43,8 +43,8 @@ describe('useCep Hook', () => {
         vi.clearAllMocks()
     })
 
-    it('deve chamar setError quando a API retorna "CEP não encontrado"', async () => {
-        // Configura o mock para simular um CEP não encontrado
+    it('deve chamar setError quando a API retorna "CEP nao encontrado"', async () => {
+        // Configura o mock para simular um CEP nao encontrado
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         vi.mocked(viaCepApi.fetchAddressByCep).mockResolvedValue(mockNotFoundAddress as any)
 
@@ -62,7 +62,7 @@ describe('useCep Hook', () => {
         // Verifica se a API foi chamada com o CEP limpo
         expect(viaCepApi.fetchAddressByCep).toHaveBeenCalledWith('00000000')
         // A asserção principal: verifica se setError foi chamado com a mensagem correta
-        expect(mockSetError).toHaveBeenCalledWith('shipping.zip', { type: 'manual', message: 'CEP não encontrado' })
+        expect(mockSetError).toHaveBeenCalledWith('shipping.zip', { type: 'manual', message: 'CEP nao encontrado' })
 
         // Verifica se os campos de endereço foram limpos
         expect(mockSetValue).toHaveBeenCalledWith('shipping.street', '')
