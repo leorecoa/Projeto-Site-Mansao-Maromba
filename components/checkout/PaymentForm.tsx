@@ -1,5 +1,4 @@
 import { useState } from 'react';
-// Utilizando caminho relativo para garantir a resolução do módulo sem depender de aliases
 import { usePayment } from '../../hooks/usePayment';
 import { CheckCircle, CreditCard, QrCode, FileText, Loader2, AlertCircle } from 'lucide-react';
 
@@ -20,16 +19,13 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
 
         if (result.success) {
             if (selectedMethod === 'pix' && result.qrCode) {
-                // Se for PIX, mostramos o QR Code e não finalizamos ainda
                 setPixCode(result.qrCode);
             } else {
-                // Se for Cartão ou Boleto, finalizamos o fluxo
                 onSuccess(result.paymentId);
             }
         }
     };
 
-    // Renderização do Estado de Sucesso do PIX (QR Code)
     if (pixCode) {
         return (
             <div className="flex flex-col items-center justify-center p-6 space-y-4 bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -38,22 +34,23 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Pagamento via PIX</h3>
                 <p className="text-sm text-gray-500 text-center">
-                    Escaneie o QR Code abaixo ou copie o código para pagar.
+                    Escaneie o QR Code abaixo ou copie o codigo para pagar.
                 </p>
 
                 <div className="p-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
-                    {/* Aqui você usaria uma lib como 'qrcode.react' para gerar a imagem real */}
                     <div className="w-48 h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
                         [QR Code Imagem Simulada]
                     </div>
                 </div>
 
                 <div className="w-full">
-                    <label className="text-xs font-semibold text-gray-500 uppercase">Código Copia e Cola</label>
+                    <label htmlFor="pix-copy-code" className="text-xs font-semibold text-gray-500 uppercase">Codigo Copia e Cola</label>
                     <div className="flex mt-1">
                         <input
+                            id="pix-copy-code"
                             readOnly
                             value={pixCode}
+                            autoComplete="off"
                             className="flex-1 p-2 text-sm bg-gray-100 border rounded-l-md focus:outline-none"
                         />
                         <button
@@ -69,17 +66,15 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                     onClick={() => onSuccess()}
                     className="w-full py-3 mt-4 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
                 >
-                    Já realizei o pagamento
+                    Ja realizei o pagamento
                 </button>
             </div>
         );
     }
 
-    // Renderização do Formulário de Seleção
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {/* Opção Cartão */}
                 <div
                     onClick={() => setSelectedMethod('credit_card')}
                     className={`cursor-pointer relative flex flex-col items-center p-4 border-2 rounded-xl transition-all ${selectedMethod === 'credit_card'
@@ -88,11 +83,10 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                         }`}
                 >
                     <CreditCard className={`w-8 h-8 mb-3 ${selectedMethod === 'credit_card' ? 'text-yellow-600' : 'text-gray-400'}`} />
-                    <span className="font-medium text-sm">Cartão de Crédito</span>
+                    <span className="font-medium text-sm">Cartao de Credito</span>
                     {selectedMethod === 'credit_card' && <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-yellow-500" />}
                 </div>
 
-                {/* Opção PIX */}
                 <div
                     onClick={() => setSelectedMethod('pix')}
                     className={`cursor-pointer relative flex flex-col items-center p-4 border-2 rounded-xl transition-all ${selectedMethod === 'pix'
@@ -101,11 +95,10 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                         }`}
                 >
                     <QrCode className={`w-8 h-8 mb-3 ${selectedMethod === 'pix' ? 'text-green-600' : 'text-gray-400'}`} />
-                    <span className="font-medium text-sm">PIX (Instantâneo)</span>
+                    <span className="font-medium text-sm">PIX (Instantaneo)</span>
                     {selectedMethod === 'pix' && <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-green-500" />}
                 </div>
 
-                {/* Opção Boleto */}
                 <div
                     onClick={() => setSelectedMethod('boleto')}
                     className={`cursor-pointer relative flex flex-col items-center p-4 border-2 rounded-xl transition-all ${selectedMethod === 'boleto'
@@ -114,12 +107,11 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                         }`}
                 >
                     <FileText className={`w-8 h-8 mb-3 ${selectedMethod === 'boleto' ? 'text-blue-600' : 'text-gray-400'}`} />
-                    <span className="font-medium text-sm">Boleto Bancário</span>
+                    <span className="font-medium text-sm">Boleto Bancario</span>
                     {selectedMethod === 'boleto' && <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-blue-500" />}
                 </div>
             </div>
 
-            {/* Exibição de Erros */}
             {error && (
                 <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-lg">
                     <AlertCircle className="w-5 h-5 mr-2" />
@@ -127,7 +119,6 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                 </div>
             )}
 
-            {/* Botão de Pagamento */}
             <button
                 onClick={handlePayment}
                 disabled={loading}
@@ -136,7 +127,7 @@ export function PaymentForm({ orderId, onSuccess }: PaymentFormProps) {
                 {loading ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
-                    `Pagar com ${selectedMethod === 'credit_card' ? 'Cartão' : selectedMethod === 'pix' ? 'PIX' : 'Boleto'}`
+                    `Pagar com ${selectedMethod === 'credit_card' ? 'Cartao' : selectedMethod === 'pix' ? 'PIX' : 'Boleto'}`
                 )}
             </button>
         </div>

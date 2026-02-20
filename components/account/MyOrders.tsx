@@ -40,7 +40,7 @@ export default function MyOrders() {
 
         if (!orders || orders.length === 0) {
             return (
-                <div className="text-center py-16 px-6 bg-zinc-900 border border-dashed border-white/10 rounded-lg">
+                <div className="text-center py-12 sm:py-16 px-4 sm:px-6 bg-zinc-900 border border-dashed border-white/10 rounded-lg">
                     <ShoppingBag className="w-12 h-12 mx-auto text-gray-500 mb-4" />
                     <h3 className="text-xl font-semibold text-white">Nenhum pedido encontrado</h3>
                     <p className="text-gray-400 mt-2">Você ainda não fez nenhuma compra. Que tal começar agora?</p>
@@ -59,8 +59,8 @@ export default function MyOrders() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 md:p-6">
-            <h1 className="text-3xl font-bold text-white mb-6">Meus Pedidos</h1>
+        <div className="max-w-4xl mx-auto p-0 sm:p-2 md:p-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-5 sm:mb-6">Meus Pedidos</h1>
             <div className="space-y-4">
                 {renderContent()}
             </div>

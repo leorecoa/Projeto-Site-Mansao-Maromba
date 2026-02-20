@@ -10,6 +10,24 @@ function sanitizeRedirectPath(input: string | null): string {
 }
 
 const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+const SESSION_POLL_ATTEMPTS = 6;
+const SESSION_POLL_INTERVAL_MS = 300;
+
+function getStoredRedirectPath(): string | null {
+  try {
+    return sessionStorage.getItem(OAUTH_REDIRECT_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function clearStoredRedirectPath() {
+  try {
+    sessionStorage.removeItem(OAUTH_REDIRECT_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
+}
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -24,9 +42,12 @@ export default function AuthCallback() {
     hasProcessed.current = true;
 
     const code = searchParams.get('code');
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const hashAccessToken = hashParams.get('access_token');
+    const hashRefreshToken = hashParams.get('refresh_token');
     const oauthError = searchParams.get('error_description') || searchParams.get('error');
     const redirectPath = sanitizeRedirectPath(
-      searchParams.get('redirect') || sessionStorage.getItem(OAUTH_REDIRECT_STORAGE_KEY)
+      searchParams.get('redirect') || getStoredRedirectPath()
     );
 
     const exchangeCode = async () => {
@@ -46,16 +67,43 @@ export default function AuthCallback() {
 
         setStatus('Finalizando autenticacao...');
 
-        // If session is already available (implicit flow or pre-processed URL), continue gracefully.
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session) {
-          sessionStorage.removeItem(OAUTH_REDIRECT_STORAGE_KEY);
+        // If session is already available, continue gracefully.
+        const { data: initialSessionData } = await supabase.auth.getSession();
+        if (initialSessionData?.session) {
+          clearStoredRedirectPath();
           setStatus('Login concluido. Redirecionando...');
           setTimeout(() => navigate(redirectPath, { replace: true }), 900);
           return;
         }
 
+        // Fallback for implicit hash tokens (some provider/browser combinations).
+        if (hashAccessToken && hashRefreshToken) {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: hashAccessToken,
+            refresh_token: hashRefreshToken,
+          });
+
+          if (sessionError) {
+            setStatus(mapAuthErrorMessage(sessionError));
+            setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+            return;
+          }
+        }
+
         if (!code) {
+          // Avoid false-negative failures while auth client finalizes OAuth URL parsing.
+          for (let attempt = 0; attempt < SESSION_POLL_ATTEMPTS; attempt += 1) {
+            const { data: polledSessionData } = await supabase.auth.getSession();
+            if (polledSessionData?.session) {
+              clearStoredRedirectPath();
+              setStatus('Login concluido. Redirecionando...');
+              setTimeout(() => navigate(redirectPath, { replace: true }), 900);
+              return;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, SESSION_POLL_INTERVAL_MS));
+          }
+
           setStatus('Nao foi possivel concluir o login. Tente novamente.');
           setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
           return;
@@ -70,7 +118,7 @@ export default function AuthCallback() {
         }
 
         if (data?.session) {
-          sessionStorage.removeItem(OAUTH_REDIRECT_STORAGE_KEY);
+          clearStoredRedirectPath();
           setStatus('Login concluido. Redirecionando...');
           setTimeout(() => {
             navigate(redirectPath, { replace: true });

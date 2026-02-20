@@ -18,10 +18,10 @@ export default function AccountPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+        <div className="min-h-screen bg-black pt-20 sm:pt-24 pb-12 px-3 sm:px-4">
             <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-bold text-white">Minha Conta</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Minha Conta</h1>
                     <button
                         onClick={handleLogout}
                         data-testid="logout-button"
@@ -32,10 +32,10 @@ export default function AccountPage() {
                     </button>
                 </div>
 
-                <div className="flex gap-4 mb-8 border-b border-white/10">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-4 mb-8 border-b border-white/10">
                     <button
                         onClick={() => setActiveTab('profile')}
-                        className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'profile' ? 'text-yellow-400' : 'text-gray-400 hover:text-white'
+                        className={`flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'profile' ? 'text-yellow-400' : 'text-gray-400 hover:text-white'
                             }`}
                     >
                         <User className="w-4 h-4" />
@@ -46,7 +46,7 @@ export default function AccountPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('orders')}
-                        className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'orders' ? 'text-yellow-400' : 'text-gray-400 hover:text-white'
+                        className={`flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'orders' ? 'text-yellow-400' : 'text-gray-400 hover:text-white'
                             }`}
                     >
                         <ShoppingBag className="w-4 h-4" />

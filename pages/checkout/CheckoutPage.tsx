@@ -95,7 +95,7 @@ export default function CheckoutPage() {
                     address_neighborhood: formData.shipping.neighborhood,
                     address_city: formData.shipping.city,
                     address_state: formData.shipping.state,
-                }, { onConflict: 'email' })
+                }, { onConflict: 'auth_user_id' })
                 .select()
                 .single();
 
@@ -149,7 +149,7 @@ export default function CheckoutPage() {
 
     if (cart.length === 0 && !orderId) {
         return (
-            <div className="min-h-screen bg-black pt-24 pb-12 px-4 flex flex-col items-center justify-center text-white">
+        <div className="min-h-screen bg-black pt-24 pb-12 px-4 flex flex-col items-center justify-center text-white text-center">
                 <h1 className="text-2xl font-bold mb-4">Seu carrinho está vazio</h1>
                 <button onClick={() => navigate('/')} className="text-yellow-400 hover:underline">
                     Voltar para a loja
@@ -159,20 +159,20 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+        <div className="min-h-screen bg-black pt-20 sm:pt-24 pb-12 px-3 sm:px-4">
             <div className="max-w-6xl mx-auto">
                 {/* Stepper */}
-                <div className="flex justify-center mb-12">
+                <div className="flex justify-center mb-8 sm:mb-12 overflow-x-auto pb-2">
                     {STEPS.map((step, index) => (
-                        <div key={step.id} className="flex items-center">
+                        <div key={step.id} className="flex items-center flex-shrink-0">
                             <div className={`flex flex-col items-center ${currentStep >= step.id ? 'text-yellow-400' : 'text-gray-600'}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 mb-2 ${currentStep >= step.id ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'}`}>
-                                    <step.icon className="w-5 h-5" />
+                                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 mb-2 ${currentStep >= step.id ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'}`}>
+                                    <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </div>
-                                <span className="text-sm font-medium">{step.title}</span>
+                                <span className="text-xs sm:text-sm font-medium">{step.title}</span>
                             </div>
                             {index < STEPS.length - 1 && (
-                                <div className={`w-16 h-0.5 mx-4 ${currentStep > step.id ? 'bg-yellow-400' : 'bg-gray-700'}`} />
+                                <div className={`w-10 sm:w-16 h-0.5 mx-2 sm:mx-4 ${currentStep > step.id ? 'bg-yellow-400' : 'bg-gray-700'}`} />
                             )}
                         </div>
                     ))}
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
                             {currentStep === 1 && (
                                 <>
                                     <CustomerForm />
-                                    <button onClick={handleNextStep} className="w-full mt-6 bg-yellow-400 text-black font-bold py-4 rounded-xl hover:bg-yellow-500 transition-colors">
+                                    <button onClick={handleNextStep} className="w-full mt-6 bg-yellow-400 text-black font-bold py-3.5 rounded-xl hover:bg-yellow-500 transition-colors">
                                         Ir para Entrega
                                     </button>
                                 </>
@@ -192,9 +192,9 @@ export default function CheckoutPage() {
                             {currentStep === 2 && (
                                 <>
                                     <ShippingForm />
-                                    <div className="flex gap-4 mt-6">
-                                        <button onClick={() => setCurrentStep(1)} className="w-1/3 bg-zinc-800 text-white font-bold py-4 rounded-xl hover:bg-zinc-700 transition-colors">Voltar</button>
-                                        <button onClick={handleNextStep} className="w-2/3 bg-yellow-400 text-black font-bold py-4 rounded-xl hover:bg-yellow-500 transition-colors">Ir para Pagamento</button>
+                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
+                                        <button onClick={() => setCurrentStep(1)} className="w-full sm:w-1/3 bg-zinc-800 text-white font-bold py-3.5 rounded-xl hover:bg-zinc-700 transition-colors">Voltar</button>
+                                        <button onClick={handleNextStep} className="w-full sm:w-2/3 bg-yellow-400 text-black font-bold py-3.5 rounded-xl hover:bg-yellow-500 transition-colors">Ir para Pagamento</button>
                                     </div>
                                 </>
                             )}
@@ -206,12 +206,12 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Resumo do Pedido (Sidebar) */}
-                    <div className="bg-zinc-900 p-6 rounded-xl border border-white/10 h-fit">
-                        <h3 className="text-xl font-bold text-white mb-6">Resumo do Pedido</h3>
+                    <div className="bg-zinc-900 p-4 sm:p-6 rounded-xl border border-white/10 h-fit">
+                        <h3 className="text-lg sm:text-xl font-bold text-white mb-5 sm:mb-6">Resumo do Pedido</h3>
                         <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
                             {cart.map(item => (
                                 <div key={item.id} className="flex gap-4">
-                                    <div className="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                                     </div>
                                     <div className="flex-1">

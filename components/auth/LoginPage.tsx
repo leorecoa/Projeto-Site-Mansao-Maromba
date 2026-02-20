@@ -13,6 +13,14 @@ function sanitizeRedirectPath(input: string | null): string {
 
 const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
 const LOGIN_PALETTE = ['#facc15', '#ef4444', '#22d3ee', '#ec4899'];
+const CARTOON_ETES = [
+  { top: '10%', left: '4%', size: 'w-14 h-14', rotate: '-12deg', delay: '0s' },
+  { top: '30%', left: '11%', size: 'w-12 h-12', rotate: '10deg', delay: '0.6s' },
+  { top: '56%', left: '3%', size: 'w-16 h-16', rotate: '-8deg', delay: '1s' },
+  { top: '14%', right: '5%', size: 'w-12 h-12', rotate: '13deg', delay: '0.3s' },
+  { top: '40%', right: '3%', size: 'w-16 h-16', rotate: '-12deg', delay: '0.9s' },
+  { top: '66%', right: '8%', size: 'w-12 h-12', rotate: '11deg', delay: '1.4s' },
+];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -70,7 +78,11 @@ export default function LoginPage() {
 
     try {
       // Persist redirect target to avoid query-string mismatches in OAuth redirect URL allowlist.
-      sessionStorage.setItem(OAUTH_REDIRECT_STORAGE_KEY, redirectPath);
+      try {
+        sessionStorage.setItem(OAUTH_REDIRECT_STORAGE_KEY, redirectPath);
+      } catch {
+        // Ignore storage failures (privacy mode/blocked storage) and continue OAuth.
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -104,19 +116,35 @@ export default function LoginPage() {
           100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.35; }
         }
         @keyframes stickerBounce {
-          0% { transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
-          50% { transform: translate3d(0, -14px, 0) rotate(-3deg) scale(1.03); }
-          100% { transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
+          0% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 0.9; }
+          50% { transform: translate3d(0, -24px, 0) rotate(-1deg) scale(1.06); opacity: 1; }
+          100% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 0.9; }
         }
         @keyframes sparkleSpin {
           0% { transform: rotate(0deg) scale(1); opacity: 0.6; }
           50% { transform: rotate(180deg) scale(1.15); opacity: 1; }
           100% { transform: rotate(360deg) scale(1); opacity: 0.6; }
         }
+        @keyframes eteSpeak {
+          0% { transform: perspective(900px) translate3d(0, 0, 0) rotate(var(--ete-rotate, 0deg)) rotateY(-8deg); opacity: 0.4; }
+          35% { transform: perspective(900px) translate3d(0, -18px, 0) rotate(calc(var(--ete-rotate, 0deg) + 4deg)) rotateY(8deg); opacity: 0.75; }
+          70% { transform: perspective(900px) translate3d(0, -6px, 0) rotate(calc(var(--ete-rotate, 0deg) - 2deg)) rotateY(-6deg); opacity: 0.65; }
+          100% { transform: perspective(900px) translate3d(0, 0, 0) rotate(var(--ete-rotate, 0deg)) rotateY(-8deg); opacity: 0.4; }
+        }
+        @keyframes bubblePop {
+          0% { transform: scale(0.95) translateY(0); opacity: 0.7; }
+          50% { transform: scale(1.05) translateY(-5px); opacity: 1; }
+          100% { transform: scale(0.95) translateY(0); opacity: 0.7; }
+        }
+        @keyframes neonPulse {
+          0% { box-shadow: 0 0 0 rgba(34, 211, 238, 0), 0 0 0 rgba(250, 204, 21, 0); }
+          50% { box-shadow: 0 0 22px rgba(34, 211, 238, 0.45), 0 0 34px rgba(250, 204, 21, 0.35); }
+          100% { box-shadow: 0 0 0 rgba(34, 211, 238, 0), 0 0 0 rgba(250, 204, 21, 0); }
+        }
       `}</style>
 
       <div
-        className="absolute inset-0 opacity-35"
+        className="absolute inset-0 opacity-45 md:opacity-35"
         style={{
           background: `linear-gradient(120deg, ${LOGIN_PALETTE[0]}22, ${LOGIN_PALETTE[1]}1a, ${LOGIN_PALETTE[2]}1a, ${LOGIN_PALETTE[3]}1a)`,
           backgroundSize: '220% 220%',
@@ -126,86 +154,104 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.08)_0%,transparent_55%)]" />
 
       <div
-        className="absolute top-[-8rem] left-[8%] w-72 h-72 rounded-full blur-3xl"
+        className="absolute top-[-8rem] left-[8%] w-56 h-56 md:w-72 md:h-72 rounded-full blur-3xl"
         style={{ backgroundColor: `${LOGIN_PALETTE[1]}33`, animation: 'loginFloat 7s ease-in-out infinite' }}
       />
       <div
-        className="absolute top-[8%] right-[10%] w-80 h-80 rounded-full blur-3xl"
+        className="absolute top-[8%] right-[10%] w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
         style={{ backgroundColor: `${LOGIN_PALETTE[2]}33`, animation: 'loginFloat 9s ease-in-out infinite', animationDelay: '0.8s' }}
       />
       <div
-        className="absolute bottom-[-7rem] left-[26%] w-96 h-96 rounded-full blur-3xl"
+        className="absolute bottom-[-7rem] left-[26%] w-72 h-72 md:w-96 md:h-96 rounded-full blur-3xl"
         style={{ backgroundColor: `${LOGIN_PALETTE[3]}22`, animation: 'loginFloat 10s ease-in-out infinite', animationDelay: '1.4s' }}
       />
 
-      <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="hidden lg:block absolute left-[10%] top-1/2 -translate-y-1/2">
+      <div className="relative min-h-screen flex items-center justify-center p-3 sm:p-4">
+        <div className="pointer-events-none absolute inset-0 hidden sm:block">
+          {CARTOON_ETES.map((ete, index) => (
             <div
-              className="relative w-64 h-64 rounded-[2.2rem] border-4 border-black shadow-[0_0_0_4px_rgba(250,204,21,0.95),0_20px_50px_rgba(0,0,0,0.55)] bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 p-4"
-              style={{ animation: 'stickerBounce 4.8s ease-in-out infinite' }}
+              key={`ete-${index}`}
+              className="absolute"
+              style={{
+                top: ete.top,
+                left: ete.left,
+                right: ete.right,
+              }}
             >
-              <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-cyan-300 border-2 border-black" style={{ animation: 'sparkleSpin 2.6s linear infinite' }} />
-              <div className="absolute -bottom-3 -left-3 w-8 h-8 rounded-full bg-pink-400 border-2 border-black" style={{ animation: 'sparkleSpin 2.1s linear infinite', animationDelay: '0.3s' }} />
-              <div className="w-full h-full rounded-[1.5rem] bg-black/80 border-2 border-black flex items-center justify-center">
-                <img
-                  src="https://i.imgur.com/2CMQ6GJ.png"
-                  alt="Mansao Maromba Cartoon"
-                  className="w-40 h-40 object-cover rounded-2xl"
-                  style={{ imageRendering: 'auto', filter: 'saturate(1.15) contrast(1.08) drop-shadow(0 0 16px rgba(250,204,21,0.45))' }}
-                />
-              </div>
-              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black border-2 border-yellow-300 text-yellow-300 text-xs font-bold tracking-widest">
-                MODO CARTOON
+              <div
+                className={`relative ${ete.size} rounded-xl border border-cyan-300/40 bg-black/25 p-1 shadow-[0_0_18px_rgba(34,211,238,0.35)]`}
+                style={{
+                  animation: 'eteSpeak 3.2s ease-in-out infinite',
+                  animationDelay: ete.delay,
+                  ['--ete-rotate' as string]: ete.rotate,
+                }}
+              >
+                <div className="w-full h-full rounded-lg bg-black/45 border border-cyan-300/30 flex items-center justify-center backdrop-blur-[2px]">
+                  <img
+                    src="https://i.imgur.com/2CMQ6GJ.png"
+                    alt="ETE cartoon"
+                    className="w-full h-full object-cover rounded-lg"
+                    style={{ filter: 'saturate(1.25) contrast(1.08) drop-shadow(0 0 8px rgba(250,204,21,0.35))' }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="text-center mb-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6 sm:mb-8">
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
               alt="Mansao Maromba Logo"
-              className="w-20 h-20 object-cover mx-auto mb-4 shadow-lg shadow-yellow-400/20"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-cover mx-auto mb-3 sm:mb-4 shadow-lg shadow-yellow-400/20"
               style={{ borderRadius: '1rem' }}
             />
-            <h1 className="text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2">
+            <h1
+              className="text-3xl sm:text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2"
+              style={{ textShadow: '0 0 14px rgba(250, 204, 21, 0.55), 0 0 28px rgba(34, 211, 238, 0.25)' }}
+            >
               Mansao Maromba
             </h1>
-            <p className="text-gray-400 flex items-center justify-center gap-2">
+            <p className="text-gray-400 text-sm sm:text-base flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4 text-yellow-400" />
               {isSignUp ? 'Criar sua conta' : 'Bem-vindo de volta'}
             </p>
           </div>
 
-          <div className="relative glass-card rounded-2xl p-8 border border-yellow-400/20 shadow-2xl backdrop-blur-xl">
+          <div className="relative glass-card rounded-2xl p-5 sm:p-8 border border-yellow-400/20 shadow-2xl backdrop-blur-xl">
             <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[linear-gradient(120deg,rgba(250,204,21,0.1),rgba(34,211,238,0.05),rgba(236,72,153,0.08))]" />
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm backdrop-blur-sm">
+              <div className="mb-5 sm:mb-6 p-3 sm:p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm backdrop-blur-sm">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Email</label>
+                <label htmlFor="login-email" className="block text-sm font-semibold text-gray-300 mb-2">Email</label>
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
                   placeholder="seu@email.com"
+                  autoComplete="username"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Senha</label>
+                <label htmlFor="login-password" className="block text-sm font-semibold text-gray-300 mb-2">Senha</label>
                 <input
+                  id="login-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
                   placeholder="........"
+                  autoComplete={isSignUp ? 'new-password' : 'current-password'}
                   required
                   minLength={6}
                 />
@@ -214,13 +260,14 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition-all disabled:opacity-50 shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40"
+                className="w-full py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition-all disabled:opacity-50 shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40"
+                style={{ boxShadow: '0 0 20px rgba(250, 204, 21, 0.25), 0 0 34px rgba(34, 211, 238, 0.12)' }}
               >
                 {loading ? 'Carregando...' : isSignUp ? 'Cadastrar' : 'Entrar'}
               </button>
             </form>
 
-            <div className="my-6 flex items-center gap-4">
+            <div className="my-5 sm:my-6 flex items-center gap-4">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
               <span className="text-gray-500 text-sm font-medium">ou</span>
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -229,7 +276,8 @@ export default function LoginPage() {
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full py-3.5 bg-white/10 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-xl hover:bg-white/20 hover:border-white/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg"
+              className="w-full py-3 bg-white/10 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-xl hover:bg-white/20 hover:border-white/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg"
+              style={{ boxShadow: '0 0 16px rgba(236, 72, 153, 0.18), 0 0 26px rgba(34, 211, 238, 0.14)' }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -240,7 +288,7 @@ export default function LoginPage() {
               Continuar com Google
             </button>
 
-            <div className="mt-6 text-center">
+            <div className="mt-5 sm:mt-6 text-center">
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-yellow-400 hover:text-yellow-300 font-medium text-sm transition-colors"

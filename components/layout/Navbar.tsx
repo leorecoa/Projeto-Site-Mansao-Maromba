@@ -25,7 +25,7 @@ export default function Navbar({ theme }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 bg-black/80 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div
             className="flex-shrink-0 cursor-pointer flex items-center gap-3"
@@ -34,9 +34,9 @@ export default function Navbar({ theme }: NavbarProps) {
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
               alt="Mansão Maromba"
-              className="h-10 w-10 rounded-lg"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg"
             />
-            <span className="font-syncopate font-bold text-white tracking-wider hidden sm:block">
+            <span className="font-syncopate font-bold text-white tracking-wider hidden md:block">
               MANSÃO <span style={{ color: primaryColor }}>MAROMBA</span>
             </span>
           </div>
@@ -136,7 +136,7 @@ export default function Navbar({ theme }: NavbarProps) {
           <div className="px-4 pt-2 pb-6 space-y-2">
             <button
               onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg"
+              className="block w-full text-left px-4 py-3.5 text-gray-300 hover:bg-white/5 rounded-lg"
             >
               HOME
             </button>
@@ -144,7 +144,7 @@ export default function Navbar({ theme }: NavbarProps) {
             {user && (
               <button
                 onClick={() => { navigate('/minha-conta'); setIsMobileMenuOpen(false); }}
-                className="block w-full text-left px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
+                className="block w-full text-left px-4 py-3.5 text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
               >
                 <Package size={18} />
                 MEUS PEDIDOS
@@ -153,8 +153,8 @@ export default function Navbar({ theme }: NavbarProps) {
 
             {user ? (
               <button
-                onClick={handleSignOut}
-                className="block w-full text-left px-4 py-3 text-red-400 hover:bg-white/5 rounded-lg flex items-center gap-2"
+                onClick={async () => { await handleSignOut(); setIsMobileMenuOpen(false); }}
+                className="block w-full text-left px-4 py-3.5 text-red-400 hover:bg-white/5 rounded-lg flex items-center gap-2"
               >
                 <LogOut size={18} />
                 SAIR
@@ -162,7 +162,7 @@ export default function Navbar({ theme }: NavbarProps) {
             ) : (
               <button
                 onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}
-                className="block w-full text-center px-4 py-3 mt-4 rounded-lg font-bold text-black"
+                className="block w-full text-center px-4 py-3.5 mt-4 rounded-lg font-bold text-black"
                 style={{ backgroundColor: primaryColor }}
               >
                 ENTRAR
