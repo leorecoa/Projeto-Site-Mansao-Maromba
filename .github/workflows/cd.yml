@@ -1,0 +1,162 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Unit tests
+        run: npm test -- --run
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+  apply-migrations:
+    name: Apply Migrations
+    runs-on: ubuntu-latest
+    needs: [quality-gate]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide migration execution
+        id: migrate-gate
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          has_migrations=false
+          if [[ -d "supabase/migrations" ]] && compgen -G "supabase/migrations/*.sql" > /dev/null; then
+            has_migrations=true
+          fi
+
+          if [[ "$has_migrations" == "true" && -n "$SUPABASE_ACCESS_TOKEN" && -n "$SUPABASE_PROJECT_REF" && -n "$SUPABASE_DB_PASSWORD" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping migrations: missing migrations folder/files or Supabase secrets."
+          fi
+
+      - name: Apply migrations to Supabase
+        if: steps.migrate-gate.outputs.should_run == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          npx supabase@latest link --project-ref "$SUPABASE_PROJECT_REF"
+          npx supabase@latest db push --password "$SUPABASE_DB_PASSWORD"
+
+  deploy-functions:
+    name: Deploy Edge Functions
+    runs-on: ubuntu-latest
+    needs: [apply-migrations]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide function deployment
+        id: fn-gate
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [[ -n "$SUPABASE_ACCESS_TOKEN" && -n "$SUPABASE_PROJECT_REF" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping function deploy: missing SUPABASE_ACCESS_TOKEN or SUPABASE_PROJECT_REF."
+          fi
+
+      - name: Deploy functions
+        if: steps.fn-gate.outputs.should_run == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          npx supabase@latest link --project-ref "$SUPABASE_PROJECT_REF"
+          npx supabase@latest functions deploy send-email
+          npx supabase@latest functions deploy payment-webhook
+          npx supabase@latest functions deploy process-order
+
+  deploy-frontend:
+    name: Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    needs: [quality-gate, deploy-functions]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel (production)
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  post-deploy-summary:
+    name: Post Deploy Summary
+    runs-on: ubuntu-latest
+    needs: [deploy-frontend]
+    steps:
+      - name: Deployment summary
+        run: |
+          echo "CD completed:"
+          echo "- Quality gate: passed"
+          echo "- Migrations: executed or skipped safely"
+          echo "- Edge Functions: deployed or skipped safely"
+          echo "- Frontend: deployed to Vercel"
