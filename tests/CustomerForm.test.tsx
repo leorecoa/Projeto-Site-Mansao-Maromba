@@ -32,7 +32,7 @@ describe('CustomerForm Component', () => {
         )
 
         expect(screen.getByText('Dados Pessoais')).toBeInTheDocument()
-        expect(screen.getByPlaceholderText('Ex: João da Silva')).toBeInTheDocument()
+        expect(screen.getByLabelText('Nome Completo')).toBeInTheDocument()
         expect(screen.getByPlaceholderText('CPF ou CNPJ')).toBeInTheDocument()
         expect(screen.getByPlaceholderText('seu@email.com')).toBeInTheDocument()
         expect(screen.getByPlaceholderText('(11) 99999-9999')).toBeInTheDocument()
@@ -79,7 +79,7 @@ describe('CustomerForm Component', () => {
             </TestWrapper>
         )
 
-        expect(screen.getByPlaceholderText('Ex: João da Silva')).toBeDisabled()
+        expect(screen.getByLabelText('Nome Completo')).toBeDisabled()
         expect(screen.getByPlaceholderText('CPF ou CNPJ')).toBeDisabled()
     })
 })
