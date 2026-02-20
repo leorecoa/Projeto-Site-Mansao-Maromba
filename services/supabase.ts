@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { SupportedStorage } from '@supabase/auth-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -8,7 +9,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Custom storage que sempre funciona
-const customStorage = {
+const customStorage: SupportedStorage = {
   getItem: (key: string) => {
     try {
       return localStorage.getItem(key)
@@ -38,7 +39,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
     flowType: 'pkce',
-    storage: customStorage as any,
+    storage: customStorage,
     storageKey: 'sb-auth-token'
   }
 })

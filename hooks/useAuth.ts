@@ -36,6 +36,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -59,6 +60,10 @@ export function useAuth() {
         if (!mounted || requestToken !== profileRequestToken) return
         setProfile(null)
         setProfileError(message)
+      } finally {
+        if (mounted && requestToken === profileRequestToken) {
+          setProfileLoading(false)
+        }
       }
     }
 
@@ -71,12 +76,15 @@ export function useAuth() {
       if (!sessionUser) {
         profileRequestToken += 1
         setProfile(null)
+        setProfileLoading(false)
         setLoading(false)
         return
       }
 
       // Nao bloquear a autenticacao por consulta de perfil.
       setLoading(false)
+      setProfileLoading(true)
+      setProfile(null)
       void loadProfile(sessionUser.id)
     }
 
@@ -128,6 +136,7 @@ export function useAuth() {
     signOut,
     isAuthenticated: !!user,
     loading,
+    profileLoading,
     profileError,
   }
 }
