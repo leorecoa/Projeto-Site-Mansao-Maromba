@@ -26,6 +26,18 @@ export function mapAuthErrorMessage(error: unknown): string {
     return 'Este email ja esta cadastrado.'
   }
 
+  if (message.includes('signup is disabled')) {
+    return 'Cadastro por email esta desativado no momento.'
+  }
+
+  if (message.includes('database error saving new user')) {
+    return 'Falha ao criar conta no banco. Verifique o trigger/perfil de usuario no Supabase.'
+  }
+
+  if (message.includes('email address is invalid') || message.includes('invalid email')) {
+    return 'Email invalido. Revise e tente novamente.'
+  }
+
   if (message.includes('rate limit')) {
     return 'Muitas tentativas. Aguarde um pouco e tente novamente.'
   }

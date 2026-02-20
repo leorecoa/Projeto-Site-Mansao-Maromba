@@ -26,13 +26,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError('');
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`
+          }
+        });
         if (error) throw error;
+
+        if (data.session) {
+          addToast('Cadastro e login concluidos com sucesso.', 'success');
+          navigate(redirectPath, { replace: true });
+          return;
+        }
 
         addToast('Cadastro realizado. Verifique seu email para confirmar a conta.', 'success');
         setIsSignUp(false);
@@ -41,8 +54,6 @@ export default function LoginPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-
-        await new Promise(resolve => setTimeout(resolve, 500));
         navigate(redirectPath, { replace: true });
       }
     } catch (err) {
@@ -52,6 +63,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (loading) return;
     setLoading(true);
     setError('');
 

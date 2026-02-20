@@ -40,6 +40,27 @@ export function useAuth() {
 
   useEffect(() => {
     let mounted = true
+    let profileRequestToken = 0
+
+    const loadProfile = async (userId: string) => {
+      const requestToken = ++profileRequestToken
+
+      try {
+        const nextProfile = await withTimeout(
+          fetchProfile(userId),
+          PROFILE_TIMEOUT_MS,
+          'Timeout ao carregar perfil'
+        )
+
+        if (!mounted || requestToken !== profileRequestToken) return
+        setProfile(nextProfile)
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Erro ao carregar perfil'
+        if (!mounted || requestToken !== profileRequestToken) return
+        setProfile(null)
+        setProfileError(message)
+      }
+    }
 
     const syncFromSession = async (sessionUser: User | null) => {
       if (!mounted) return
@@ -48,25 +69,15 @@ export function useAuth() {
       setProfileError(null)
 
       if (!sessionUser) {
+        profileRequestToken += 1
         setProfile(null)
+        setLoading(false)
         return
       }
 
-      try {
-        const nextProfile = await withTimeout(
-          fetchProfile(sessionUser.id),
-          PROFILE_TIMEOUT_MS,
-          'Timeout ao carregar perfil'
-        )
-
-        if (mounted) setProfile(nextProfile)
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Erro ao carregar perfil'
-        if (mounted) {
-          setProfile(null)
-          setProfileError(message)
-        }
-      }
+      // Nao bloquear a autenticacao por consulta de perfil.
+      setLoading(false)
+      void loadProfile(sessionUser.id)
     }
 
     const init = async () => {
@@ -77,9 +88,8 @@ export function useAuth() {
         const message = error instanceof Error ? error.message : 'Erro ao verificar sessao'
         if (mounted) {
           setProfileError(message)
+          setLoading(false)
         }
-      } finally {
-        if (mounted) setLoading(false)
       }
     }
 
