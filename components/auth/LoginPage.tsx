@@ -12,6 +12,7 @@ function sanitizeRedirectPath(input: string | null): string {
 }
 
 const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+const LOGIN_PALETTE = ['#facc15', '#ef4444', '#22d3ee', '#ec4899'];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -91,9 +92,41 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-black">
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/5" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <style>{`
+        @keyframes loginGradientFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes loginFloat {
+          0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.35; }
+          50% { transform: translate3d(0, -22px, 0) scale(1.08); opacity: 0.6; }
+          100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.35; }
+        }
+      `}</style>
+
+      <div
+        className="absolute inset-0 opacity-35"
+        style={{
+          background: `linear-gradient(120deg, ${LOGIN_PALETTE[0]}22, ${LOGIN_PALETTE[1]}1a, ${LOGIN_PALETTE[2]}1a, ${LOGIN_PALETTE[3]}1a)`,
+          backgroundSize: '220% 220%',
+          animation: 'loginGradientFlow 14s ease infinite',
+        }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.08)_0%,transparent_55%)]" />
+
+      <div
+        className="absolute top-[-8rem] left-[8%] w-72 h-72 rounded-full blur-3xl"
+        style={{ backgroundColor: `${LOGIN_PALETTE[1]}33`, animation: 'loginFloat 7s ease-in-out infinite' }}
+      />
+      <div
+        className="absolute top-[8%] right-[10%] w-80 h-80 rounded-full blur-3xl"
+        style={{ backgroundColor: `${LOGIN_PALETTE[2]}33`, animation: 'loginFloat 9s ease-in-out infinite', animationDelay: '0.8s' }}
+      />
+      <div
+        className="absolute bottom-[-7rem] left-[26%] w-96 h-96 rounded-full blur-3xl"
+        style={{ backgroundColor: `${LOGIN_PALETTE[3]}22`, animation: 'loginFloat 10s ease-in-out infinite', animationDelay: '1.4s' }}
+      />
 
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
@@ -113,7 +146,8 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="glass-card rounded-2xl p-8 border border-yellow-400/10 shadow-2xl">
+          <div className="relative glass-card rounded-2xl p-8 border border-yellow-400/20 shadow-2xl backdrop-blur-xl">
+            <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[linear-gradient(120deg,rgba(250,204,21,0.1),rgba(34,211,238,0.05),rgba(236,72,153,0.08))]" />
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm backdrop-blur-sm">
                 {error}
