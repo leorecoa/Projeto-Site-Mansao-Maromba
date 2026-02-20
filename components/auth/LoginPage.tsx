@@ -103,6 +103,16 @@ export default function LoginPage() {
           50% { transform: translate3d(0, -22px, 0) scale(1.08); opacity: 0.6; }
           100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.35; }
         }
+        @keyframes stickerBounce {
+          0% { transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
+          50% { transform: translate3d(0, -14px, 0) rotate(-3deg) scale(1.03); }
+          100% { transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
+        }
+        @keyframes sparkleSpin {
+          0% { transform: rotate(0deg) scale(1); opacity: 0.6; }
+          50% { transform: rotate(180deg) scale(1.15); opacity: 1; }
+          100% { transform: rotate(360deg) scale(1); opacity: 0.6; }
+        }
       `}</style>
 
       <div
@@ -130,6 +140,27 @@ export default function LoginPage() {
 
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
+          <div className="hidden lg:block absolute left-[10%] top-1/2 -translate-y-1/2">
+            <div
+              className="relative w-64 h-64 rounded-[2.2rem] border-4 border-black shadow-[0_0_0_4px_rgba(250,204,21,0.95),0_20px_50px_rgba(0,0,0,0.55)] bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 p-4"
+              style={{ animation: 'stickerBounce 4.8s ease-in-out infinite' }}
+            >
+              <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-cyan-300 border-2 border-black" style={{ animation: 'sparkleSpin 2.6s linear infinite' }} />
+              <div className="absolute -bottom-3 -left-3 w-8 h-8 rounded-full bg-pink-400 border-2 border-black" style={{ animation: 'sparkleSpin 2.1s linear infinite', animationDelay: '0.3s' }} />
+              <div className="w-full h-full rounded-[1.5rem] bg-black/80 border-2 border-black flex items-center justify-center">
+                <img
+                  src="https://i.imgur.com/2CMQ6GJ.png"
+                  alt="Mansao Maromba Cartoon"
+                  className="w-40 h-40 object-cover rounded-2xl"
+                  style={{ imageRendering: 'auto', filter: 'saturate(1.15) contrast(1.08) drop-shadow(0 0 16px rgba(250,204,21,0.45))' }}
+                />
+              </div>
+              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black border-2 border-yellow-300 text-yellow-300 text-xs font-bold tracking-widest">
+                MODO CARTOON
+              </div>
+            </div>
+          </div>
+
           <div className="text-center mb-8">
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
