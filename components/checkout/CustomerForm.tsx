@@ -42,7 +42,7 @@ export function CustomerForm({ disabled }: Props) {
                     {...register('customer.fullName')}
                     className={`w-full bg-black/50 border rounded-lg p-3 text-white focus:border-yellow-400 outline-none transition-colors disabled:opacity-50 ${errors.customer?.fullName ? 'border-red-500' : 'border-white/10'
                         }`}
-                    placeholder="Ex: Joao da Silva"
+                    placeholder="Ex: João da Silva"
                 />
                 {errors.customer?.fullName && (
                     <span className="text-xs text-red-500 mt-1">{errors.customer.fullName.message}</span>
