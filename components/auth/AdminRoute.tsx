@@ -12,7 +12,7 @@ export function AdminRoute() {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <Loader2 className="w-16 h-16 animate-spin text-yellow-400 mx-auto mb-4" />
-          <p className="text-gray-300">Verificando permissoes...</p>
+          <p className="text-gray-300">Verificando permissões...</p>
         </div>
       </div>
     );
@@ -27,7 +27,7 @@ export function AdminRoute() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black px-4">
         <div className="max-w-md text-center bg-zinc-900 border border-white/10 rounded-xl p-6">
-          <p className="text-red-400 font-semibold mb-2">Falha ao verificar permissoes</p>
+          <p className="text-red-400 font-semibold mb-2">Falha ao verificar permissões</p>
           <p className="text-gray-400 text-sm mb-4">{profileError}</p>
           <button
             onClick={() => window.location.reload()}

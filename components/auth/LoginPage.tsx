@@ -203,7 +203,7 @@ export default function LoginPage() {
           <div className="text-center mb-6 sm:mb-8">
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
-              alt="Mansao Maromba Logo"
+              alt="Mansão Maromba Logo"
               className="w-16 h-16 sm:w-20 sm:h-20 object-cover mx-auto mb-3 sm:mb-4 shadow-lg shadow-yellow-400/20"
               style={{ borderRadius: '1rem' }}
             />
@@ -211,7 +211,7 @@ export default function LoginPage() {
               className="text-3xl sm:text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2"
               style={{ textShadow: '0 0 14px rgba(250, 204, 21, 0.55), 0 0 28px rgba(34, 211, 238, 0.25)' }}
             >
-              Mansao Maromba
+              Mansão Maromba
             </h1>
             <p className="text-gray-400 text-sm sm:text-base flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4 text-yellow-400" />

@@ -14,7 +14,7 @@ export default function ShippingForm({ disabled }: Props) {
 
     return (
         <div className="bg-zinc-900 p-6 rounded-xl border border-white/10 space-y-4 mt-6">
-            <h2 className="text-xl font-bold text-yellow-400 mb-4">Endereco de Entrega</h2>
+            <h2 className="text-xl font-bold text-yellow-400 mb-4">Endereço de Entrega</h2>
 
             <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1">
@@ -80,7 +80,7 @@ export default function ShippingForm({ disabled }: Props) {
                     )}
                 </div>
                 <div className="col-span-1">
-                    <label htmlFor="shipping-number" className="block text-sm text-gray-400 mb-1">Numero</label>
+                    <label htmlFor="shipping-number" className="block text-sm text-gray-400 mb-1">Número</label>
                     <input
                         id="shipping-number"
                         type="text"

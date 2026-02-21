@@ -97,7 +97,7 @@ export function useAuth() {
         const { data: { session } } = await supabase.auth.getSession()
         await syncFromSession(session?.user ?? null)
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Erro ao verificar sessao'
+        const message = error instanceof Error ? error.message : 'Erro ao verificar sessão'
         if (mounted) {
           setProfileError(message)
           setProfileResolved(true)

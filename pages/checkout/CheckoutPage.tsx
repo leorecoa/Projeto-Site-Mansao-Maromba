@@ -135,7 +135,7 @@ export default function CheckoutPage() {
             clearCart();
         } catch (error) {
             logError('CheckoutPage.createOrder', error);
-            showError('Nao foi possivel processar o pedido. Tente novamente.');
+            showError('Não foi possível processar o pedido. Tente novamente.');
         }
     };
 
