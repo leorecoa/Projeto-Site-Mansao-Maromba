@@ -16,28 +16,29 @@ import { useCartStore as useCart } from './store/useCart';
 import type { Product, Theme } from '@/types';
 import { useAuth } from './hooks/useAuth';
 import { supabase } from './services/supabase';
-import LoginPage from './components/auth/LoginPage';
-import AuthCallback from './components/auth/AuthCallback';
-import AccountPage from './pages/account/AccountPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AdminRoute } from './components/auth/AdminRoute';
-import AdminTestPage from './pages/admin/AdminTest';
-import DashboardPage from './pages/admin/Dashboard';
-import OrdersList from './pages/admin/OrdersList';
-import OrderDetailsAdmin from './pages/admin/OrderDetailsAdmin';
-import ProductsList from './pages/admin/ProductsList';
-import ProductForm from './pages/admin/ProductForm';
-import CheckoutPage from './pages/checkout/CheckoutPage';
-import SuccessPage from './pages/checkout/SuccessPage';
-import ProductDetailsPage from './pages/products/ProductDetailsPage';
-import SearchPage from './pages/products/SearchPage';
-import TermsPage from './pages/legal/TermsPage';
-import PrivacyPage from './pages/legal/PrivacyPage';
-import FAQPage from './pages/support/FAQPage';
-import TestPage from './pages/TestPage';
-import NotFoundPage from './pages/NotFoundPage';
-import ErrorPage from './pages/ErrorPage';
 import { logError } from './utils/logger';
+import ErrorPage from './pages/ErrorPage';
+
+const LoginPage = React.lazy(() => import('./components/auth/LoginPage'));
+const AuthCallback = React.lazy(() => import('./components/auth/AuthCallback'));
+const AccountPage = React.lazy(() => import('./pages/account/AccountPage'));
+const AdminTestPage = React.lazy(() => import('./pages/admin/AdminTest'));
+const DashboardPage = React.lazy(() => import('./pages/admin/Dashboard'));
+const OrdersList = React.lazy(() => import('./pages/admin/OrdersList'));
+const OrderDetailsAdmin = React.lazy(() => import('./pages/admin/OrderDetailsAdmin'));
+const ProductsList = React.lazy(() => import('./pages/admin/ProductsList'));
+const ProductForm = React.lazy(() => import('./pages/admin/ProductForm'));
+const CheckoutPage = React.lazy(() => import('./pages/checkout/CheckoutPage'));
+const SuccessPage = React.lazy(() => import('./pages/checkout/SuccessPage'));
+const ProductDetailsPage = React.lazy(() => import('./pages/products/ProductDetailsPage'));
+const SearchPage = React.lazy(() => import('./pages/products/SearchPage'));
+const TermsPage = React.lazy(() => import('./pages/legal/TermsPage'));
+const PrivacyPage = React.lazy(() => import('./pages/legal/PrivacyPage'));
+const FAQPage = React.lazy(() => import('./pages/support/FAQPage'));
+const TestPage = React.lazy(() => import('./pages/TestPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 
 export default function App() {
   const [activeProductIndex, setActiveProductIndex] = useState(0);
@@ -50,7 +51,6 @@ export default function App() {
   const { setIsCartOpen } = useCart();
   const { isAuthenticated } = useAuth();
 
-  // Analytics
   useAnalytics();
 
   const initialized = useRef(false);
@@ -58,9 +58,9 @@ export default function App() {
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    
+
     let mounted = true;
-    
+
     async function fetchProducts() {
       try {
         const { data, error } = await supabase
@@ -95,16 +95,15 @@ export default function App() {
         if (mounted) setLoading(false);
       }
     }
-    
+
     fetchProducts();
-    
+
     return () => {
       mounted = false;
     };
   }, []);
 
   const activeProduct = products[activeProductIndex];
-  // Garante que activeTheme nunca seja undefined para evitar erros nos componentes
   const activeTheme: Theme = activeProduct?.theme || (PRODUCTS[0].theme as Theme);
 
   useEffect(() => {
@@ -115,16 +114,20 @@ export default function App() {
   }, [activeTheme]);
 
   useEffect(() => {
+    if (location.pathname !== '/') return;
+
+    setShowSplashScreen(true);
+    setIsFadingOutSplash(false);
+
     const timer = setTimeout(() => setIsFadingOutSplash(true), 2500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.pathname]);
 
   const handleCheckout = () => {
     setIsCartOpen(false);
     if (isAuthenticated) {
       navigate('/checkout');
     } else {
-      // Salva a intenção de ir para o checkout para redirecionar após o login
       navigate('/login?redirect=/checkout');
     }
   };
@@ -133,7 +136,6 @@ export default function App() {
     return <div className="h-screen bg-black flex items-center justify-center text-white">Carregando...</div>;
   }
 
-  // Verifica se estamos na home para mostrar o Splash e Hero
   const isHome = location.pathname === '/';
 
   return (
@@ -148,54 +150,51 @@ export default function App() {
       <Navbar theme={activeTheme} />
 
       <main>
-        <Routes>
-          <Route path="/" element={
-            <>
-              <Suspense fallback={<div className="h-screen bg-black" />}>
+        <Suspense fallback={<div className="h-screen bg-black" />}>
+          <Routes>
+            <Route path="/" element={
+              <>
                 <Hero
                   products={products}
                   activeIndex={activeProductIndex}
                   setActiveIndex={setActiveProductIndex}
                 />
-              </Suspense>
-              <ProductSection products={products} activeTheme={activeTheme} />
-              <AboutSection activeTheme={activeTheme} />
-              <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
-              <MapSection activeTheme={activeTheme} />
-            </>
-          } />
+                <ProductSection products={products} activeTheme={activeTheme} />
+                <AboutSection activeTheme={activeTheme} />
+                <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
+                <MapSection activeTheme={activeTheme} />
+              </>
+            } />
 
-          <Route path="/test" element={<TestPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/products/:id" element={<ProductDetailsPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/faq" element={<FAQPage />} />
+            <Route path="/test" element={<TestPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/products/:id" element={<ProductDetailsPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/faq" element={<FAQPage />} />
 
-          {/* Rotas Protegidas */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/minha-conta" element={<AccountPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/checkout/success" element={<SuccessPage />} />
-          </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/minha-conta" element={<AccountPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/checkout/success" element={<SuccessPage />} />
+            </Route>
 
-          {/* Rotas Admin */}
-          <Route element={<AdminRoute />}>
-            <Route path="/admin/test" element={<AdminTestPage />} />
-            <Route path="/admin" element={<DashboardPage />} />
-            <Route path="/admin/orders" element={<OrdersList />} />
-            <Route path="/admin/orders/:id" element={<OrderDetailsAdmin />} />
-            <Route path="/admin/products" element={<ProductsList />} />
-            <Route path="/admin/products/new" element={<ProductForm />} />
-            <Route path="/admin/products/:id" element={<ProductForm />} />
-          </Route>
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/test" element={<AdminTestPage />} />
+              <Route path="/admin" element={<DashboardPage />} />
+              <Route path="/admin/orders" element={<OrdersList />} />
+              <Route path="/admin/orders/:id" element={<OrderDetailsAdmin />} />
+              <Route path="/admin/products" element={<ProductsList />} />
+              <Route path="/admin/products/new" element={<ProductForm />} />
+              <Route path="/admin/products/:id" element={<ProductForm />} />
+            </Route>
 
-          <Route path="/error" element={<ErrorPage />} />
-          {/* Rota 404 - Deve ser a última */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </main>
 
       <Footer activeTheme={activeTheme} />

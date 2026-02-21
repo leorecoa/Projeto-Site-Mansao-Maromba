@@ -55,7 +55,7 @@ const Footer: React.FC<FooterProps> = ({ activeTheme }) => {
           </div>
         </div>
         <div className="pt-8 border-t border-white/5 text-center">
-          <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">© 2024 MANSÃO MAROMBA DISTRIBUIDORA.</p>
+          <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">© {new Date().getFullYear()} MANSÃO MAROMBA DISTRIBUIDORA.</p>
         </div>
       </div>
     </footer>
