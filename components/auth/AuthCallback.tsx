@@ -12,6 +12,7 @@ function sanitizeRedirectPath(input: string | null): string {
 const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
 const SESSION_POLL_ATTEMPTS = 6;
 const SESSION_POLL_INTERVAL_MS = 300;
+const SUCCESS_REDIRECT_DELAY_MS = 120;
 
 function getStoredRedirectPath(): string | null {
   try {
@@ -32,7 +33,7 @@ function clearStoredRedirectPath() {
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState('Processando login...');
+  const [status, setStatus] = useState('Entrando...');
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -72,7 +73,7 @@ export default function AuthCallback() {
         if (initialSessionData?.session) {
           clearStoredRedirectPath();
           setStatus('Login concluido. Redirecionando...');
-          setTimeout(() => navigate(redirectPath, { replace: true }), 900);
+          setTimeout(() => navigate(redirectPath, { replace: true }), SUCCESS_REDIRECT_DELAY_MS);
           return;
         }
 
@@ -97,7 +98,7 @@ export default function AuthCallback() {
             if (polledSessionData?.session) {
               clearStoredRedirectPath();
               setStatus('Login concluido. Redirecionando...');
-              setTimeout(() => navigate(redirectPath, { replace: true }), 900);
+              setTimeout(() => navigate(redirectPath, { replace: true }), SUCCESS_REDIRECT_DELAY_MS);
               return;
             }
 
@@ -122,7 +123,7 @@ export default function AuthCallback() {
           setStatus('Login concluido. Redirecionando...');
           setTimeout(() => {
             navigate(redirectPath, { replace: true });
-          }, 900);
+          }, SUCCESS_REDIRECT_DELAY_MS);
           return;
         }
 
@@ -139,10 +140,14 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="text-center max-w-md px-4">
-        <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-        <p className="text-white text-xl mb-2">Finalizando login com Google</p>
-        <p className="text-gray-400 text-sm">{status}</p>
+      <div className="text-center max-w-sm px-4">
+        <img
+          src="https://i.imgur.com/2CMQ6GJ.png"
+          alt="Mansao Maromba"
+          className="w-14 h-14 object-cover mx-auto mb-4"
+        />
+        <div className="w-10 h-10 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-gray-300 text-sm">{status}</p>
       </div>
     </div>
   );
