@@ -13,15 +13,6 @@ function sanitizeRedirectPath(input: string | null): string {
 
 const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
 const LOGIN_PALETTE = ['#facc15', '#ef4444', '#22d3ee', '#ec4899'];
-const CARTOON_ETES = [
-  { top: '10%', left: '4%', size: 'w-14 h-14', rotate: '-12deg', delay: '0s' },
-  { top: '30%', left: '11%', size: 'w-12 h-12', rotate: '10deg', delay: '0.6s' },
-  { top: '56%', left: '3%', size: 'w-16 h-16', rotate: '-8deg', delay: '1s' },
-  { top: '14%', right: '5%', size: 'w-12 h-12', rotate: '13deg', delay: '0.3s' },
-  { top: '40%', right: '3%', size: 'w-16 h-16', rotate: '-12deg', delay: '0.9s' },
-  { top: '66%', right: '8%', size: 'w-12 h-12', rotate: '11deg', delay: '1.4s' },
-];
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -167,45 +158,13 @@ export default function LoginPage() {
       />
 
       <div className="relative min-h-screen flex items-center justify-center p-3 sm:p-4">
-        <div className="pointer-events-none absolute inset-0 hidden sm:block">
-          {CARTOON_ETES.map((ete, index) => (
-            <div
-              key={`ete-${index}`}
-              className="absolute"
-              style={{
-                top: ete.top,
-                left: ete.left,
-                right: ete.right,
-              }}
-            >
-              <div
-                className={`relative ${ete.size} rounded-xl border border-cyan-300/40 bg-black/25 p-1 shadow-[0_0_18px_rgba(34,211,238,0.35)]`}
-                style={{
-                  animation: 'eteSpeak 3.2s ease-in-out infinite',
-                  animationDelay: ete.delay,
-                  ['--ete-rotate' as string]: ete.rotate,
-                }}
-              >
-                <div className="w-full h-full rounded-lg bg-black/45 border border-cyan-300/30 flex items-center justify-center backdrop-blur-[2px]">
-                  <img
-                    src="https://i.imgur.com/2CMQ6GJ.png"
-                    alt="ETE cartoon"
-                    className="w-full h-full object-cover rounded-lg"
-                    style={{ filter: 'saturate(1.25) contrast(1.08) drop-shadow(0 0 8px rgba(250,204,21,0.35))' }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="w-full max-w-md">
           <div className="text-center mb-6 sm:mb-8">
             <img
               src="https://i.imgur.com/2CMQ6GJ.png"
               alt="Mansão Maromba Logo"
               className="w-16 h-16 sm:w-20 sm:h-20 object-cover mx-auto mb-3 sm:mb-4 shadow-lg shadow-yellow-400/20"
-              style={{ borderRadius: '1rem' }}
+              style={{ borderRadius: 0 }}
             />
             <h1
               className="text-3xl sm:text-4xl font-bold font-syncopate bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent mb-2"
