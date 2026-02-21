@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface SplashScreenProps {
@@ -8,18 +7,22 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationEnd, isFadingOut }) => {
   return (
-    <div 
-      className={`fixed inset-0 bg-black z-[999] flex items-center justify-center ${isFadingOut ? 'splash-container fade-out' : 'splash-container'}`}
+    <div
+      className={`fixed inset-0 z-[999] flex items-center justify-center overflow-hidden ${isFadingOut ? 'splash-container splash-fade-out' : 'splash-container'}`}
       onAnimationEnd={(e) => {
-        if (isFadingOut && (e.animationName === 'splash-fade-out' || e.animationName === 'fade-out')) onAnimationEnd();
+        if (isFadingOut && e.animationName === 'splash-fade-out') onAnimationEnd();
       }}
     >
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent)]" />
-      <img 
-        src="https://acdn-us.mitiendanube.com/stores/004/048/852/themes/common/logo-59460031-1702327004-d85672d8490cfcdddfd25fff2c4cb1621702327004-480-0.webp" 
-        alt="Mansão Maromba Logo" 
-        className="w-64 md:w-80 splash-logo relative z-10" 
-      />
+      <div className="relative z-10 flex flex-col items-center gap-8 px-6">
+        <img
+          src="https://acdn-us.mitiendanube.com/stores/004/048/852/themes/common/logo-59460031-1702327004-d85672d8490cfcdddfd25fff2c4cb1621702327004-480-0.webp"
+          alt="Mansao Maromba Logo"
+          className="splash-logo splash-logo-size"
+        />
+        <div className="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-full splash-progress rounded-full" />
+        </div>
+      </div>
     </div>
   );
 };

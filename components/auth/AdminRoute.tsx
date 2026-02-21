@@ -3,9 +3,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 export function AdminRoute() {
-  const { isAdmin, isAuthenticated, loading, profileLoading, profileError } = useAuth();
+  const { isAdmin, isAuthenticated, loading, profileLoading, profileResolved, profileError } = useAuth();
 
-  if (loading) {
+  const isAuthorizing = loading || (isAuthenticated && (!profileResolved || profileLoading));
+
+  if (isAuthorizing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
@@ -18,17 +20,6 @@ export function AdminRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (profileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center">
-          <Loader2 className="w-16 h-16 animate-spin text-yellow-400 mx-auto mb-4" />
-          <p className="text-gray-300">Carregando perfil admin...</p>
-        </div>
-      </div>
-    );
   }
 
   // Falha transitoria de perfil nao deve forcar logout imediato.

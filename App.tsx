@@ -41,7 +41,7 @@ import { logError } from './utils/logger';
 
 export default function App() {
   const [activeProductIndex, setActiveProductIndex] = useState(0);
-  const [showSplashScreen, setShowSplashScreen] = useState(false); // DESABILITADO PARA DEBUG
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [isFadingOutSplash, setIsFadingOutSplash] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

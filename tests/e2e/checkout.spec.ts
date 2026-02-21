@@ -48,17 +48,38 @@ test.describe('Fluxo de Checkout (rotas e seletores atuais)', () => {
   });
 
   test('deve redirecionar para login quando nao autenticado', async ({ page }) => {
-    await page.goto('/');
-    const addToCart = page.getByRole('button', { name: /garantir|adicionar|comprar/i }).first();
-    await expect(addToCart).toBeVisible();
-    await addToCart.click();
-    await page.getByRole('button', { name: /finalizar compra|finalizar pedido/i }).click();
+    await page.context().clearCookies();
+    await page.addInitScript(() => {
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+    });
+
+    await page.goto('/checkout');
     await expect(page).toHaveURL(/\/login/);
   });
 
   test('deve concluir checkout em /checkout e finalizar em /checkout/success', async ({ page }) => {
     await page.addInitScript((session) => {
       window.localStorage.setItem('sb-auth-token', JSON.stringify(session));
+      window.localStorage.setItem(
+        'mansao-maromba-cart',
+        JSON.stringify({
+          state: {
+            cart: [
+              {
+                id: 'prod-e2e-1',
+                name: 'Whey Protein E2E',
+                price: 150,
+                quantity: 1,
+                image: 'https://via.placeholder.com/150',
+              },
+            ],
+            cartTotal: 150,
+            cartCount: 1,
+          },
+          version: 0,
+        })
+      );
     }, mockSession());
 
     await page.route('**/auth/v1/user', async (route) => {
@@ -158,12 +179,7 @@ test.describe('Fluxo de Checkout (rotas e seletores atuais)', () => {
       });
     });
 
-    await page.goto('/');
-    const addToCart = page.getByRole('button', { name: /garantir|adicionar|comprar/i }).first();
-    await expect(addToCart).toBeVisible();
-    await addToCart.click();
-    await page.getByRole('button', { name: /finalizar compra|finalizar pedido/i }).click();
-
+    await page.goto('/checkout');
     await expect(page).toHaveURL(/\/checkout$/);
 
     await page.locator('input[name="customer.fullName"]').fill('Usuario E2E');

@@ -37,6 +37,7 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [profileLoading, setProfileLoading] = useState(false)
+  const [profileResolved, setProfileResolved] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export function useAuth() {
       } finally {
         if (mounted && requestToken === profileRequestToken) {
           setProfileLoading(false)
+          setProfileResolved(true)
         }
       }
     }
@@ -77,6 +79,7 @@ export function useAuth() {
         profileRequestToken += 1
         setProfile(null)
         setProfileLoading(false)
+        setProfileResolved(true)
         setLoading(false)
         return
       }
@@ -84,6 +87,7 @@ export function useAuth() {
       // Nao bloquear a autenticacao por consulta de perfil.
       setLoading(false)
       setProfileLoading(true)
+      setProfileResolved(false)
       setProfile(null)
       void loadProfile(sessionUser.id)
     }
@@ -96,6 +100,7 @@ export function useAuth() {
         const message = error instanceof Error ? error.message : 'Erro ao verificar sessao'
         if (mounted) {
           setProfileError(message)
+          setProfileResolved(true)
           setLoading(false)
         }
       }
@@ -125,6 +130,7 @@ export function useAuth() {
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
+    setProfileResolved(true)
     setProfileError(null)
   }
 
@@ -137,6 +143,7 @@ export function useAuth() {
     isAuthenticated: !!user,
     loading,
     profileLoading,
+    profileResolved,
     profileError,
   }
 }
