@@ -143,7 +143,7 @@ test.describe('Fluxo Completo de Checkout', () => {
     await page.waitForTimeout(2000);
     
     // Preenche número
-    await page.fill('input[id="shipping_number"]', '123');
+    await page.fill('input[id="shipping-number"]', '123');
     
     // Clica em próximo
     await page.click('button:has-text("Ir para Pagamento")');
@@ -169,7 +169,7 @@ test.describe('Fluxo Completo de Checkout', () => {
     await page.fill('input[placeholder*="00000-000"]', '01310-100');
     await page.locator('input[placeholder*="00000-000"]').blur();
     await page.waitForTimeout(2000);
-    await page.fill('input[id="shipping_number"]', '123');
+    await page.fill('input[id="shipping-number"]', '123');
     await page.click('button:has-text("Ir para Pagamento")');
     
     // Verifica se chegou no passo 3 (pagamento)

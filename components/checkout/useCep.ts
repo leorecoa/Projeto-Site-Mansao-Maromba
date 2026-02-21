@@ -38,7 +38,7 @@ export function useCep() {
                     setValue('shipping.neighborhood', data.bairro, { shouldValidate: true });
                     setValue('shipping.city', data.localidade, { shouldValidate: true });
                     setValue('shipping.state', data.uf, { shouldValidate: true });
-                    document.getElementById('shipping_number')?.focus();
+                    document.getElementById('shipping-number')?.focus();
                 }
             } catch (error) {
                 logError('useCep.handleZipBlur', error);

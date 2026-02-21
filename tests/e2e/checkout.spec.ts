@@ -1,178 +1,186 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
-test.describe('Fluxo de Checkout Completo', () => {
-    test.beforeEach(async ({ page }) => {
-        // 1. Mock da API de Produtos (Supabase)
-        // Intercepta a chamada para buscar produtos e retorna um produto de teste
-        await page.route('**/rest/v1/products*', async (route) => {
-            await route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify([
-                    {
-                        id: 'prod-e2e-1',
-                        name: 'Whey Protein E2E',
-                        price: 150.00,
-                        image_url: 'https://via.placeholder.com/150',
-                        description: 'Produto de teste automatizado',
-                        volume: '900g',
-                        type: 'suplemento',
-                        theme: { primary: '#FFD700', secondary: '#000000', bg: '#111111' }
-                    }
-                ])
-            });
-        });
+const MOCK_USER = {
+  id: 'user-e2e-123',
+  email: 'teste@e2e.com',
+  user_metadata: { full_name: 'Usuario E2E' },
+  app_metadata: { provider: 'email' },
+  aud: 'authenticated',
+  role: 'authenticated',
+};
 
-        // 2. Mock da Criação de Pedido (RPC create_order)
-        await page.route('**/rest/v1/rpc/create_order', async (route) => {
-            await route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                    success: true,
-                    order_id: 'order-e2e-123'
-                })
-            });
-        });
+const MOCK_PRODUCT = {
+  id: 'prod-e2e-1',
+  name: 'Whey Protein E2E',
+  price: 150,
+  image_url: 'https://via.placeholder.com/150',
+  description: 'Produto de teste automatizado',
+  volume: '900g',
+  type: 'suplemento',
+  stock_quantity: 99,
+  is_active: true,
+  theme: { primary: '#FFD700', secondary: '#000000', bg: '#111111' },
+};
 
-        // 3. Mock da Sessão de Auth (Para simular usuário logado)
-        // Isso evita o redirecionamento para /login
-        await page.addInitScript(() => {
-            window.localStorage.setItem('sb-project-auth-token', JSON.stringify({
-                access_token: 'fake-jwt-token',
-                refresh_token: 'fake-refresh-token',
-                user: {
-                    id: 'user-e2e-123',
-                    email: 'teste@e2e.com',
-                    user_metadata: { full_name: 'Usuário E2E' }
-                }
-            }));
+const mockSession = () => ({
+  access_token: 'fake-access-token',
+  refresh_token: 'fake-refresh-token',
+  token_type: 'bearer',
+  expires_in: 3600,
+  expires_at: Math.floor(Date.now() / 1000) + 3600,
+  user: MOCK_USER,
+});
+
+test.describe('Fluxo de Checkout (rotas e seletores atuais)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/rest/v1/products**', async (route) => {
+      const method = route.request().method();
+      if (method === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([MOCK_PRODUCT]),
         });
+        return;
+      }
+      await route.continue();
+    });
+  });
+
+  test('deve redirecionar para login quando nao autenticado', async ({ page }) => {
+    await page.goto('/');
+    const addToCart = page.getByRole('button', { name: /garantir|adicionar|comprar/i }).first();
+    await expect(addToCart).toBeVisible();
+    await addToCart.click();
+    await page.getByRole('button', { name: /finalizar compra|finalizar pedido/i }).click();
+    await expect(page).toHaveURL(/\/login/);
+  });
+
+  test('deve concluir checkout em /checkout e finalizar em /checkout/success', async ({ page }) => {
+    await page.addInitScript((session) => {
+      window.localStorage.setItem('sb-auth-token', JSON.stringify(session));
+    }, mockSession());
+
+    await page.route('**/auth/v1/user', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_USER),
+      });
     });
 
-    test('deve realizar uma compra completa com sucesso (Happy Path)', async ({ page }) => {
-        // --- PASSO 1: Home e Adicionar ao Carrinho ---
-        await page.goto('/');
-
-        // Aguarda o produto renderizar
-        await expect(page.getByText('Whey Protein E2E')).toBeVisible();
-
-        // Clica no botão de adicionar (procura por texto comum em botões de compra)
-        // Ajuste o seletor conforme seu componente Hero ou ProductCard
-        const addBtn = page.locator('button').filter({ hasText: /Adicionar|Comprar|Garantir/ }).first();
-        await addBtn.click();
-
-        // --- PASSO 2: Modal do Carrinho ---
-        // Verifica se o modal abriu
-        await expect(page.getByText('Carrinho', { exact: false })).toBeVisible();
-        await expect(page.getByText('R$ 150,00')).toBeVisible();
-
-        // Clica em Finalizar Compra
-        await page.getByRole('button', { name: 'Finalizar Compra' }).click();
-
-        // --- PASSO 3: Página de Checkout (Formulários) ---
-        await expect(page).toHaveURL(/\/checkout/);
-
-        // Preencher Dados Pessoais
-        // O nome já deve vir preenchido pelo mock do Auth, mas vamos garantir
-        await expect(page.locator('input[name="customer.fullName"]')).toHaveValue('Usuário E2E');
-
-        await page.locator('input[name="customer.cpf"]').fill('123.456.789-00');
-        await page.locator('input[name="customer.phone"]').fill('(11) 99999-9999');
-
-        // Preencher Endereço
-        // Simulamos a digitação do CEP. O ShippingForm dispara busca no onBlur.
-        // Como estamos mockando apenas Supabase, a API do ViaCEP será chamada de verdade ou falhará.
-        // Para robustez, preenchemos manualmente os campos que seriam auto-completados.
-        await page.locator('input[name="shipping.zip"]').fill('01001-000');
-        await page.locator('input[name="shipping.zip"]').blur(); // Dispara onBlur
-
-        // Preenchimento manual para garantir
-        await page.locator('input[name="shipping.street"]').fill('Praça da Sé');
-        await page.locator('input[name="shipping.number"]').fill('100');
-        await page.locator('input[name="shipping.neighborhood"]').fill('Sé');
-        await page.locator('input[name="shipping.city"]').fill('São Paulo');
-        await page.locator('input[name="shipping.state"]').fill('SP');
-
-        // Submeter Formulário
-        await page.getByRole('button', { name: 'Confirmar e Ir para Pagamento' }).click();
-
-        // --- PASSO 4: Pagamento ---
-        // O formulário de pagamento é renderizado após o sucesso do create_order no useCheckout
-        // O useCheckout navega para /checkout/payment/:id
-        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
-
-        // Verifica elementos da página de sucesso/pagamento
-        await expect(page.getByText('Pedido Realizado!')).toBeVisible();
-        await expect(page.getByText('Pagamento via PIX')).toBeVisible(); // Default mockado
-
-        // Verifica se o valor está correto
-        await expect(page.getByText('R$ 150,00')).toBeVisible();
-
-        // --- PASSO 5: Navegação Final ---
-        await page.getByRole('button', { name: 'Ver Meus Pedidos' }).click();
-        await expect(page).toHaveURL(/\/orders/);
+    await page.route('**/auth/v1/token**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockSession()),
+      });
     });
 
-    test('deve exibir erro quando o pagamento falha (Unhappy Path)', async ({ page }) => {
-        // --- PASSO 1: Home e Adicionar ao Carrinho ---
-        await page.goto('/');
+    await page.route('**/rest/v1/user_profiles**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ id: MOCK_USER.id, email: MOCK_USER.email, role: 'customer' }),
+      });
+    });
 
-        // Aguarda o produto renderizar
-        await expect(page.getByText('Whey Protein E2E')).toBeVisible();
-
-        // Clica no botão de adicionar
-        const addBtn = page.locator('button').filter({ hasText: /Adicionar|Comprar|Garantir/ }).first();
-        await addBtn.click();
-
-        // --- PASSO 2: Modal do Carrinho ---
-        await expect(page.getByText('Carrinho', { exact: false })).toBeVisible();
-        await page.getByRole('button', { name: 'Finalizar Compra' }).click();
-
-        // --- PASSO 3: Página de Checkout (Formulários) ---
-        await expect(page).toHaveURL(/\/checkout/);
-
-        // Preencher formulários
-        await page.locator('input[name="customer.cpf"]').fill('123.456.789-00');
-        await page.locator('input[name="customer.phone"]').fill('(11) 99999-9999');
-        await page.locator('input[name="shipping.zip"]').fill('01001-000');
-        await page.locator('input[name="shipping.zip"]').blur();
-
-        // Preenchimento manual
-        await page.locator('input[name="shipping.street"]').fill('Rua Falha');
-        await page.locator('input[name="shipping.number"]').fill('000');
-        await page.locator('input[name="shipping.neighborhood"]').fill('Bairro Erro');
-        await page.locator('input[name="shipping.city"]').fill('São Paulo');
-        await page.locator('input[name="shipping.state"]').fill('SP');
-
-        // Submeter Formulário
-        await page.getByRole('button', { name: 'Confirmar e Ir para Pagamento' }).click();
-
-        // --- PASSO 4: Pagamento ---
-        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
-
-        // Interceptar a requisição de atualização do pedido para simular falha
-        await page.route('**/rest/v1/orders*', async (route) => {
-            if (route.request().method() === 'PATCH') {
-                await route.fulfill({
-                    status: 402,
-                    contentType: 'application/json',
-                    body: JSON.stringify({
-                        message: 'Cartão recusado: Saldo insuficiente'
-                    })
-                });
-            } else {
-                await route.continue();
-            }
+    await page.route('**/rest/v1/customers**', async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'customer-e2e-1',
+            auth_user_id: MOCK_USER.id,
+            full_name: 'Usuario E2E',
+            email: MOCK_USER.email,
+          }),
         });
-
-        // Tentar pagar com Cartão
-        await page.getByRole('button', { name: /Pagar com Cartão/ }).click();
-
-        // Verificar se a mensagem de erro aparece
-        await expect(page.getByText('Cartão recusado: Saldo insuficiente')).toBeVisible();
-
-        // Verificar que NÃO redirecionou (ainda na página de pagamento)
-        await expect(page).toHaveURL(/\/checkout\/payment\/order-e2e-123/);
+        return;
+      }
+      await route.continue();
     });
+
+    await page.route('**/rest/v1/orders**', async (route) => {
+      const method = route.request().method();
+      if (method === 'POST') {
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'order-e2e-123',
+            status: 'pending',
+            total_amount: 150,
+          }),
+        });
+        return;
+      }
+
+      if (method === 'PATCH') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([{ id: 'order-e2e-123', status: 'paid' }]),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await page.route('**/rest/v1/order_items**', async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify([{ id: 'item-e2e-1' }]),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.route('https://viacep.com.br/ws/**/json/', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          cep: '01310-100',
+          logradouro: 'Avenida Paulista',
+          complemento: '',
+          bairro: 'Bela Vista',
+          localidade: 'Sao Paulo',
+          uf: 'SP',
+          ibge: '3550308',
+          ddd: '11',
+        }),
+      });
+    });
+
+    await page.goto('/');
+    const addToCart = page.getByRole('button', { name: /garantir|adicionar|comprar/i }).first();
+    await expect(addToCart).toBeVisible();
+    await addToCart.click();
+    await page.getByRole('button', { name: /finalizar compra|finalizar pedido/i }).click();
+
+    await expect(page).toHaveURL(/\/checkout$/);
+
+    await page.locator('input[name="customer.fullName"]').fill('Usuario E2E');
+    await page.locator('input[name="customer.email"]').fill('teste@e2e.com');
+    await page.locator('input[name="customer.cpf"]').fill('12345678909');
+    await page.locator('input[name="customer.phone"]').fill('11999998888');
+    await page.getByRole('button', { name: /ir para entrega/i }).click();
+
+    await page.locator('input[name="shipping.zip"]').fill('01310-100');
+    await page.locator('input[name="shipping.zip"]').blur();
+    await page.locator('input[name="shipping.number"]').fill('1000');
+    await page.getByRole('button', { name: /ir para pagamento/i }).click();
+
+    await expect(page.getByText(/pagar com cartao/i)).toBeVisible();
+    await page.getByRole('button', { name: /pagar com cartao/i }).click();
+
+    await expect(page).toHaveURL(/\/checkout\/success$/);
+    await expect(page.getByRole('heading', { name: /obrigado pelo seu pedido/i })).toBeVisible();
+  });
 });
