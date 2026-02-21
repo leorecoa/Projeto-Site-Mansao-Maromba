@@ -79,10 +79,16 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
             style={{
               borderColor: `${activeProduct.theme.primary}aa`,
               color: activeProduct.theme.primary,
-              boxShadow: `0 0 20px ${activeProduct.theme.primary}44`
+              boxShadow: `0 0 22px ${activeProduct.theme.primary}52, inset 0 0 10px ${activeProduct.theme.primary}1f`,
+              textShadow: `0 0 9px ${activeProduct.theme.primary}73`
             }}
           >
-            <Crown size={14} className="sm:w-4 sm:h-4" fill={activeProduct.theme.primary} />
+            <Crown
+              size={14}
+              className="sm:w-4 sm:h-4"
+              fill={activeProduct.theme.primary}
+              style={{ filter: `drop-shadow(0 0 8px ${activeProduct.theme.primary}88)` }}
+            />
             VIBE MANSÃO MAROMBA
           </div>
 
@@ -123,14 +129,14 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               const isNext = index === (activeIndex + 1) % products.length;
               const isPrev = index === (activeIndex - 1 + products.length) % products.length;
 
-              let tx = '0%'; let tz = '-800px'; let op = 0; let sc = 0.4; let ry = '0deg'; let zi = 0;
+              let tx = '0%'; let ty = '6%'; let tz = '-800px'; let op = 0; let sc = 0.4; let ry = '0deg'; let zi = 0;
 
               if (isCenter) {
-                tx = '0%'; tz = '350px'; op = 1; sc = isTransitioning ? 1.2 : 1.1; zi = 50;
+                tx = '0%'; ty = '8%'; tz = '350px'; op = 1; sc = isTransitioning ? 1.2 : 1.1; zi = 50;
               } else if (isNext) {
-                tx = '85%'; tz = '-400px'; op = 0.25; sc = 0.6; ry = '-50deg'; zi = 10;
+                tx = '85%'; ty = '7%'; tz = '-400px'; op = 0.25; sc = 0.6; ry = '-50deg'; zi = 10;
               } else if (isPrev) {
-                tx = '-45%'; tz = '-600px'; op = 0.15; sc = 0.5; ry = '50deg'; zi = 10;
+                tx = '-45%'; ty = '7%'; tz = '-600px'; op = 0.15; sc = 0.5; ry = '50deg'; zi = 10;
               }
 
               return (
@@ -138,7 +144,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                   key={product.id}
                   className="absolute transition-all duration-[1100ms] ease-[cubic-bezier(0.19,1,0.22,1)] transform-gpu"
                   style={{
-                    transform: `translateX(${tx}) translateZ(${tz}) scale(${sc}) rotateY(${ry})`,
+                    transform: `translateX(${tx}) translateY(${ty}) translateZ(${tz}) scale(${sc}) rotateY(${ry})`,
                     opacity: op,
                     zIndex: zi,
                     filter: isCenter ? `drop-shadow(0 0 60px ${product.theme.primary}40)` : 'blur(15px) grayscale(90%)'
@@ -158,11 +164,35 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
           </div>
 
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 sm:px-4 lg:-mx-20 z-[100] pointer-events-none">
-            <button onClick={handlePrev} className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
-              <ChevronLeft size={28} className="sm:w-10 sm:h-10" style={{ color: activeProduct.theme.primary }} />
+            <button
+              onClick={handlePrev}
+              className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation"
+              style={{
+                border: `2px solid ${activeProduct.theme.primary}55`,
+                boxShadow: `0 0 24px ${activeProduct.theme.primary}42, inset 0 0 10px ${activeProduct.theme.primary}1a`,
+                background: 'rgba(5, 5, 5, 0.72)'
+              }}
+            >
+              <ChevronLeft
+                size={28}
+                className="sm:w-10 sm:h-10"
+                style={{ color: activeProduct.theme.primary, filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)` }}
+              />
             </button>
-            <button onClick={handleNext} className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation" style={{ border: `2px solid ${activeProduct.theme.primary}44` }}>
-              <ChevronRight size={28} className="sm:w-10 sm:h-10" style={{ color: activeProduct.theme.primary }} />
+            <button
+              onClick={handleNext}
+              className="w-14 h-14 sm:w-20 sm:h-20 rounded-full glass-card flex items-center justify-center pointer-events-auto transition-all hover:scale-110 active:scale-90 touch-manipulation"
+              style={{
+                border: `2px solid ${activeProduct.theme.primary}55`,
+                boxShadow: `0 0 24px ${activeProduct.theme.primary}42, inset 0 0 10px ${activeProduct.theme.primary}1a`,
+                background: 'rgba(5, 5, 5, 0.72)'
+              }}
+            >
+              <ChevronRight
+                size={28}
+                className="sm:w-10 sm:h-10"
+                style={{ color: activeProduct.theme.primary, filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)` }}
+              />
             </button>
           </div>
         </div>
