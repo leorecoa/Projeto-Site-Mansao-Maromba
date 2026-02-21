@@ -29,6 +29,25 @@ interface ProcessOrderRequest {
   tracking_code?: string
 }
 
+interface OrderItem {
+  id: string
+  product_id: string
+  quantity: number | string
+  unit_price: number | string
+}
+
+interface ProcessOrderData {
+  id: string
+  order_items: OrderItem[]
+}
+
+interface ProductStockData {
+  id: string
+  name: string
+  is_active: boolean
+  stock_quantity: number | string
+}
+
 const createRequestId = () => `po_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
 
 function logEvent(level: 'info' | 'error', event: string, payload: Record<string, unknown>) {
@@ -125,22 +144,24 @@ serve(async (req) => {
       throw new Error('Order not found')
     }
 
-    let result: any
+    let result: Record<string, unknown>
 
     switch (action) {
       case 'validate': {
-        const productIds = order.order_items.map((item: any) => item.product_id)
+        const typedOrder = order as unknown as ProcessOrderData
+        const productIds = typedOrder.order_items.map((item) => item.product_id)
         const { data: products } = await supabase
           .from('products')
           .select('id, name, is_active, stock_quantity')
           .in('id', productIds)
 
         const qtyByProduct = new Map<string, number>()
-        for (const item of order.order_items) {
+        for (const item of typedOrder.order_items) {
           qtyByProduct.set(item.product_id, Number(item.quantity))
         }
 
-        const unavailable = (products ?? []).filter((product) => {
+        const typedProducts = (products ?? []) as unknown as ProductStockData[]
+        const unavailable = typedProducts.filter((product) => {
           const requested = qtyByProduct.get(product.id) ?? 0
           return !product.is_active || Number(product.stock_quantity) < requested
         })

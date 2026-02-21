@@ -17,8 +17,16 @@ interface EmailRequest {
   payment_id?: string
 }
 
+interface EmailOrderData {
+  id: string
+  customer_name: string
+  customer_email: string
+  total_amount: number
+  tracking_code?: string | null
+}
+
 const emailTemplates = {
-  order_confirmed: (order: any) => ({
+  order_confirmed: (order: EmailOrderData) => ({
     subject: `✅ Pedido #${order.id.slice(0, 8)} Confirmado - Mansão Maromba`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -39,7 +47,7 @@ const emailTemplates = {
     `
   }),
 
-  order_shipped: (order: any) => ({
+  order_shipped: (order: EmailOrderData) => ({
     subject: `📦 Pedido #${order.id.slice(0, 8)} Enviado - Mansão Maromba`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -59,7 +67,7 @@ const emailTemplates = {
     `
   }),
 
-  payment_failed: (order: any) => ({
+  payment_failed: (order: EmailOrderData) => ({
     subject: `❌ Falha no Pagamento - Pedido #${order.id.slice(0, 8)}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -78,7 +86,7 @@ const emailTemplates = {
     `
   }),
 
-  payment_refunded: (order: any) => ({
+  payment_refunded: (order: EmailOrderData) => ({
     subject: `💰 Reembolso Processado - Pedido #${order.id.slice(0, 8)}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -122,7 +130,7 @@ serve(async (req) => {
     }
 
     // Gerar email
-    const template = emailTemplates[type](order)
+    const template = emailTemplates[type](order as EmailOrderData)
 
     // Enviar via Resend (ou SendGrid)
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -152,10 +160,11 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Email error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     )
   }

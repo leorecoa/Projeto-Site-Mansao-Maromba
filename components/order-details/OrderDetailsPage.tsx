@@ -10,8 +10,39 @@ interface Props {
   onBack: () => void;
 }
 
+interface OrderItemProduct {
+  id: string;
+  name: string;
+  image_url: string | null;
+}
+
+interface OrderDetailsItem {
+  id: string;
+  quantity: number;
+  unit_price: number;
+  products: OrderItemProduct | null;
+}
+
+interface ShippingAddressSnapshot {
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+interface OrderDetails {
+  created_at: string;
+  status: string;
+  total_amount: number;
+  order_items: OrderDetailsItem[];
+  shipping_address_snapshot?: ShippingAddressSnapshot | null;
+}
+
 export default function OrderDetailsPage({ orderId, onBack }: Props) {
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading } = useQuery<OrderDetails>({
     queryKey: ['order', orderId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -103,7 +134,7 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
             <h2 className="text-lg font-semibold text-white">Produtos</h2>
           </div>
           <div className="space-y-4">
-            {order.order_items?.map((item: any) => (
+            {order.order_items?.map((item) => (
               <div key={item.id} className="flex gap-4 bg-black/30 p-4 rounded-lg">
                 <div className="w-20 h-20 bg-zinc-800 rounded-lg flex-shrink-0 overflow-hidden">
                   {item.products?.image_url && (

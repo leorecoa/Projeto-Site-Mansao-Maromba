@@ -29,7 +29,7 @@ interface PaymentWebhook {
   payment_id: string
   amount: number
   payment_method: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 const encoder = new TextEncoder()
