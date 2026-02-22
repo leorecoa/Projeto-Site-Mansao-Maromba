@@ -1,7 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 
 dotenv.config()
+const userStorageStatePath = path.resolve(process.cwd(), 'tests/e2e/.auth/user.json')
+const hasUserStorageState = fs.existsSync(userStorageStatePath)
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -36,7 +40,7 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        storageState: 'tests/e2e/.auth/user.json',
+        ...(hasUserStorageState ? { storageState: 'tests/e2e/.auth/user.json' } : {}),
       },
       dependencies: ['setup'],
     },
