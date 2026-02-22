@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../store/useCart';
 import { Theme, CartItem } from '../../types';
+import { formatCurrency } from '../../utils/format';
 
 interface CartModalProps {
   activeTheme?: Theme;
@@ -16,14 +17,6 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
   if (!isCartOpen) return null;
 
   const primaryColor = activeTheme?.primary || '#FACC15';
-
-  // Função auxiliar para formatar moeda
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">

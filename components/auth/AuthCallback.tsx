@@ -2,14 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 import { mapAuthErrorMessage } from '../../utils/authErrors';
-
-function sanitizeRedirectPath(input: string | null): string {
-  if (!input) return '/';
-  if (!input.startsWith('/') || input.startsWith('//')) return '/';
-  return input;
-}
-
-const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+import { AUTH_LOGO_URL, OAUTH_REDIRECT_STORAGE_KEY, sanitizeRedirectPath } from './authShared';
 const SESSION_POLL_ATTEMPTS = 6;
 const SESSION_POLL_INTERVAL_MS = 300;
 const SUCCESS_REDIRECT_DELAY_MS = 120;
@@ -142,7 +135,7 @@ export default function AuthCallback() {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="text-center max-w-sm px-4">
         <img
-          src="https://i.imgur.com/2CMQ6GJ.png"
+          src={AUTH_LOGO_URL}
           alt="Mansao Maromba"
           className="w-14 h-14 object-cover mx-auto mb-4"
         />

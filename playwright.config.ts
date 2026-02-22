@@ -14,15 +14,15 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://localhost:5174',
+    baseURL: 'http://127.0.0.1:5173',
     trace: 'on-first-retry',
     actionTimeout: 15000,
     navigationTimeout: 30000,
   },
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5174',
+    command: 'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort',
+    url: 'http://127.0.0.1:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
   },

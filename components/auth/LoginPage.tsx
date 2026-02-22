@@ -4,14 +4,7 @@ import { supabase } from '../../services/supabase';
 import { Sparkles } from 'lucide-react';
 import { useToast as useToastStore } from '../../store/useToast';
 import { mapAuthErrorMessage } from '../../utils/authErrors';
-
-function sanitizeRedirectPath(input: string | null): string {
-  if (!input) return '/';
-  if (!input.startsWith('/') || input.startsWith('//')) return '/';
-  return input;
-}
-
-const OAUTH_REDIRECT_STORAGE_KEY = 'post_login_redirect_path';
+import { AUTH_LOGO_URL, OAUTH_REDIRECT_STORAGE_KEY, sanitizeRedirectPath } from './authShared';
 const LOGIN_PALETTE = ['#facc15', '#ef4444', '#22d3ee', '#ec4899'];
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -23,6 +16,8 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = React.useState(false);
   const { addToast } = useToastStore();
   const redirectPath = sanitizeRedirectPath(searchParams.get('redirect'));
+  const loginInputClass =
+    'w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,7 +156,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-6 sm:mb-8">
             <img
-              src="https://i.imgur.com/2CMQ6GJ.png"
+              src={AUTH_LOGO_URL}
               alt="Mansão Maromba Logo"
               className="w-16 h-16 sm:w-20 sm:h-20 object-cover mx-auto mb-3 sm:mb-4 shadow-lg shadow-yellow-400/20"
               style={{ borderRadius: 0 }}
@@ -194,7 +189,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
+                  className={loginInputClass}
                   placeholder="seu@email.com"
                   autoComplete="username"
                   required
@@ -208,7 +203,7 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:bg-white/10 transition-all"
+                  className={loginInputClass}
                   placeholder="........"
                   autoComplete={isSignUp ? 'new-password' : 'current-password'}
                   required
