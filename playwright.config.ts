@@ -3,7 +3,12 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 
-dotenv.config()
+dotenv.config({ quiet: true })
+const defaultBaseUrl = 'http://127.0.0.1:5173'
+const baseUrl = process.env.PLAYWRIGHT_BASE_URL || defaultBaseUrl
+const baseUrlConfig = new URL(baseUrl)
+const webHost = baseUrlConfig.hostname
+const webPort = baseUrlConfig.port || '5173'
 const userStorageStatePath = path.resolve(process.cwd(), 'tests/e2e/.auth/user.json')
 const hasUserStorageState = fs.existsSync(userStorageStatePath)
 
@@ -18,15 +23,15 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: baseUrl,
     trace: 'on-first-retry',
     actionTimeout: 15000,
     navigationTimeout: 30000,
   },
 
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort',
-    url: 'http://127.0.0.1:5173',
+    command: `npm run dev -- --host ${webHost} --port ${webPort} --strictPort`,
+    url: baseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
   },
