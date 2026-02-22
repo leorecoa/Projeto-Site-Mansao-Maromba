@@ -114,14 +114,14 @@ export default function App() {
   }, [activeTheme]);
 
   useEffect(() => {
-    if (location.pathname !== '/') return;
+    if (loading || location.pathname !== '/') return;
 
     setShowSplashScreen(true);
     setIsFadingOutSplash(false);
 
-    const timer = setTimeout(() => setIsFadingOutSplash(true), 2500);
+    const timer = setTimeout(() => setIsFadingOutSplash(true), 1800);
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [location.pathname, loading]);
 
   const handleCheckout = () => {
     setIsCartOpen(false);
@@ -133,6 +133,9 @@ export default function App() {
   };
 
   if (loading) {
+    if (location.pathname === '/') {
+      return <SplashScreen onAnimationEnd={() => {}} isFadingOut={false} />;
+    }
     return <div className="h-screen bg-black flex items-center justify-center text-white">Carregando...</div>;
   }
 
