@@ -14,14 +14,20 @@
 
 </div>
 
+## Overview
 Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), seguranca e qualidade de entrega.
 
-## Visao Geral
-- Frontend em React + TypeScript + Vite.
-- Backend em Supabase (Postgres, Auth, Storage, Edge Functions).
-- Area administrativa com RBAC.
-- Checkout com criacao transacional de pedidos.
-- CI com type-check, testes e gate E2E de resiliencia.
+## Demo
+- Live: `https://projeto-site-mansao-maromba.vercel.app/`
+- Repository: `https://github.com/leorecoa/Projeto-Site-Mansao-Maromba`
+
+
+## Architectural Decisions
+- Supabase como backend para reduzir boilerplate sem perder controle SQL.
+- Checkout via RPC SQL (`create_order`) para atomicidade transacional.
+- RLS + RBAC para isolamento de acesso e protecao da area admin.
+- Edge Functions para operacoes sensiveis e integracoes externas.
+- ErrorBoundary global para resiliencia da UI.
 
 ## Stack
 ### Frontend
@@ -39,12 +45,7 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Supabase Storage
 - Supabase Edge Functions (`process-order`, `payment-webhook`, `send-email`)
 
-### Qualidade
-- Vitest (unit/integration)
-- Playwright (E2E)
-- GitHub Actions (CI)
-
-## Funcionalidades Implementadas
+## Features
 ### Autenticacao
 - Login por email/senha.
 - Login com Google OAuth.
@@ -70,30 +71,24 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Pagina 404 e pagina de erro.
 - ErrorBoundary global para falhas inesperadas na UI.
 
-## Arquitetura e Regras de Dominio
-Documentacao aprofundada:
-- `docs/architecture/TECHNICAL_DEEP_DIVE.md`
+## Security
+- RBAC para area admin (`user_profiles.role`).
+- Service role restrita ao backend/edge (nao usar no frontend).
+- Webhook com validacao de assinatura.
+- Sanitizacao/validacao de entrada e tratamento de erro consistente.
 
-Pontos principais:
-- Fluxo transacional de checkout no banco.
-- Controle de concorrencia com lock de linha (`FOR UPDATE`) no SQL.
-- Guardas de consistencia de status de pedido.
-- Webhook com assinatura HMAC e tratamento idempotente.
-- Observabilidade com logs estruturados e eventos de funil.
+## Quality
+### Testes locais
+- Unit/integration: `npm test`
+- E2E: `npm run test:e2e`
 
-## Estrutura de Pastas
-```txt
-components/          UI por dominio (auth, checkout, admin, layout, feedback)
-hooks/               Regras de cliente e integracao com backend
-pages/               Rotas da aplicacao
-services/            Clientes de infraestrutura (Supabase)
-store/               Estado global (Zustand)
-supabase/functions/  Edge Functions
-tests/               Unit, integration e E2E
-utils/               Logger, erros, observabilidade e helpers
-```
+### CI
+Workflow em `.github/workflows/ci.yml`:
+- lint + type-check + build
+- suite de testes
+- gate E2E de ErrorBoundary (com artifact do Playwright)
 
-## Configuracao Local
+## Setup
 ### 1) Instalar dependencias
 ```bash
 npm install
@@ -120,7 +115,7 @@ VITE_PRODUCTS_MAX_FILE_SIZE_MB=5
 npm run dev
 ```
 
-## Scripts
+### Scripts
 ```bash
 npm run dev
 npm run build
@@ -131,43 +126,27 @@ npm test
 npm run test:e2e
 ```
 
-## Testes e CI
-### Testes locais
-- Unit/integration: `npm test`
-- E2E: `npm run test:e2e`
-
-### CI
-Workflow em `.github/workflows/ci.yml`:
-- lint + type-check + build
-- suite de testes
-- gate E2E de ErrorBoundary (com artifact do Playwright)
-
-## Documentacao
+## Documentation
 - Indice geral: `docs/README.md`
+- Arquitetura: `docs/architecture/TECHNICAL_DEEP_DIVE.md`
 - Backend e Supabase: `docs/backend/`
 - DevOps e ambientes: `docs/devops/`
 - Testes: `docs/testing/`
 - Analytics: `docs/analytics/`
 
-## Seguranca
-- RBAC para area admin (`user_profiles.role`).
-- Service role restrita ao backend/edge (nao usar no frontend).
-- Webhook com validacao de assinatura.
-- Sanitizacao/validacao de entrada e tratamento de erro consistente.
-
-## Limites Conhecidos
+## Limits
 - Parte do pagamento ainda esta simplificada e deve evoluir para confirmacao full webhook-first.
-- Observabilidade pode evoluir com stack dedicada (ex.: Sentry + dashboard de funil).
+- Observabilidade pode evoluir com stack dedicada (ex.: Sentry + painel de funil).
 
-## Responsabilidade Tecnica e Uso de AI
-Projeto desenvolvido por humano com apoio de AI para acelerar analise, codificacao e revisao.
+## AI Use
+Uso de AI como ferramenta de aceleracao em analise, implementacao e revisao, mantendo responsabilidade integral sobre arquitetura e decisoes criticas.
 
-Responsabilidade final de arquitetura, seguranca, qualidade e decisao tecnica e integralmente humana.
-
-## Autor
+## Author
 - Leandro Jesse
 - GitHub: `leorecoa`
 
+## License
+Projeto para portfolio e estudo. Defina uma licenca explicita se for abrir contribuicao publica.
+
 ---
 Se quiser contexto de arquitetura para entrevista senior, leia `docs/architecture/TECHNICAL_DEEP_DIVE.md`.
-
