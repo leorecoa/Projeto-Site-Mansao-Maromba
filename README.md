@@ -1,5 +1,19 @@
 ﻿# Mansao Maromba - E-commerce Full Stack
 
+<div align="center">
+
+[![CI](https://github.com/leorecoa/Projeto-Site-Mansao-Maromba/actions/workflows/ci.yml/badge.svg)](https://github.com/leorecoa/Projeto-Site-Mansao-Maromba/actions/workflows/ci.yml)
+[![Deploy](https://github.com/leorecoa/Projeto-Site-Mansao-Maromba/actions/workflows/deploy.yml/badge.svg)](https://github.com/leorecoa/Projeto-Site-Mansao-Maromba/actions/workflows/deploy.yml)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-Testes-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?style=flat-square&logo=playwright&logoColor=white)](https://playwright.dev/)
+
+</div>
+
 Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), seguranca e qualidade de entrega.
 
 ## Visao Geral
@@ -156,3 +170,4 @@ Responsabilidade final de arquitetura, seguranca, qualidade e decisao tecnica e 
 
 ---
 Se quiser contexto de arquitetura para entrevista senior, leia `docs/architecture/TECHNICAL_DEEP_DIVE.md`.
+
