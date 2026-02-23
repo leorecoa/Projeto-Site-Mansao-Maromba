@@ -1,4 +1,4 @@
-# Imagens dos Produtos
+﻿# Imagens dos Produtos
 
 ## Como usar imagens locais:
 
@@ -27,15 +27,15 @@ Edite `data/products.ts` e troque as URLs do Imgur por:
 
 ## Vantagens de usar imagens locais:
 
-✅ Mais rápido (sem requisição externa)
-✅ Não depende de serviço externo (Imgur)
-✅ Melhor para SEO
-✅ Controle total sobre os assets
-✅ Funciona offline (PWA)
+ Mais rapido (sem requisicao externa)
+ Nao depende de servico externo (Imgur)
+ Melhor para SEO
+ Controle total sobre os assets
+ Funciona offline (PWA)
 
 ## Formato recomendado:
 
 - **Formato**: PNG com fundo transparente
 - **Tamanho**: 800x800px (ou maior)
 - **Peso**: < 200 KB (otimizado)
-- **Nome**: lowercase, sem espaços
+- **Nome**: lowercase, sem espacos

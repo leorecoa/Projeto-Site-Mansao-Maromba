@@ -1,18 +1,18 @@
-# 🔧 Configuração Google OAuth - Fix
+﻿# Configuracao Google OAuth - Fix
 
-## ⚠️ Problema Identificado
+## Problema Identificado
 
 1. **Tracking Prevention** - Navegador bloqueando cookies (use Chrome/Edge sem modo privado)
 2. **OAuth Redirect** - Google redirecionando para URL antiga
 
-## ✅ Solução Aplicada
+## Solucao Aplicada
 
 Atualizei o `LoginPage.tsx` para usar:
 ```typescript
 redirectTo: `${window.location.origin}/auth/callback`
 ```
 
-## 🔐 Configurar Google Cloud Console
+## Configurar Google Cloud Console
 
 1. Acesse: https://console.cloud.google.com/apis/credentials
 2. Selecione seu projeto
@@ -25,13 +25,13 @@ https://projeto-site-mansao-maromba.vercel.app/auth/callback
 https://ftgzoulanmsrmujtgrvj.supabase.co/auth/v1/callback
 ```
 
-5. Salve as alterações
+5. Salve as alteracoes
 
-## 🗄️ Configurar Supabase
+## Configurar Supabase
 
-1. Acesse: https://supabase.com/dashboard/project/ftgzoulanmsrmujtgrvj/auth/providers
-2. Vá em **Authentication** → **Providers** → **Google**
-3. Verifique se está habilitado
+1. Acesse: https://supabase.com/painel/project/ftgzoulanmsrmujtgrvj/auth/providers
+2. Va em **Authentication** -> **Providers** -> **Google**
+3. Verifique se esta habilitado
 4. Em **Site URL**, coloque: `http://localhost:5173`
 5. Em **Redirect URLs**, adicione:
 ```
@@ -39,11 +39,11 @@ http://localhost:5173/**
 https://projeto-site-mansao-maromba.vercel.app/**
 ```
 
-## 🌐 Desabilitar Tracking Prevention
+## Desabilitar Tracking Prevention
 
 ### Edge/Chrome
-1. Configurações → Privacidade
-2. Desabilite "Prevenção de rastreamento" para localhost
+1. Configuracoes -> Privacidade
+2. Desabilite "Prevencao de rastreamento" para localhost
 
 ### Firefox
 1. about:config
@@ -51,10 +51,10 @@ https://projeto-site-mansao-maromba.vercel.app/**
 3. Mude para `false`
 
 ### Safari
-1. Preferências → Privacidade
+1. Preferencias -> Privacidade
 2. Desmarque "Impedir rastreamento entre sites"
 
-## 🧪 Testar
+## Testar
 
 1. Limpe cache: **Ctrl + Shift + Delete**
 2. Feche todas as abas
@@ -62,7 +62,7 @@ https://projeto-site-mansao-maromba.vercel.app/**
 4. Clique em "Continuar com Google"
 5. Deve redirecionar para `/auth/callback` e depois para `/`
 
-## 📝 Checklist
+## Checklist
 
 - [ ] Google Cloud Console configurado
 - [ ] Supabase configurado
@@ -70,7 +70,7 @@ https://projeto-site-mansao-maromba.vercel.app/**
 - [ ] Cache limpo
 - [ ] Testado login com Google
 
-## 🐛 Se ainda não funcionar
+## Se ainda nao funcionar
 
 Verifique no console do navegador (F12):
 - Erros de CORS
@@ -78,3 +78,4 @@ Verifique no console do navegador (F12):
 - Erros de storage blocked
 
 Copie a mensagem de erro completa para eu ajudar.
+

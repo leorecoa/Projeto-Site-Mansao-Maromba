@@ -1,16 +1,16 @@
-# 🚀 Supabase Edge Functions - Guia de Deploy
+﻿# Supabase Edge Functions - Guia de publicacao
 
-## 📋 Pré-requisitos
+## Pre-requisitos
 
 ```bash
 # Instalar Supabase CLI
 npm install -g supabase
 
-# Verificar instalação
+# Verificar instalacao
 supabase --version
 ```
 
-## 🔐 Configuração Inicial
+## Configuracao inicial
 
 ### 1. Login no Supabase
 ```bash
@@ -22,43 +22,43 @@ supabase login
 supabase link --project-ref ftgzoulanmsrmujtgrvj
 ```
 
-## 📦 Deploy das Functions
+## publicacao das funcoes
 
-### Payment Webhook
+### Webhook de pagamento
 ```bash
 supabase functions deploy payment-webhook
 ```
 
-**Secrets necessários:**
+**Segredos necessarios:**
 ```bash
 supabase secrets set WEBHOOK_SECRET=your-webhook-secret-key
 ```
 
-**URL da função:**
+**URL da funcao:**
 ```
 https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/payment-webhook
 ```
 
 **Configurar no gateway de pagamento:**
-- Stripe: Dashboard → Webhooks → Add endpoint
-- Mercado Pago: Configurações → Webhooks → Adicionar URL
+- Stripe: Painel -> Webhooks -> Adicionar endpoint
+- Mercado Pago: Configuracoes -> Webhooks -> Adicionar URL
 
 ---
 
-### Send Email
+### Envio de email
 ```bash
 supabase functions deploy send-email
 ```
 
-**Secrets necessários:**
+**Segredos necessarios:**
 ```bash
 supabase secrets set RESEND_API_KEY=re_your_api_key
 ```
 
 **Obter API Key:**
 1. Criar conta em [Resend.com](https://resend.com)
-2. Verificar domínio (ou usar sandbox)
-3. Gerar API Key em Settings → API Keys
+2. Verificar dominio (ou usar sandbox)
+3. Gerar API Key em Configuracoes -> API Keys
 
 **Alternativa (SendGrid):**
 ```bash
@@ -67,7 +67,7 @@ supabase secrets set SENDGRID_API_KEY=SG.your_api_key
 
 ---
 
-### Process Order
+### Processar pedido
 ```bash
 supabase functions deploy process-order
 ```
@@ -84,14 +84,14 @@ curl -X POST \
   }'
 ```
 
-## 🧪 Testar Localmente
+## Testar localmente
 
-### 1. Iniciar Supabase Local
+### 1. Iniciar Supabase local
 ```bash
 supabase start
 ```
 
-### 2. Servir Function Localmente
+### 2. Servir funcao localmente
 ```bash
 supabase functions serve payment-webhook --env-file .env.local
 ```
@@ -110,19 +110,19 @@ curl -X POST http://localhost:54321/functions/v1/payment-webhook \
   }'
 ```
 
-## 📊 Monitoramento
+## Monitoramento
 
-### Ver Logs em Tempo Real
+### Ver logs em tempo real
 ```bash
 supabase functions logs payment-webhook --tail
 ```
 
-### Ver Logs Específicos
+### Ver logs especificos
 ```bash
 supabase functions logs payment-webhook --since 1h
 ```
 
-## 🔧 Variáveis de Ambiente
+## Variaveis de ambiente
 
 Criar arquivo `.env.local` para desenvolvimento:
 
@@ -133,11 +133,11 @@ WEBHOOK_SECRET=your-webhook-secret
 RESEND_API_KEY=re_your_api_key
 ```
 
-**⚠️ NUNCA commitar este arquivo!**
+** NUNCA commitar este arquivo!**
 
-## 🔒 Segurança
+## Seguranca
 
-### Validar Assinatura do Webhook
+### Validar assinatura do webhook
 
 **Stripe:**
 ```typescript
@@ -172,39 +172,39 @@ if (hash !== signature) {
 }
 ```
 
-## 📈 Performance
+## Performance
 
-### Otimizar Cold Start
+### Otimizar inicializacao fria
 ```typescript
-// Importar apenas o necessário
+// Importar apenas o necessario
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Reutilizar conexões
+// Reutilizar conexoes
 const supabase = createClient(url, key, {
   db: { schema: 'public' },
   auth: { persistSession: false }
 })
 ```
 
-### Cache de Dados
+### Cache de dados
 ```typescript
-// Cache em memória (válido durante execução)
+// Cache em memoria (valido durante execucao)
 const cache = new Map()
 
 const getCachedData = async (key: string) => {
   if (cache.has(key)) return cache.get(key)
-  
+
   const data = await fetchData(key)
   cache.set(key, data)
   return data
 }
 ```
 
-## 🐛 Troubleshooting
+## Solucao de problemas
 
 ### Erro: "Function not found"
 ```bash
-# Verificar se está deployada
+# Verificar se esta deployada
 supabase functions list
 
 # Re-deploy
@@ -234,22 +234,22 @@ if (req.method === 'OPTIONS') {
 }
 ```
 
-## 📚 Recursos
+## Recursos
 
 - [Supabase Edge Functions Docs](https://supabase.com/docs/guides/functions)
-- [Deno Deploy Docs](https://deno.com/deploy/docs)
+- [Documentacao do Deno publicacao](https://deno.com/publicacao/docs)
 - [Resend API Docs](https://resend.com/docs)
 - [Stripe Webhooks](https://stripe.com/docs/webhooks)
 - [Mercado Pago Webhooks](https://www.mercadopago.com.br/developers/pt/docs/webhooks)
 
-## ✅ Checklist de Deploy
+## Checklist de publicacao
 
 - [ ] Instalar Supabase CLI
 - [ ] Login e link com projeto
-- [ ] Deploy payment-webhook
-- [ ] Deploy send-email
-- [ ] Deploy process-order
-- [ ] Configurar secrets (WEBHOOK_SECRET, RESEND_API_KEY)
+- [ ] Publicar payment-webhook
+- [ ] Publicar send-email
+- [ ] Publicar process-order
+- [ ] Configurar segredos (WEBHOOK_SECRET, RESEND_API_KEY)
 - [ ] Testar localmente
 - [ ] Configurar webhook no gateway de pagamento
 - [ ] Monitorar logs
@@ -257,4 +257,6 @@ if (req.method === 'OPTIONS') {
 
 ---
 
-**Desenvolvido com ❤️ para Mansão Maromba**
+**Desenvolvido com  para Mansao Maromba**
+
+

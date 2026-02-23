@@ -1,18 +1,18 @@
-# 🧪 Testes Automatizados - Guia Completo
+﻿# Testes Automatizados - Guia Completo
 
-## 📋 Visão Geral
+## Visao geral
 
 Sistema completo de testes com:
-- ✅ **Unit Tests** - Vitest (store, validations)
-- ✅ **E2E Tests** - Playwright (user flows)
-- ✅ **Coverage** - Relatórios de cobertura
-- ✅ **CI Integration** - GitHub Actions
+- **Testes unitarios** - Vitest (estado, validacoes)
+- **Testes E2E** - Playwright (fluxos de usuario)
+- **Cobertura** - Relatorios de cobertura
+- **Integracao com CI** - GitHub Actions
 
 ---
 
-## 🚀 Quick Start
+## Inicio rapido
 
-### 1. Instalar Dependências
+### 1. Instalar Dependencias
 
 ```bash
 npm install
@@ -27,19 +27,19 @@ npm run playwright:install
 ### 3. Rodar Testes
 
 ```bash
-# Unit tests
+# Testes unitarios
 npm test
 
-# E2E tests
+# Testes E2E
 npm run test:e2e
 
-# Coverage
+# Cobertura
 npm run test:coverage
 ```
 
 ---
 
-## 🧪 Unit Tests (Vitest)
+## Testes unitarios (Vitest)
 
 ### Rodar Testes
 
@@ -47,39 +47,39 @@ npm run test:coverage
 # Watch mode
 npm test
 
-# Run once
+# Executar uma vez
 npm test -- --run
 
-# UI mode
+# Modo UI
 npm run test:ui
 
-# Coverage
+# Cobertura
 npm run test:coverage
 ```
 
-### Testes Implementados
+### Testes implementados
 
-#### 1. **Store Tests** (`tests/store.test.ts`)
-- ✅ Add item to cart
-- ✅ Increase quantity if exists
-- ✅ Remove item
-- ✅ Update quantity
-- ✅ Clear cart
-- ✅ Calculate total
+#### 1. **Testes de estado** (`tests/store.test.ts`)
+- Adicionar item ao carrinho
+- Aumentar quantidade se ja existir
+- Remover item
+- Atualizar quantidade
+- Limpar carrinho
+- Calcular total
 
-#### 2. **Validation Tests** (`tests/validations.test.ts`)
-- ✅ Checkout validation (email, phone, address)
-- ✅ Product validation (price, description)
-- ✅ Empty cart rejection
-- ✅ Invalid data rejection
+#### 2. **Testes de validacao** (`tests/validations.test.ts`)
+- Validacao de checkout (email, telefone, endereco)
+- Validacao de produto (preco, descricao)
+- Rejeicao de carrinho vazio
+- Rejeicao de dados invalidos
 
-### Criar Novo Teste
+### Criar novo Teste
 
 ```typescript
 // tests/myFeature.test.ts
 import { describe, it, expect } from 'vitest'
 
-describe('My Feature', () => {
+describe('Minha funcionalidade', () => {
   it('should work correctly', () => {
     expect(true).toBe(true)
   })
@@ -88,83 +88,83 @@ describe('My Feature', () => {
 
 ---
 
-## 🎭 E2E Tests (Playwright)
+## Testes E2E (Playwright)
 
 ### Rodar Testes
 
 ```bash
-# Headless mode
+# Modo headless
 npm run test:e2e
 
-# UI mode (visual)
+# Modo UI (visual)
 npm run test:e2e:ui
 
-# Headed mode (see browser)
+# Modo com navegador (see browser)
 npm run test:e2e:headed
 
-# Specific browser
+# Navegador especifico
 npx playwright test --project=chromium
 ```
 
-### Testes Implementados
+### Testes implementados
 
-#### 1. **Landing Page** (`tests/e2e/landing.spec.ts`)
-- ✅ Load homepage
-- ✅ Display navbar
-- ✅ Display hero section
-- ✅ Display products
-- ✅ Open cart modal
+#### 1. **Pagina inicial** (`tests/E2E/landing.spec.ts`)
+- Load homepage
+- Exibir barra de navegacao
+- Exibir secao principal
+- Exibir produtos
+- Open cart modal
 
-#### 2. **Cart Flow** (`tests/e2e/cart.spec.ts`)
-- ✅ Add product to cart
-- ✅ Update quantity
-- ✅ Remove item
-- ✅ Navigate to checkout
+#### 2. **Fluxo do carrinho** (`tests/E2E/cart.spec.ts`)
+- Add product to cart
+- Atualizar quantidade
+- Remover item
+- Navigate to checkout
 
-#### 3. **Authentication** (`tests/e2e/auth.spec.ts`)
-- ✅ Show login page
-- ✅ Display inputs
-- ✅ Google OAuth button
-- ✅ Form validation
-- ✅ Redirect after login
+#### 3. **Autenticacao** (`tests/E2E/auth.spec.ts`)
+- Show login page
+- Exibir campos de entrada
+- Google OAuth button
+- Form validacao
+- Redirect after login
 
-### Criar Novo Teste E2E
+### Criar novo Teste E2E
 
 ```typescript
 // tests/e2e/myFlow.spec.ts
 import { test, expect } from '@playwright/test'
 
-test.describe('My Flow', () => {
+test.describe('Meu fluxo', () => {
   test('should do something', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/Mansão Maromba/)
+    await expect(page).toHaveTitle(/Mansao Maromba/)
   })
 })
 ```
 
 ---
 
-## 📊 Coverage
+## Cobertura
 
-### Gerar Relatório
+### Gerar relatorio
 
 ```bash
 npm run test:coverage
 ```
 
-### Ver Relatório
+### Ver relatorio
 
 ```bash
 # Abre no navegador
 open coverage/index.html
 ```
 
-### Meta de Coverage
+### Meta de cobertura
 
 - **Target:** 80%+
-- **Atual:** ~60% (store + validations)
+- **Atual:** ~60% (estado + validacoes)
 
-### Arquivos Excluídos
+### Arquivos excluidos
 
 - `node_modules/`
 - `tests/`
@@ -174,7 +174,7 @@ open coverage/index.html
 
 ---
 
-## 🔄 CI Integration
+## Integracao com CI
 
 ### GitHub Actions
 
@@ -182,32 +182,32 @@ Testes rodam automaticamente em:
 - Push para `main` ou `develop`
 - Pull Requests
 
-### Workflow
+### Fluxo
 
 ```yaml
-# .github/workflows/ci.yml
-- name: Run tests
+# Github/workflows/CI.yml
+- name: Executar testes
   run: npm test -- --run
 
-- name: Run E2E tests
+- name: Executar testes E2E
   run: npm run test:e2e
 ```
 
 ---
 
-## 📝 Boas Práticas
+## Boas praticas
 
-### Unit Tests
+### Testes unitarios
 
 1. **Arrange, Act, Assert**
 ```typescript
 it('should add item', () => {
   // Arrange
   const store = useCartStore.getState()
-  
+
   // Act
   store.addToCart(product)
-  
+
   // Assert
   expect(store.items).toHaveLength(1)
 })
@@ -227,7 +227,7 @@ it('should handle negative quantity', () => {
 })
 ```
 
-### E2E Tests
+### Testes E2E
 
 1. **Usar data-testid**
 ```tsx
@@ -256,28 +256,28 @@ class LoginPage {
 
 ---
 
-## 🐛 Debugging
+## Depuracao
 
 ### Vitest
 
 ```bash
-# Debug mode
+# Modo debug
 npm test -- --inspect-brk
 
-# UI mode (melhor para debug)
+# Modo UI (melhor para debug)
 npm run test:ui
 ```
 
 ### Playwright
 
 ```bash
-# UI mode
+# Modo UI
 npm run test:e2e:ui
 
-# Debug mode
+# Modo debug
 npx playwright test --debug
 
-# Headed mode
+# Modo com navegador
 npm run test:e2e:headed
 ```
 
@@ -292,32 +292,32 @@ test-results/
 
 ---
 
-## 📈 Próximos Passos
+## Proximos passos
 
-### Testes a Adicionar
+### Testes a adicionar
 
-1. **Component Tests**
+1. **Testes de componentes**
    - Navbar component
    - ProductCard component
    - CartModal component
 
-2. **Integration Tests**
+2. **Testes de integracao**
    - useAuth hook
    - useProducts hook
    - useOrders hook
 
-3. **E2E Tests**
+3. **Testes E2E**
    - Checkout flow completo
    - Admin panel CRUD
    - Order history
 
-4. **Performance Tests**
+4. **Testes de performance**
    - Lighthouse CI
    - Bundle size checks
 
 ---
 
-## 🔧 Configuração
+## Configuracao
 
 ### Vitest (`vitest.config.ts`)
 
@@ -355,34 +355,37 @@ export default defineConfig({
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [x] Vitest instalado e configurado
 - [x] Playwright instalado e configurado
-- [x] Setup file criado
-- [x] Store tests implementados
-- [x] Validation tests implementados
+- [x] Configuracao file criado
+- [x] estado tests implementados
+- [x] validacao tests implementados
 - [x] E2E landing page tests
 - [x] E2E cart flow tests
 - [x] E2E auth tests
 - [x] Scripts no package.json
 - [x] CI integration
-- [ ] Coverage > 80%
+- [ ] Cobertura > 80%
 - [ ] Component tests
-- [ ] Integration tests
+- [ ] Testes de integracao
 
 ---
 
-## 📚 Recursos
+## Recursos
 
 - [Vitest Docs](https://vitest.dev)
 - [Playwright Docs](https://playwright.dev)
-- [Testing Library](https://testing-library.com)
+- [Testes Library](https://testing-library.com)
 - [Jest DOM Matchers](https://github.com/testing-library/jest-dom)
 
 ---
 
-**🎉 Testes automatizados completos!**
+** Testes automatizados completos!**
 
-Coverage atual: ~60%
+Cobertura atual: ~60%
 Meta: 80%+
+
+
+

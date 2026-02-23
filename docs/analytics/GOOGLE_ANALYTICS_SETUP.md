@@ -1,34 +1,34 @@
-# 📊 Google Analytics 4 - Guia de Configuração
+﻿# Google Analytics 4 - Guia de Configuracao
 
-## ✅ O Que Foi Implementado:
+## O que foi implementado
 
-1. ✅ Hook `useAnalytics.ts` criado
-2. ✅ Script GA4 adicionado no `index.html`
-3. ✅ Tracking automático de páginas
-4. ✅ Função `trackEvent()` para eventos customizados
+1.  Hook `useAnalytics.ts` criado
+2.  Script GA4 adicionado no `index.html`
+3.  Tracking automatico de paginas
+4.  Funcao `trackEvent()` para eventos customizados
 
 ---
 
-## 🔧 Como Configurar:
+## Como configurar
 
 ### Passo 1: Criar Conta Google Analytics
 
 1. Acesse: https://analytics.google.com
-2. Clique em "Começar a medir"
+2. Clique em "Comecar a medir"
 3. Crie uma conta
-4. Crie uma propriedade (nome: "Mansão Maromba")
+4. Crie uma propriedade (nome: "Mansao Maromba")
 5. Configure o fluxo de dados da Web
 6. Copie o **Measurement ID** (formato: `G-XXXXXXXXXX`)
 
 ### Passo 2: Adicionar no Vercel
 
 1. Acesse: https://vercel.com/seu-usuario/projeto-site-mansao-maromba/settings/environment-variables
-2. Adicione nova variável:
+2. Adicione nova variavel:
    - **Name:** `VITE_GA_MEASUREMENT_ID`
    - **Value:** `G-XXXXXXXXXX` (seu ID)
-   - **Environments:** Production, Preview, Development
+   - **Ambientes:** Producao, preview, Desenvolvimento
 3. Clique em "Save"
-4. Faça Redeploy
+4. Faca Redeploy
 
 ### Passo 3: Testar Localmente
 
@@ -42,25 +42,25 @@ npm run dev
 
 ---
 
-## 📈 O Que Será Rastreado Automaticamente:
+## O que sera rastreado automaticamente
 
-### Páginas:
-- ✅ Home (`/`)
-- ✅ Login (`/login`)
-- ✅ Admin (`/admin`)
-- ✅ Checkout (`/checkout`)
-- ✅ Pedidos (`/orders`)
+### Paginas
+- Home (`/`)
+- Login (`/login`)
+- Admin (`/admin`)
+- Checkout (`/checkout`)
+- Pedidos (`/orders`)
 
-### Eventos Automáticos (GA4):
-- ✅ page_view
-- ✅ session_start
-- ✅ first_visit
-- ✅ scroll
-- ✅ click
+### Eventos Automaticos (GA4)
+- page_view
+- session_start
+- first_visit
+- scroll
+- click
 
 ---
 
-## 🎯 Como Adicionar Eventos Customizados:
+## Como adicionar eventos customizados
 
 ### Exemplo 1: Rastrear Adicionar ao Carrinho
 
@@ -72,7 +72,7 @@ const { trackEvent } = useAnalytics()
 
 const handleAddToCart = () => {
   addToCart(product)
-  
+
   // Track evento
   trackEvent('add_to_cart', {
     item_id: product.id,
@@ -93,7 +93,7 @@ const { trackEvent } = useAnalytics()
 
 const handleSubmit = async () => {
   await createOrder(orderData)
-  
+
   // Track compra
   trackEvent('purchase', {
     transaction_id: orderId,
@@ -124,67 +124,67 @@ const handleSearch = (query: string) => {
 
 ---
 
-## 📊 Métricas Disponíveis no GA4:
+## Metricas disponiveis no GA4
 
-### Tempo Real:
-- Usuários ativos agora
-- Páginas mais visitadas
+### Tempo Real
+- Usuarios ativos agora
+- Paginas mais visitadas
 - Eventos em tempo real
 
-### Aquisição:
-- De onde vêm os usuários
-- Canais (orgânico, direto, social)
+### Aquisicao
+- De onde vem os usuarios
+- Canais (organico, direto, social)
 - Campanhas
 
-### Engajamento:
-- Páginas mais visitadas
-- Tempo médio na página
-- Taxa de rejeição
+### Engajamento
+- Paginas mais visitadas
+- Tempo medio na pagina
+- Taxa de rejeicao
 
-### Conversões:
+### Conversoes
 - Compras
 - Valor total
-- Taxa de conversão
+- Taxa de conversao
 
 ---
 
-## 🧪 Como Testar:
+## Como testar
 
-### Teste 1: Verificar se está funcionando
+### Teste 1: Verificar se esta funcionando
 
 1. Abra o app no navegador
 2. Abra o Console (F12)
 3. Digite: `window.gtag`
-4. Se retornar uma função, está funcionando! ✅
+4. Se retornar uma funcao, esta funcionando!
 
 ### Teste 2: Ver eventos em tempo real
 
 1. Acesse: https://analytics.google.com
-2. Vá em "Relatórios" → "Tempo real"
+2. Va em "Relatorios" -> "Tempo real"
 3. Navegue no seu app
-4. Deve aparecer você como usuário ativo! ✅
+4. Deve aparecer voce como usuario ativo!
 
 ---
 
-## ⚠️ Importante:
+## Importante
 
-- ✅ GA4 não quebra o app se não configurado
-- ✅ Funciona apenas em produção/preview (não em localhost sem .env)
-- ✅ Leva 24-48h para dados aparecerem nos relatórios
-- ✅ Tempo real funciona imediatamente
+- GA4 nao quebra o app se nao configurado
+- Funciona apenas em producao/preview (nao em localhost sem .env)
+- Leva 24-48h para dados aparecerem nos relatorios
+- Tempo real funciona imediatamente
 
 ---
 
-## 🚀 Próximos Passos:
+## Proximos passos
 
-Depois de configurar, você pode:
+Depois de configurar, voce pode:
 
-1. **Criar Conversões Personalizadas**
-   - Marcar "purchase" como conversão
-   - Marcar "add_to_cart" como conversão
+1. **Criar Conversoes Personalizadas**
+   - Marcar "purchase" como conversao
+   - Marcar "add_to_cart" como conversao
 
 2. **Configurar Funis**
-   - Ver onde usuários abandonam o checkout
+   - Ver onde usuarios abandonam o checkout
 
 3. **Integrar com Google Ads**
    - Remarketing
@@ -192,19 +192,21 @@ Depois de configurar, você pode:
 
 ---
 
-## ✅ Checklist:
+## Checklist
 
 - [ ] Criar conta GA4
 - [ ] Copiar Measurement ID
-- [ ] Adicionar no Vercel (variável de ambiente)
+- [ ] Adicionar no Vercel (variavel de ambiente)
 - [ ] Fazer Redeploy
 - [ ] Testar em tempo real
 - [ ] Adicionar eventos customizados (opcional)
 
 ---
 
-**Status:** ✅ Implementado e pronto para configurar!
+**Status:**  Implementado e pronto para configurar!
 
 **Tempo para configurar:** 10 minutos
 
-**Próxima feature:** Busca e Filtros
+**Proxima funcionalidade:** Busca e Filtros
+
+

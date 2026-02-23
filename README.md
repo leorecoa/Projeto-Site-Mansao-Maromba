@@ -1,4 +1,4 @@
-# Mansao Maromba - E-commerce Full Stack
+﻿# Mansao Maromba - E-commerce Full Stack
 
 Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), seguranca e qualidade de entrega.
 
@@ -58,7 +58,7 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 
 ## Arquitetura e Regras de Dominio
 Documentacao aprofundada:
-- `TECHNICAL_DEEP_DIVE.md`
+- `docs/architecture/TECHNICAL_DEEP_DIVE.md`
 
 Pontos principais:
 - Fluxo transacional de checkout no banco.
@@ -128,6 +128,13 @@ Workflow em `.github/workflows/ci.yml`:
 - suite de testes
 - gate E2E de ErrorBoundary (com artifact do Playwright)
 
+## Documentacao
+- Indice geral: `docs/README.md`
+- Backend e Supabase: `docs/backend/`
+- DevOps e ambientes: `docs/devops/`
+- Testes: `docs/testing/`
+- Analytics: `docs/analytics/`
+
 ## Seguranca
 - RBAC para area admin (`user_profiles.role`).
 - Service role restrita ao backend/edge (nao usar no frontend).
@@ -148,4 +155,4 @@ Responsabilidade final de arquitetura, seguranca, qualidade e decisao tecnica e 
 - GitHub: `leorecoa`
 
 ---
-Se quiser contexto de arquitetura para entrevista senior, leia `TECHNICAL_DEEP_DIVE.md`.
+Se quiser contexto de arquitetura para entrevista senior, leia `docs/architecture/TECHNICAL_DEEP_DIVE.md`.

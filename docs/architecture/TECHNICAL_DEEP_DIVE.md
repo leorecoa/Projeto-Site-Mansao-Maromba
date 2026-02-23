@@ -1,4 +1,4 @@
-# Technical Deep Dive - Mansao Maromba
+﻿# Arquitetura tecnica - Mansao Maromba
 
 ## 1. Contexto e objetivos
 Este projeto foi desenhado como um e-commerce full-stack com foco em:
@@ -15,7 +15,7 @@ Este projeto foi desenhado como um e-commerce full-stack com foco em:
 - Auth desacoplado no hook `useAuth` para concentrar sessao/perfil/role.
 
 ### Backend
-- Supabase como BaaS: Postgres, Auth, Storage e Edge Functions.
+- Supabase como BaaS: Postgres, Auth, Armazenamento e Edge Functions.
 - Regra critica do negocio no banco (RPC/functions SQL), nao no cliente.
 - Edge Functions para integracoes externas e operacoes sensiveis:
   - `process-order`
@@ -113,3 +113,5 @@ Este projeto demonstra:
 - mitigacao de concorrencia/idempotencia em pontos de risco;
 - seguranca pragmatica para auth, webhook e administracao;
 - trilha de observabilidade para operacao de produto.
+
+

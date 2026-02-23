@@ -1,4 +1,4 @@
-# ⚠️ ATENÇÃO: Adicione as imagens aqui!
+﻿# ATENCAO: Adicione as imagens aqui!
 
 ## Baixe as imagens originais:
 
@@ -19,7 +19,7 @@
 1. Baixe cada imagem clicando nos links acima
 2. Salve nesta pasta: `public/images/products/`
 3. Renomeie com os nomes exatos acima
-4. Faça commit e push
+4. Faca commit e push
 
 ## Teste local:
 
@@ -33,7 +33,7 @@ As imagens devem aparecer!
 
 ## Deploy:
 
-Após adicionar as imagens, faça:
+Apos adicionar as imagens, faca:
 
 ```bash
 git add public/images/products/
@@ -41,4 +41,4 @@ git commit -m "feat: add product images"
 git push
 ```
 
-O Vercel vai fazer deploy automático com as imagens! 🚀
+O Vercel vai fazer deploy automatico com as imagens!
