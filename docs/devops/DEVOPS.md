@@ -1,4 +1,4 @@
-﻿# DevOps e CI/CD
+# DevOps e CI/CD
 
 ## Visao geral
 
@@ -20,16 +20,50 @@ Objetivos principais:
 
 Gatilhos:
 
-- Push
-- Pull request
+- Push em `main` e `develop`
+- Pull request para `main` e `develop`
 
-Etapas recomendadas:
+Jobs atuais:
 
-- Instalar dependencias
-- Executar lint
-- Executar type-check
-- Executar testes
-- Gerar build
+### 1) `lint-and-typecheck`
+
+- Checkout
+- Setup Node 20
+- Instalacao limpa de dependencias
+- `npm run lint`
+- `npm run format:check`
+- `npm run env:check`
+- `npm run secrets:scan`
+- `npx tsc --noEmit`
+- `npm run build`
+
+### 2) `test`
+
+- Checkout
+- Setup Node 20
+- Instalacao limpa de dependencias
+- `npm run test:coverage`
+
+### 3) `e2e-critical-checkout`
+
+- Roda apos `lint-and-typecheck` e `test`
+- Instala Chromium do Playwright
+- Gera `storageState` fallback
+- Executa checkout critico:
+  - `npx playwright test tests/e2e/checkout.spec.ts --project=chromium --no-deps`
+
+### 4) `e2e-error-boundary-gate`
+
+- Roda apos `lint-and-typecheck`, `test` e `e2e-critical-checkout`
+- So executa se houver secrets obrigatorias
+- Executa gate de ErrorBoundary (publico + admin)
+- Publica artifact do Playwright quando executado
+
+### 5) `e2e-smoke-pr`
+
+- Executa apenas em evento de pull request
+- Roda smoke do checkout nao autenticado
+- Serve como validacao rapida para PRs
 
 ## Preview
 
@@ -66,14 +100,24 @@ VERCEL_ORG_ID=...
 VERCEL_PROJECT_ID=...
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
+ADMIN_EMAIL=...
+ADMIN_PASSWORD=...
 ```
+
+Observacao:
+
+- Sem `ADMIN_EMAIL` e `ADMIN_PASSWORD`, o job `e2e-error-boundary-gate` e pulado.
 
 ## Comandos uteis locais
 
 ```bash
 npm run lint
+npm run format:check
+npm run env:check
+npm run secrets:scan
 npm run type-check
 npm test
+npm run test:coverage
 npm run build
 npm run preview
 ```
@@ -89,13 +133,14 @@ npm run preview
 - Nao fazer merge com CI vermelha
 - Validar preview antes de mergear
 - Proteger branch `main` com regras de revisao
+- Padronizar commits em Conventional Commits com Commitlint
 - Manter segredos apenas no GitHub/Vercel/Supabase (nunca no repositorio)
 
 ## Solucao de problemas
 
 ### CI falhando
 
-- Rode localmente `lint`, `type-check` e testes
+- Rode localmente `lint`, `format:check`, `type-check` e testes
 - Compare versao do Node local com a do fluxo
 
 ### Deploy falhando

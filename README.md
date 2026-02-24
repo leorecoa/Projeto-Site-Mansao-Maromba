@@ -95,12 +95,26 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Unit/integration: `npm test`
 - E2E: `npm run test:e2e`
 
+### Qualidade de codigo local
+
+- Lint: `npm run lint`
+- Format check: `npm run format:check`
+- Environment guard: `npm run env:check`
+- Secrets scan: `npm run secrets:scan`
+
+### Convencao de commits
+
+- Commit messages validadas com Commitlint (`@commitlint/config-conventional`).
+- Hook `commit-msg` via Husky executa: `npx --no -- commitlint --edit "$1"`.
+- Use formato Conventional Commits, ex.: `feat: adiciona validacao de checkout`.
+
 ### CI
 
 Workflow em `.github/workflows/ci.yml`:
 
-- lint + type-check + build
-- suite de testes
+- lint + format check + env check + secrets scan + type-check + build
+- testes com cobertura (`npm run test:coverage`)
+- gate E2E de checkout critico
 - gate E2E de ErrorBoundary (com artifact do Playwright)
 
 ## Setup
@@ -143,8 +157,13 @@ npm run dev
 npm run build
 npm run preview
 npm run lint
+npm run format
+npm run format:check
+npm run env:check
+npm run secrets:scan
 npm run type-check
 npm test
+npm run test:coverage
 npm run test:e2e
 ```
 
