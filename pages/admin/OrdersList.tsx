@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { Search, Filter, Eye, Loader2, AlertCircle } from 'lucide-react';
 import OrderStatusBadge from '@/utils/OrderStatusBadge';
@@ -14,9 +14,7 @@ export default function OrdersList() {
     orders?.filter((order) => {
       const matchesSearch =
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        // @ts-expect-error - customers é injetado pelo hook useAdminOrders via join
         order.customers?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        // @ts-expect-error - customers é injetado pelo hook useAdminOrders via join
         order.customers?.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -103,7 +101,6 @@ export default function OrdersList() {
                     <td className="px-6 py-4 font-mono text-sm text-yellow-400">
                       #{order.id.substring(0, 8)}
                     </td>
-                    {/* @ts-expect-error - customers injetado pelo join */}
                     <td className="px-6 py-4 text-white text-sm">
                       {order.customers?.full_name || 'Cliente Desconhecido'}
                     </td>
