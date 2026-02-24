@@ -8,8 +8,9 @@
 ## Solucao Aplicada
 
 Atualizei o `LoginPage.tsx` para usar:
+
 ```typescript
-redirectTo: `${window.location.origin}/auth/callback`
+redirectTo: `${window.location.origin}/auth/callback`;
 ```
 
 ## Configurar Google Cloud Console
@@ -34,6 +35,7 @@ https://ftgzoulanmsrmujtgrvj.supabase.co/auth/v1/callback
 3. Verifique se esta habilitado
 4. Em **Site URL**, coloque: `http://localhost:5173`
 5. Em **Redirect URLs**, adicione:
+
 ```
 http://localhost:5173/**
 https://projeto-site-mansao-maromba.vercel.app/**
@@ -42,15 +44,18 @@ https://projeto-site-mansao-maromba.vercel.app/**
 ## Desabilitar Tracking Prevention
 
 ### Edge/Chrome
+
 1. Configuracoes -> Privacidade
 2. Desabilite "Prevencao de rastreamento" para localhost
 
 ### Firefox
+
 1. about:config
 2. Procure: `privacy.trackingprotection.enabled`
 3. Mude para `false`
 
 ### Safari
+
 1. Preferencias -> Privacidade
 2. Desmarque "Impedir rastreamento entre sites"
 
@@ -73,9 +78,9 @@ https://projeto-site-mansao-maromba.vercel.app/**
 ## Se ainda nao funcionar
 
 Verifique no console do navegador (F12):
+
 - Erros de CORS
 - Erros de redirect_uri_mismatch
 - Erros de storage blocked
 
 Copie a mensagem de erro completa para eu ajudar.
-

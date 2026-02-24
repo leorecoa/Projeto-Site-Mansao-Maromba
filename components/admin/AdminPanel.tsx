@@ -7,19 +7,25 @@ export default function AdminPanel() {
   const [stats, setStats] = useState({
     orders: 0,
     products: 0,
-    customers: 0
+    customers: 0,
   });
 
   useEffect(() => {
     async function fetchStats() {
-      const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-      const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-      const { count: customersCount } = await supabase.from('customers').select('*', { count: 'exact', head: true });
+      const { count: ordersCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true });
+      const { count: productsCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+      const { count: customersCount } = await supabase
+        .from('customers')
+        .select('*', { count: 'exact', head: true });
 
       setStats({
         orders: ordersCount || 0,
         products: productsCount || 0,
-        customers: customersCount || 0
+        customers: customersCount || 0,
       });
     }
     fetchStats();

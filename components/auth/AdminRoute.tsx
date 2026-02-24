@@ -3,7 +3,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 export function AdminRoute() {
-  const { isAdmin, isAuthenticated, loading, profileLoading, profileResolved, profileError } = useAuth();
+  const { isAdmin, isAuthenticated, loading, profileLoading, profileResolved, profileError } =
+    useAuth();
 
   const isAuthorizing = loading || (isAuthenticated && (!profileResolved || profileLoading));
 

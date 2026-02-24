@@ -135,7 +135,10 @@ export default function Navbar({ theme }: NavbarProps) {
         <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 absolute w-full">
           <div className="px-4 pt-2 pb-6 space-y-2">
             <button
-              onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}
+              onClick={() => {
+                navigate('/');
+                setIsMobileMenuOpen(false);
+              }}
               className="block w-full text-left px-4 py-3.5 text-gray-300 hover:bg-white/5 rounded-lg"
             >
               HOME
@@ -143,7 +146,10 @@ export default function Navbar({ theme }: NavbarProps) {
 
             {user && (
               <button
-                onClick={() => { navigate('/minha-conta'); setIsMobileMenuOpen(false); }}
+                onClick={() => {
+                  navigate('/minha-conta');
+                  setIsMobileMenuOpen(false);
+                }}
                 className="block w-full text-left px-4 py-3.5 text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
               >
                 <Package size={18} />
@@ -153,7 +159,10 @@ export default function Navbar({ theme }: NavbarProps) {
 
             {user ? (
               <button
-                onClick={async () => { await handleSignOut(); setIsMobileMenuOpen(false); }}
+                onClick={async () => {
+                  await handleSignOut();
+                  setIsMobileMenuOpen(false);
+                }}
                 className="block w-full text-left px-4 py-3.5 text-red-400 hover:bg-white/5 rounded-lg flex items-center gap-2"
               >
                 <LogOut size={18} />
@@ -161,7 +170,10 @@ export default function Navbar({ theme }: NavbarProps) {
               </button>
             ) : (
               <button
-                onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}
+                onClick={() => {
+                  navigate('/login');
+                  setIsMobileMenuOpen(false);
+                }}
                 className="block w-full text-center px-4 py-3.5 mt-4 rounded-lg font-bold text-black"
                 style={{ backgroundColor: primaryColor }}
               >

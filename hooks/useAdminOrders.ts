@@ -4,27 +4,32 @@ import { useAuth } from '@/hooks/useAuth';
 import type { Order } from '@/types/order';
 
 export function useAdminOrders() {
-    const { user } = useAuth();
+  const { user } = useAuth();
 
-    const { data: orders, isLoading, error } = useQuery({
-        queryKey: ['admin-orders'],
-        queryFn: async () => {
-            if (!user) return [];
+  const {
+    data: orders,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: async () => {
+      if (!user) return [];
 
-            // Verifica se é admin antes de buscar (segurança extra além do RLS)
-            const { data: profile } = await supabase
-                .from('user_profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+      // Verifica se é admin antes de buscar (segurança extra além do RLS)
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-            if (profile?.role !== 'admin') {
-                throw new Error('Acesso não autorizado');
-            }
+      if (profile?.role !== 'admin') {
+        throw new Error('Acesso não autorizado');
+      }
 
-            const { data, error } = await supabase
-                .from('orders')
-                .select(`
+      const { data, error } = await supabase
+        .from('orders')
+        .select(
+          `
                     *,
                     order_items (
                         *,
@@ -37,14 +42,15 @@ export function useAdminOrders() {
                         full_name,
                         email
                     )
-                `)
-                .order('created_at', { ascending: false });
+                `
+        )
+        .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            return data as unknown as Order[];
-        },
-        enabled: !!user,
-    });
+      if (error) throw error;
+      return data as unknown as Order[];
+    },
+    enabled: !!user,
+  });
 
-    return { orders, isLoading, error };
+  return { orders, isLoading, error };
 }

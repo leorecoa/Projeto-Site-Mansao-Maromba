@@ -42,7 +42,7 @@ test.describe('Rotas Públicas', () => {
     { path: '/search', text: 'Buscar' },
     { path: '/terms', text: 'Termos' },
     { path: '/privacy', text: 'Privacidade' },
-    { path: '/faq', text: 'FAQ' }
+    { path: '/faq', text: 'FAQ' },
   ];
 
   for (const route of publicRoutes) {

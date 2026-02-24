@@ -45,6 +45,7 @@ npm run dev
 ## O que sera rastreado automaticamente
 
 ### Paginas
+
 - Home (`/`)
 - Login (`/login`)
 - Admin (`/admin`)
@@ -52,6 +53,7 @@ npm run dev
 - Pedidos (`/orders`)
 
 ### Eventos Automaticos (GA4)
+
 - page_view
 - session_start
 - first_visit
@@ -66,60 +68,60 @@ npm run dev
 
 ```typescript
 // components/products/ProductCard.tsx
-import { useAnalytics } from '../../hooks/useAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics';
 
-const { trackEvent } = useAnalytics()
+const { trackEvent } = useAnalytics();
 
 const handleAddToCart = () => {
-  addToCart(product)
+  addToCart(product);
 
   // Track evento
   trackEvent('add_to_cart', {
     item_id: product.id,
     item_name: product.name,
     price: product.price,
-    quantity: 1
-  })
-}
+    quantity: 1,
+  });
+};
 ```
 
 ### Exemplo 2: Rastrear Compra
 
 ```typescript
 // components/checkout/CheckoutPage.tsx
-import { useAnalytics } from '../../hooks/useAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics';
 
-const { trackEvent } = useAnalytics()
+const { trackEvent } = useAnalytics();
 
 const handleSubmit = async () => {
-  await createOrder(orderData)
+  await createOrder(orderData);
 
   // Track compra
   trackEvent('purchase', {
     transaction_id: orderId,
     value: cartTotal,
     currency: 'BRL',
-    items: cart.map(item => ({
+    items: cart.map((item) => ({
       item_id: item.id,
       item_name: item.name,
       price: item.price,
-      quantity: item.quantity
-    }))
-  })
-}
+      quantity: item.quantity,
+    })),
+  });
+};
 ```
 
 ### Exemplo 3: Rastrear Busca
 
 ```typescript
 // components/search/SearchBar.tsx
-const { trackEvent } = useAnalytics()
+const { trackEvent } = useAnalytics();
 
 const handleSearch = (query: string) => {
   trackEvent('search', {
-    search_term: query
-  })
-}
+    search_term: query,
+  });
+};
 ```
 
 ---
@@ -127,21 +129,25 @@ const handleSearch = (query: string) => {
 ## Metricas disponiveis no GA4
 
 ### Tempo Real
+
 - Usuarios ativos agora
 - Paginas mais visitadas
 - Eventos em tempo real
 
 ### Aquisicao
+
 - De onde vem os usuarios
 - Canais (organico, direto, social)
 - Campanhas
 
 ### Engajamento
+
 - Paginas mais visitadas
 - Tempo medio na pagina
 - Taxa de rejeicao
 
 ### Conversoes
+
 - Compras
 - Valor total
 - Taxa de conversao
@@ -203,10 +209,8 @@ Depois de configurar, voce pode:
 
 ---
 
-**Status:**  Implementado e pronto para configurar!
+**Status:** Implementado e pronto para configurar!
 
 **Tempo para configurar:** 10 minutos
 
 **Proxima funcionalidade:** Busca e Filtros
-
-

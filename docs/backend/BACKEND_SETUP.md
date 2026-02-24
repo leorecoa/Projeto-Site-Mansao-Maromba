@@ -3,6 +3,7 @@
 ## Visao geral
 
 Sistema completo de backend com:
+
 - **Edge Functions** - Webhooks, emails e processamento
 - **Database Optimization** - Indices e views materializadas
 - **Sistema de pedidos aprimorado** - Rastreio completo de status
@@ -25,6 +26,7 @@ supabase_orders_enhanced.sql
 ```
 
 **O que sera criado:**
+
 - 6 indices para queries frequentes
 - 3 views materializadas (product_stats, daily_order_stats, top_customers)
 - Funcao get_admin_stats() para painel
@@ -52,19 +54,21 @@ Ver guia completo: [EDGE_FUNCTIONS_DEPLOY.md](./EDGE_FUNCTIONS_DEPLOY.md)
 
 ### Indices criados
 
-| Indice | Tabela | Proposito | Impacto |
-|--------|--------|-----------|---------|
-| `idx_products_available` | products | Filtrar produtos disponiveis |  95% mais rapido |
-| `idx_orders_user_id` | orders | Buscar pedidos por usuario |  90% mais rapido |
-| `idx_orders_status` | orders | Filtrar por status |  85% mais rapido |
-| `idx_order_items_order_product` | order_items | JOIN orders + products |  80% mais rapido |
-| `idx_user_profiles_email` | user_profiles | Buscar por email |  95% mais rapido |
-| `idx_user_profiles_role` | user_profiles | Filtrar admins |  90% mais rapido |
+| Indice                          | Tabela        | Proposito                    | Impacto         |
+| ------------------------------- | ------------- | ---------------------------- | --------------- |
+| `idx_products_available`        | products      | Filtrar produtos disponiveis | 95% mais rapido |
+| `idx_orders_user_id`            | orders        | Buscar pedidos por usuario   | 90% mais rapido |
+| `idx_orders_status`             | orders        | Filtrar por status           | 85% mais rapido |
+| `idx_order_items_order_product` | order_items   | JOIN orders + products       | 80% mais rapido |
+| `idx_user_profiles_email`       | user_profiles | Buscar por email             | 95% mais rapido |
+| `idx_user_profiles_role`        | user_profiles | Filtrar admins               | 90% mais rapido |
 
 ### Views materializadas
 
 #### 1. product_stats
+
 Estatisticas de produtos (mais vendidos):
+
 ```sql
 SELECT * FROM product_stats
 ORDER BY total_quantity_sold DESC
@@ -72,32 +76,39 @@ LIMIT 10;
 ```
 
 **Campos:**
+
 - `total_orders` - Quantidade de pedidos
 - `total_quantity_sold` - Unidades vendidas
 - `total_revenue` - Receita total
 - `avg_price` - Preco medio
 
 #### 2. daily_order_stats
+
 Estatisticas diarias:
+
 ```sql
 SELECT * FROM daily_order_stats
 WHERE order_date >= CURRENT_DATE - INTERVAL '30 days';
 ```
 
 **Campos:**
+
 - `total_orders` - Pedidos do dia
 - `total_revenue` - Receita do dia
 - `avg_order_value` - Ticket medio
 - `unique_customers` - Clientes unicos
 
 #### 3. top_customers
+
 Top 100 clientes:
+
 ```sql
 SELECT * FROM top_customers
 LIMIT 10;
 ```
 
 **Campos:**
+
 - `total_orders` - Total de pedidos
 - `total_spent` - Total gasto
 - `last_order_date` - Ultimo pedido
@@ -107,6 +118,7 @@ LIMIT 10;
 **Automatico:** Apos cada insercao de pedido
 
 **Manual:**
+
 ```sql
 SELECT refresh_materialized_views();
 ```
@@ -126,6 +138,7 @@ pending -> confirmed -> processing -> shipped -> delivered
 ### Funcoes disponiveis
 
 #### 1. Atualizar status
+
 ```sql
 SELECT update_order_status(
   'order-uuid',
@@ -136,6 +149,7 @@ SELECT update_order_status(
 ```
 
 #### 2. Cancelar pedido
+
 ```sql
 SELECT cancel_order(
   'order-uuid',
@@ -144,25 +158,28 @@ SELECT cancel_order(
 ```
 
 #### 3. Historico do pedido
+
 ```sql
 SELECT get_order_history('order-uuid');
 ```
 
 **Retorna:**
+
 ```json
 {
   "order_id": "uuid",
   "status": "shipped",
   "tracking_code": "BR123456789",
   "timeline": [
-    {"status": "pending", "date": "2024-01-01", "completed": true},
-    {"status": "confirmed", "date": "2024-01-02", "completed": true},
-    {"status": "shipped", "date": "2024-01-03", "completed": true}
+    { "status": "pending", "date": "2024-01-01", "completed": true },
+    { "status": "confirmed", "date": "2024-01-02", "completed": true },
+    { "status": "shipped", "date": "2024-01-03", "completed": true }
   ]
 }
 ```
 
 #### 4. Estatisticas
+
 ```sql
 -- Proprio usuario
 SELECT get_order_stats();
@@ -172,11 +189,12 @@ SELECT get_order_stats('user-uuid');
 ```
 
 **Retorna:**
+
 ```json
 {
   "total_orders": 10,
-  "total_spent": 1500.00,
-  "avg_order_value": 150.00,
+  "total_spent": 1500.0,
+  "avg_order_value": 150.0,
   "pending_orders": 2,
   "delivered_orders": 7,
   "cancelled_orders": 1
@@ -200,22 +218,25 @@ ORDER BY changed_at DESC;
 ### 1. Webhook de pagamento
 
 **URL:**
+
 ```
 https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/payment-webhook
 ```
 
 **Eventos suportados:**
+
 - `payment.success` -> Confirma pedido + envia email
 - `payment.failed` -> Cancela pedido + notifica
 - `payment.refunded` -> Cancela + processa reembolso
 
 **Payload:**
+
 ```json
 {
   "event": "payment.success",
   "order_id": "uuid",
   "payment_id": "pay_123",
-  "amount": 100.00,
+  "amount": 100.0,
   "payment_method": "credit_card"
 }
 ```
@@ -223,17 +244,20 @@ https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/payment-webhook
 ### 2. Envio de email
 
 **URL:**
+
 ```
 https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/send-email
 ```
 
 **Templates disponiveis:**
+
 - `order_confirmed` - Pedido confirmado
 - `order_shipped` - Pedido enviado
 - `payment_failed` - Falha no pagamento
 - `payment_refunded` - Reembolso processado
 
 **Payload:**
+
 ```json
 {
   "type": "order_confirmed",
@@ -244,17 +268,20 @@ https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/send-email
 ### 3. Processar pedido
 
 **URL:**
+
 ```
 https://ftgzoulanmsrmujtgrvj.supabase.co/functions/v1/process-order
 ```
 
 **Acoes disponiveis:**
+
 - `validate` - Valida estoque
 - `confirm` - Confirma pedido
 - `ship` - Marca como enviado
 - `deliver` - Marca como entregue
 
 **Payload:**
+
 ```json
 {
   "order_id": "uuid",
@@ -274,6 +301,7 @@ SELECT get_admin_stats();
 ```
 
 **Retorna:**
+
 ```json
 {
   "total_products": 12,
@@ -290,18 +318,18 @@ SELECT get_admin_stats();
 
 ```typescript
 // hooks/useAdminStats.ts
-import { supabase } from '../services/supabase'
+import { supabase } from '../services/supabase';
 
 export function useAdminStats() {
   return useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_admin_stats')
-      if (error) throw error
-      return data
+      const { data, error } = await supabase.rpc('get_admin_stats');
+      if (error) throw error;
+      return data;
     },
-    staleTime: 1000 * 60 * 5 // 5 minutos
-  })
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
 }
 ```
 
@@ -343,12 +371,12 @@ psql -h db.ftgzoulanmsrmujtgrvj.supabase.co -U postgres -f backup.sql
 
 ### Antes vs depois
 
-| Metrica | Antes | Depois | Melhoria |
-|---------|-------|--------|----------|
-| Query produtos | 250ms | 15ms |  94% |
-| Query pedidos | 180ms | 20ms |  89% |
-| Painel stats | 500ms | 50ms |  90% |
-| JOIN order_items | 300ms | 40ms |  87% |
+| Metrica          | Antes | Depois | Melhoria |
+| ---------------- | ----- | ------ | -------- |
+| Query produtos   | 250ms | 15ms   | 94%      |
+| Query pedidos    | 180ms | 20ms   | 89%      |
+| Painel stats     | 500ms | 50ms   | 90%      |
+| JOIN order_items | 300ms | 40ms   | 87%      |
 
 ### Monitorar performance
 
@@ -377,6 +405,7 @@ ORDER BY pg_total_relation_size('public.'||tablename) DESC;
 ## Checklist de implementacao
 
 ### Banco de dados
+
 - [ ] Executar `supabase_optimization.sql`
 - [ ] Executar `supabase_orders_enhanced.sql`
 - [ ] Testar funcao `get_admin_stats()`
@@ -384,6 +413,7 @@ ORDER BY pg_total_relation_size('public.'||tablename) DESC;
 - [ ] Testar views materializadas
 
 ### Edge functions
+
 - [ ] Publicar `payment-webhook`
 - [ ] Publicar `send-email`
 - [ ] Publicar `process-order`
@@ -392,6 +422,7 @@ ORDER BY pg_total_relation_size('public.'||tablename) DESC;
 - [ ] Configurar webhook no gateway
 
 ### Integracao com frontend
+
 - [ ] Criar hook `useAdminStats`
 - [ ] Atualizar AdminPanel com stats
 - [ ] Adicionar tracking de pedidos
@@ -403,6 +434,7 @@ ORDER BY pg_total_relation_size('public.'||tablename) DESC;
 ## Solucao de problemas
 
 ### Views nao atualizam
+
 ```sql
 -- Refresh manual
 SELECT refresh_materialized_views();
@@ -412,6 +444,7 @@ SELECT * FROM pg_trigger WHERE tgname = 'after_order_insert_refresh_stats';
 ```
 
 ### Indices nao usados
+
 ```sql
 -- Analisar tabela
 ANALYZE orders;
@@ -423,11 +456,12 @@ SELECT * FROM orders WHERE user_id = 'uuid';
 ```
 
 ### Timeout de edge function
+
 ```typescript
 // Aumentar timeout (max 60s)
 export const config = {
-  timeout: 60
-}
+  timeout: 60,
+};
 ```
 
 ---
@@ -461,5 +495,3 @@ export const config = {
 Escalabilidade: **9.5/10**
 Performance: **9.0/10**
 Seguranca: **9.0/10**
-
-

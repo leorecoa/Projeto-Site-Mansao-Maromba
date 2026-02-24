@@ -63,17 +63,16 @@ export default function App() {
 
     async function fetchProducts() {
       try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('name');
+        const { data, error } = await supabase.from('products').select('*').order('name');
 
         if (error) throw error;
         if (!mounted) return;
 
         if (data && data.length > 0) {
-          const mergedProducts: Product[] = data.map(dbProduct => {
-            const localMatch = (PRODUCTS.find(p => p.name.toLowerCase() === dbProduct.name.toLowerCase()) || PRODUCTS[0]) as unknown as Product;
+          const mergedProducts: Product[] = data.map((dbProduct) => {
+            const localMatch = (PRODUCTS.find(
+              (p) => p.name.toLowerCase() === dbProduct.name.toLowerCase()
+            ) || PRODUCTS[0]) as unknown as Product;
             return {
               ...dbProduct,
               theme: (localMatch?.theme || PRODUCTS[0].theme) as unknown as Theme,
@@ -81,7 +80,7 @@ export default function App() {
               type: localMatch?.type,
               image: localMatch?.image || dbProduct.image_url,
               image_url: dbProduct.image_url || localMatch?.image || '',
-              description: dbProduct.description || localMatch?.description || ''
+              description: dbProduct.description || localMatch?.description || '',
             };
           });
           setProducts(mergedProducts);
@@ -136,7 +135,11 @@ export default function App() {
     if (location.pathname === '/') {
       return <SplashScreen onAnimationEnd={() => {}} isFadingOut={false} />;
     }
-    return <div className="h-screen bg-black flex items-center justify-center text-white">Carregando...</div>;
+    return (
+      <div className="h-screen bg-black flex items-center justify-center text-white">
+        Carregando...
+      </div>
+    );
   }
 
   const isHome = location.pathname === '/';
@@ -155,19 +158,22 @@ export default function App() {
       <main>
         <Suspense fallback={<div className="h-screen bg-black" />}>
           <Routes>
-            <Route path="/" element={
-              <>
-                <Hero
-                  products={products}
-                  activeIndex={activeProductIndex}
-                  setActiveIndex={setActiveProductIndex}
-                />
-                <ProductSection products={products} activeTheme={activeTheme} />
-                <AboutSection activeTheme={activeTheme} />
-                <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
-                <MapSection activeTheme={activeTheme} />
-              </>
-            } />
+            <Route
+              path="/"
+              element={
+                <>
+                  <Hero
+                    products={products}
+                    activeIndex={activeProductIndex}
+                    setActiveIndex={setActiveProductIndex}
+                  />
+                  <ProductSection products={products} activeTheme={activeTheme} />
+                  <AboutSection activeTheme={activeTheme} />
+                  <ReviewSection reviews={REVIEWS} activeTheme={activeTheme} />
+                  <MapSection activeTheme={activeTheme} />
+                </>
+              }
+            />
 
             <Route path="/test" element={<TestPage />} />
             <Route path="/login" element={<LoginPage />} />

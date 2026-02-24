@@ -6,9 +6,12 @@ interface AppErrorBoundaryState {
   hasError: boolean;
 }
 
-export class AppErrorBoundary extends React.Component<React.PropsWithChildren, AppErrorBoundaryState> {
+export class AppErrorBoundary extends React.Component<
+  React.PropsWithChildren,
+  AppErrorBoundaryState
+> {
   state: AppErrorBoundaryState = {
-    hasError: false
+    hasError: false,
   };
 
   private handleWindowError = (event: ErrorEvent) => {

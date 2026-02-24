@@ -47,7 +47,8 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           *,
           order_items (
             id,
@@ -59,19 +60,23 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
               image_url
             )
           )
-        `)
+        `
+        )
         .eq('id', orderId)
         .single();
 
       if (error) throw error;
       return data;
-    }
+    },
   });
 
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto p-4 md:p-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6"
+        >
           <ArrowLeft className="w-5 h-5" />
           Voltar
         </button>
@@ -85,7 +90,10 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
   if (!order) {
     return (
       <div className="max-w-4xl mx-auto p-4 md:p-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6"
+        >
           <ArrowLeft className="w-5 h-5" />
           Voltar
         </button>
@@ -103,7 +111,7 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
         <ArrowLeft className="w-5 h-5" />
         Voltar para pedidos
       </button>
-      
+
       <div className="bg-zinc-900 rounded-lg border border-white/10 overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b border-white/10">
@@ -119,7 +127,7 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
                   month: 'long',
                   year: 'numeric',
                   hour: '2-digit',
-                  minute: '2-digit'
+                  minute: '2-digit',
                 })}
               </div>
             </div>
@@ -148,10 +156,14 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
                 <div className="flex-1">
                   <h3 className="text-white font-medium">{item.products?.name}</h3>
                   <p className="text-gray-400 text-sm mt-1">Quantidade: {item.quantity}</p>
-                  <p className="text-gray-400 text-sm">Preço unitário: {formatCurrency(item.unit_price)}</p>
+                  <p className="text-gray-400 text-sm">
+                    Preço unitário: {formatCurrency(item.unit_price)}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-white font-bold">{formatCurrency(item.unit_price * item.quantity)}</p>
+                  <p className="text-white font-bold">
+                    {formatCurrency(item.unit_price * item.quantity)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -166,10 +178,16 @@ export default function OrderDetailsPage({ orderId, onBack }: Props) {
               <h2 className="text-lg font-semibold text-white">Endereço de Entrega</h2>
             </div>
             <div className="text-gray-300 space-y-1">
-              <p>{order.shipping_address_snapshot.street}, {order.shipping_address_snapshot.number}</p>
-              {order.shipping_address_snapshot.complement && <p>{order.shipping_address_snapshot.complement}</p>}
+              <p>
+                {order.shipping_address_snapshot.street}, {order.shipping_address_snapshot.number}
+              </p>
+              {order.shipping_address_snapshot.complement && (
+                <p>{order.shipping_address_snapshot.complement}</p>
+              )}
               <p>{order.shipping_address_snapshot.neighborhood}</p>
-              <p>{order.shipping_address_snapshot.city} - {order.shipping_address_snapshot.state}</p>
+              <p>
+                {order.shipping_address_snapshot.city} - {order.shipping_address_snapshot.state}
+              </p>
               <p>CEP: {order.shipping_address_snapshot.zip}</p>
             </div>
           </div>

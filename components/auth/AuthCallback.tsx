@@ -55,7 +55,11 @@ export default function AuthCallback() {
             }
           })();
           setStatus(readableError);
-          setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+          setTimeout(
+            () =>
+              navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+            2500
+          );
           return;
         }
 
@@ -79,7 +83,11 @@ export default function AuthCallback() {
 
           if (sessionError) {
             setStatus(mapAuthErrorMessage(sessionError));
-            setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+            setTimeout(
+              () =>
+                navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+              2500
+            );
             return;
           }
         }
@@ -91,7 +99,10 @@ export default function AuthCallback() {
             if (polledSessionData?.session) {
               clearStoredRedirectPath();
               setStatus('Login concluido. Redirecionando...');
-              setTimeout(() => navigate(redirectPath, { replace: true }), SUCCESS_REDIRECT_DELAY_MS);
+              setTimeout(
+                () => navigate(redirectPath, { replace: true }),
+                SUCCESS_REDIRECT_DELAY_MS
+              );
               return;
             }
 
@@ -99,7 +110,11 @@ export default function AuthCallback() {
           }
 
           setStatus('Nao foi possivel concluir o login. Tente novamente.');
-          setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+          setTimeout(
+            () =>
+              navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+            2500
+          );
           return;
         }
 
@@ -107,7 +122,11 @@ export default function AuthCallback() {
 
         if (error) {
           setStatus(mapAuthErrorMessage(error));
-          setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+          setTimeout(
+            () =>
+              navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+            2500
+          );
           return;
         }
 
@@ -121,10 +140,16 @@ export default function AuthCallback() {
         }
 
         setStatus('Nao foi possivel concluir o login.');
-        setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+        setTimeout(
+          () => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+          2500
+        );
       } catch (err) {
         setStatus(mapAuthErrorMessage(err));
-        setTimeout(() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }), 2500);
+        setTimeout(
+          () => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`, { replace: true }),
+          2500
+        );
       }
     };
 

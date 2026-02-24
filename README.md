@@ -15,14 +15,16 @@
 </div>
 
 ## Overview
+
 Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), seguranca e qualidade de entrega.
 
 ## Demo
+
 - Live: `https://projeto-site-mansao-maromba.vercel.app/`
 - Repository: `https://github.com/leorecoa/Projeto-Site-Mansao-Maromba`
 
-
 ## Architectural Decisions
+
 - Supabase como backend para reduzir boilerplate sem perder controle SQL.
 - Checkout via RPC SQL (`create_order`) para atomicidade transacional.
 - RLS + RBAC para isolamento de acesso e protecao da area admin.
@@ -30,7 +32,9 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - ErrorBoundary global para resiliencia da UI.
 
 ## Stack
+
 ### Frontend
+
 - React 19
 - TypeScript
 - Vite
@@ -40,13 +44,16 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Tailwind CSS
 
 ### Backend e plataforma
+
 - Supabase Auth
 - Supabase Postgres
 - Supabase Storage
 - Supabase Edge Functions (`process-order`, `payment-webhook`, `send-email`)
 
 ## Features
+
 ### Autenticacao
+
 - Login por email/senha.
 - Login com Google OAuth.
 - Callback OAuth endurecido (tratamento de erro e redirect).
@@ -54,6 +61,7 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Cadastro com feedback robusto e tratamento de erros comuns.
 
 ### Loja e checkout
+
 - Catalogo e detalhes de produto.
 - Carrinho com persistencia local.
 - Checkout com criacao de pedido via RPC SQL (`create_order`).
@@ -61,49 +69,61 @@ Aplicacao de e-commerce com foco em robustez de fluxo (auth, checkout, admin), s
 - Pagina de sucesso com `orderId`.
 
 ### Admin
+
 - Rotas protegidas para admins.
 - CRUD de produtos.
 - Upload de imagem com validacao de tipo/tamanho e bucket configuravel.
 - Gestao de pedidos.
 
 ### UX e resiliencia
+
 - Paginas institucionais: Termos, Privacidade, FAQ.
 - Pagina 404 e pagina de erro.
 - ErrorBoundary global para falhas inesperadas na UI.
 
 ## Security
+
 - RBAC para area admin (`user_profiles.role`).
 - Service role restrita ao backend/edge (nao usar no frontend).
 - Webhook com validacao de assinatura.
 - Sanitizacao/validacao de entrada e tratamento de erro consistente.
 
 ## Quality
+
 ### Testes locais
+
 - Unit/integration: `npm test`
 - E2E: `npm run test:e2e`
 
 ### CI
+
 Workflow em `.github/workflows/ci.yml`:
+
 - lint + type-check + build
 - suite de testes
 - gate E2E de ErrorBoundary (com artifact do Playwright)
 
 ## Setup
+
 ### 1) Instalar dependencias
+
 ```bash
 npm install
 ```
 
 ### 2) Variaveis de ambiente
+
 Crie `.env` baseado em `.env.example`.
 
 Minimo para rodar frontend:
+
 ```env
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 ```
 
 Para admin upload:
+
 ```env
 VITE_SUPABASE_PRODUCTS_BUCKET=product-images
 VITE_PRODUCTS_ALLOWED_MIME_TYPES=image/jpeg,image/png,image/webp,image/gif
@@ -111,11 +131,13 @@ VITE_PRODUCTS_MAX_FILE_SIZE_MB=5
 ```
 
 ### 3) Rodar projeto
+
 ```bash
 npm run dev
 ```
 
 ### Scripts
+
 ```bash
 npm run dev
 npm run build
@@ -127,6 +149,7 @@ npm run test:e2e
 ```
 
 ## Documentation
+
 - Indice geral: `docs/README.md`
 - Arquitetura: `docs/architecture/TECHNICAL_DEEP_DIVE.md`
 - Backend e Supabase: `docs/backend/`
@@ -135,18 +158,23 @@ npm run test:e2e
 - Analytics: `docs/analytics/`
 
 ## Limits
+
 - Parte do pagamento ainda esta simplificada e deve evoluir para confirmacao full webhook-first.
 - Observabilidade pode evoluir com stack dedicada (ex.: Sentry + painel de funil).
 
 ## AI Use
+
 Uso de AI como ferramenta de aceleracao em analise, implementacao e revisao, mantendo responsabilidade integral sobre arquitetura e decisoes criticas.
 
 ## Author
+
 - Leandro Jesse
 - GitHub: `leorecoa`
 
 ## License
+
 Projeto para portfolio e estudo. Defina uma licenca explicita se for abrir contribuicao publica.
 
 ---
+
 Se quiser contexto de arquitetura para entrevista senior, leia `docs/architecture/TECHNICAL_DEEP_DIVE.md`.

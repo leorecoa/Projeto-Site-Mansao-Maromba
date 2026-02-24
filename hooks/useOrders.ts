@@ -6,14 +6,19 @@ import type { Order } from '@/types/order';
 export function useOrders() {
   const { user } = useAuth();
 
-  const { data: orders, isLoading: loading, error } = useQuery({
+  const {
+    data: orders,
+    isLoading: loading,
+    error,
+  } = useQuery({
     queryKey: ['orders', user?.id],
     queryFn: async () => {
       if (!user) return [];
 
       const { data, error } = await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
                     id,
                     created_at,
                     total_amount,
@@ -27,7 +32,8 @@ export function useOrders() {
                             image_url
                         )
                     )
-                `)
+                `
+        )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 

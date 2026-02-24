@@ -21,11 +21,16 @@ test.describe('Checkout Completo (credenciais reais)', () => {
     await page.goto('/login');
     await page.fill('input[type="email"]', TEST_USER_EMAIL!);
     await page.fill('input[type="password"]', TEST_USER_PASSWORD!);
-    await page.locator('form').getByRole('button', { name: /entrar/i }).click();
+    await page
+      .locator('form')
+      .getByRole('button', { name: /entrar/i })
+      .click();
     await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
   });
 
-  test('deve concluir o fluxo atual: /checkout -> pagamento -> /checkout/success', async ({ page }) => {
+  test('deve concluir o fluxo atual: /checkout -> pagamento -> /checkout/success', async ({
+    page,
+  }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -44,6 +49,8 @@ test.describe('Checkout Completo (credenciais reais)', () => {
     await page.locator('input[name="shipping.number"]').fill(TEST_CUSTOMER.number);
     await page.getByRole('button', { name: /ir para pagamento/i }).click();
 
-    await expect(page.getByRole('button', { name: /pagar com cartao|pagar com pix|pagar com boleto/i })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /pagar com cartao|pagar com pix|pagar com boleto/i })
+    ).toBeVisible();
   });
 });

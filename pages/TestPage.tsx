@@ -4,7 +4,7 @@ export default function TestPage() {
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">🧪 Teste de Navegação</h1>
-      
+
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-yellow-400">Rotas Públicas:</h2>
         <div className="grid grid-cols-2 gap-4">
@@ -43,8 +43,8 @@ export default function TestPage() {
 
         <div className="mt-8 p-4 bg-blue-900 rounded">
           <p className="text-sm">
-            ✅ Se você consegue clicar e mudar de página = Navegação OK<br/>
-            ❌ Se nada acontece = Problema no React Router
+            ✅ Se você consegue clicar e mudar de página = Navegação OK
+            <br />❌ Se nada acontece = Problema no React Router
           </p>
         </div>
       </div>

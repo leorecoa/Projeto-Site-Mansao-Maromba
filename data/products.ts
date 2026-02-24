@@ -1,4 +1,3 @@
-
 import { Product, Review } from '../types';
 
 export const PRODUCTS: Product[] = [
@@ -6,7 +5,7 @@ export const PRODUCTS: Product[] = [
     id: 'tigrinho',
     name: 'Combo Tigrinho',
     description: 'MANGA + MARACUJÁ. ENERGIA INTENSA QUE INCENDEIA A NOITE.',
-    price: 89.90,
+    price: 89.9,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
     image: 'https://i.imgur.com/iFgXsaT.png',
@@ -15,14 +14,14 @@ export const PRODUCTS: Product[] = [
       secondary: '#4b0000',
       glow: 'rgba(255, 0, 0, 0.8)',
       text: '#FFFFFF',
-      bg: 'linear-gradient(180deg, #1a0000 0%, #000000 100%)'
-    }
+      bg: 'linear-gradient(180deg, #1a0000 0%, #000000 100%)',
+    },
   },
   {
     id: 'darkness',
     name: 'Double Darkness',
     description: 'PRETO FOSCO. MISTÉRIO E ELEGÂNCIA PARA O ROLÊ URBANO.',
-    price: 99.90,
+    price: 99.9,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
     image: 'https://i.imgur.com/QKXsWbm.png',
@@ -31,14 +30,14 @@ export const PRODUCTS: Product[] = [
       secondary: '#0a0a0a',
       glow: 'rgba(100, 100, 100, 0.3)',
       text: '#EEEEEE',
-      bg: 'linear-gradient(180deg, #0d0d0d 0%, #000000 100%)'
-    }
+      bg: 'linear-gradient(180deg, #0d0d0d 0%, #000000 100%)',
+    },
   },
   {
     id: 'pink',
     name: 'Combo Pink',
     description: 'VIBE NEON. ATITUDE QUE BRILHA NO ESCURO DO CLUB.',
-    price: 94.90,
+    price: 94.9,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
     image: 'https://i.imgur.com/FaTOEtC.png',
@@ -47,14 +46,14 @@ export const PRODUCTS: Product[] = [
       secondary: '#200020',
       glow: 'rgba(255, 0, 255, 0.6)',
       text: '#FFFFFF',
-      bg: 'linear-gradient(180deg, #150015 0%, #000000 100%)'
-    }
+      bg: 'linear-gradient(180deg, #150015 0%, #000000 100%)',
+    },
   },
   {
     id: 'vodka',
     name: 'Vodka Combo',
     description: 'AZUL E ROSA. O EQUILÍBRIO PERFEITO ENTRE GELO E FOGO.',
-    price: 84.90,
+    price: 84.9,
     volume: '1L',
     type: 'Cocktail Alcoólico Gaseificado',
     image: 'https://i.imgur.com/U2nL7Mv.png',
@@ -63,13 +62,31 @@ export const PRODUCTS: Product[] = [
       secondary: '#001a1c',
       glow: 'rgba(0, 240, 255, 0.5)',
       text: '#FFFFFF',
-      bg: 'linear-gradient(180deg, #001012 0%, #000000 100%)'
-    }
-  }
+      bg: 'linear-gradient(180deg, #001012 0%, #000000 100%)',
+    },
+  },
 ];
 
 export const REVIEWS: Review[] = [
-  { id: 1, user: "Lucas Silva", rating: 5, comment: "Melhor combo de SP. Entrega rápida demais!", date: "2 dias atrás" },
-  { id: 2, user: "Ana Paula", rating: 4, comment: "O Tigrinho é sensacional, voltarei a pedir com certeza.", date: "1 semana atrás" },
-  { id: 3, user: "Ricardo", rating: 4, comment: "O Double Darkness é o brabo. Visual do site tá animal.", date: "1 mês atrás" }
+  {
+    id: 1,
+    user: 'Lucas Silva',
+    rating: 5,
+    comment: 'Melhor combo de SP. Entrega rápida demais!',
+    date: '2 dias atrás',
+  },
+  {
+    id: 2,
+    user: 'Ana Paula',
+    rating: 4,
+    comment: 'O Tigrinho é sensacional, voltarei a pedir com certeza.',
+    date: '1 semana atrás',
+  },
+  {
+    id: 3,
+    user: 'Ricardo',
+    rating: 4,
+    comment: 'O Double Darkness é o brabo. Visual do site tá animal.',
+    date: '1 mês atrás',
+  },
 ];

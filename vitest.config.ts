@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
@@ -16,7 +16,7 @@ export default defineConfig({
         lines: 90,
         statements: 90,
         functions: 90,
-        branches: 70
+        branches: 70,
       },
       exclude: [
         'node_modules/**',
@@ -28,4 +28,4 @@ export default defineConfig({
       ],
     },
   },
-})
+});

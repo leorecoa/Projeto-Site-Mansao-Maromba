@@ -3,6 +3,7 @@
 ## Passos para configurar
 
 ### 1. Acessar Supabase Dashboard
+
 ```
 https://supabase.com/dashboard/project/ftgzoulanmsrmujtgrvj
 ```
@@ -13,7 +14,7 @@ https://supabase.com/dashboard/project/ftgzoulanmsrmujtgrvj
 2. Clique em **New Bucket**
 3. Configure:
    - **Name**: `product-images`
-   - **Public bucket**:  Ativado
+   - **Public bucket**: Ativado
    - **File size limit**: 5 MB
    - **Allowed MIME types**: `image/*`
 4. Clique em **Create bucket**
@@ -71,14 +72,16 @@ Apos criar um produto com imagem:
 ## Solucao de problemas
 
 ### Erro: "new row violates row-level security policy"
+
 - Verifique se o usuario esta autenticado
 - Confirme que as policies foram criadas
 
 ### Imagem nao aparece
+
 - Verifique se o bucket e publico
 - Confirme a URL no console do navegador
 
 ### Upload falha
-- Verifique o tamanho do arquivo (< 5MB)
-- Confirme o tipo MIME (image/*)
 
+- Verifique o tamanho do arquivo (< 5MB)
+- Confirme o tipo MIME (image/\*)

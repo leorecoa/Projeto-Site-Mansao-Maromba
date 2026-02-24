@@ -12,7 +12,7 @@ export default function ErrorPage({
   title = 'Algo deu errado',
   message = 'Desculpe, encontramos um erro inesperado. Tente novamente.',
   actionLabel = 'Recarregar pagina',
-  onAction
+  onAction,
 }: ErrorPageProps) {
   const handleAction = () => {
     if (onAction) {

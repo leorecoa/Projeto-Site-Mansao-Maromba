@@ -7,6 +7,7 @@ npm install -g supabase
 ```
 
 Verificar:
+
 ```bash
 supabase --version
 ```
@@ -48,6 +49,7 @@ scoop install supabase
 ### Passo a Passo
 
 1. **Acessar Supabase Dashboard**
+
    ```
    https://supabase.com/painel/project/ftgzoulanmsrmujtgrvj
    ```
@@ -114,4 +116,3 @@ Seu backend esta otimizado mesmo sem o CLI.
 4.  Edge Functions (quando precisar)
 
 **Nao deixe o CLI te bloquear! Continue o desenvolvimento.**
-

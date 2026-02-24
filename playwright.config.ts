@@ -1,16 +1,16 @@
-import { defineConfig, devices } from '@playwright/test'
-import dotenv from 'dotenv'
-import fs from 'fs'
-import path from 'path'
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
-dotenv.config({ quiet: true })
-const defaultBaseUrl = 'http://127.0.0.1:5173'
-const baseUrl = process.env.PLAYWRIGHT_BASE_URL || defaultBaseUrl
-const baseUrlConfig = new URL(baseUrl)
-const webHost = baseUrlConfig.hostname
-const webPort = baseUrlConfig.port || '5173'
-const userStorageStatePath = path.resolve(process.cwd(), 'tests/e2e/.auth/user.json')
-const hasUserStorageState = fs.existsSync(userStorageStatePath)
+dotenv.config({ quiet: true });
+const defaultBaseUrl = 'http://127.0.0.1:5173';
+const baseUrl = process.env.PLAYWRIGHT_BASE_URL || defaultBaseUrl;
+const baseUrlConfig = new URL(baseUrl);
+const webHost = baseUrlConfig.hostname;
+const webPort = baseUrlConfig.port || '5173';
+const userStorageStatePath = path.resolve(process.cwd(), 'tests/e2e/.auth/user.json');
+const hasUserStorageState = fs.existsSync(userStorageStatePath);
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -43,11 +43,11 @@ export default defineConfig({
     },
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         ...(hasUserStorageState ? { storageState: 'tests/e2e/.auth/user.json' } : {}),
       },
       dependencies: ['setup'],
     },
   ],
-})
+});

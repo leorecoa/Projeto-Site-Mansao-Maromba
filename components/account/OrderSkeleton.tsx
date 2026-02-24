@@ -14,5 +14,5 @@ export default function OrderSkeleton() {
         <div className="h-4 w-16 bg-gray-300 rounded" />
       </div>
     </div>
-  )
+  );
 }

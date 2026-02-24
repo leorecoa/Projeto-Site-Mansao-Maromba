@@ -3,26 +3,26 @@
 // Envia notificações por email (Resend/SendGrid)
 // ============================================
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 interface EmailRequest {
-  type: 'order_confirmed' | 'order_shipped' | 'payment_failed' | 'payment_refunded'
-  order_id: string
-  payment_id?: string
+  type: 'order_confirmed' | 'order_shipped' | 'payment_failed' | 'payment_refunded';
+  order_id: string;
+  payment_id?: string;
 }
 
 interface EmailOrderData {
-  id: string
-  customer_name: string
-  customer_email: string
-  total_amount: number
-  tracking_code?: string | null
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  total_amount: number;
+  tracking_code?: string | null;
 }
 
 const emailTemplates = {
@@ -44,7 +44,7 @@ const emailTemplates = {
         <p>Você receberá um email quando seu pedido for enviado.</p>
         <p>Obrigado por comprar na Mansão Maromba! 🏋️‍♂️</p>
       </div>
-    `
+    `,
   }),
 
   order_shipped: (order: EmailOrderData) => ({
@@ -64,7 +64,7 @@ const emailTemplates = {
         <p>Acompanhe seu pedido em tempo real no nosso site.</p>
         <p>Obrigado por comprar na Mansão Maromba! 🏋️‍♂️</p>
       </div>
-    `
+    `,
   }),
 
   payment_failed: (order: EmailOrderData) => ({
@@ -83,7 +83,7 @@ const emailTemplates = {
         <p>Por favor, tente novamente ou entre em contato conosco.</p>
         <p>Equipe Mansão Maromba</p>
       </div>
-    `
+    `,
   }),
 
   payment_refunded: (order: EmailOrderData) => ({
@@ -102,70 +102,69 @@ const emailTemplates = {
         <p>O valor será creditado na mesma forma de pagamento utilizada.</p>
         <p>Equipe Mansão Maromba</p>
       </div>
-    `
-  })
-}
+    `,
+  }),
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { type, order_id }: EmailRequest = await req.json()
+    const { type, order_id }: EmailRequest = await req.json();
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Buscar dados do pedido
     const { data: order, error } = await supabase
       .from('orders')
       .select('*')
       .eq('id', order_id)
-      .single()
+      .single();
 
     if (error || !order) {
-      throw new Error('Order not found')
+      throw new Error('Order not found');
     }
 
     // Gerar email
-    const template = emailTemplates[type](order as EmailOrderData)
+    const template = emailTemplates[type](order as EmailOrderData);
 
     // Enviar via Resend (ou SendGrid)
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-    
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+
     if (resendApiKey) {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'Mansão Maromba <noreply@mansaomaromba.com>',
           to: order.customer_email,
           subject: template.subject,
-          html: template.html
-        })
-      })
+          html: template.html,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to send email')
+        throw new Error('Failed to send email');
       }
     }
 
-    return new Response(
-      JSON.stringify({ success: true, message: 'Email sent' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    )
-
+    return new Response(JSON.stringify({ success: true, message: 'Email sent' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
   } catch (error: unknown) {
-    console.error('Email error:', error)
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(
-      JSON.stringify({ success: false, error: message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    console.error('Email error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ success: false, error: message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    });
   }
-})
+});

@@ -35,12 +35,16 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
   };
 
   const handleNext = () => triggerChange((activeIndex + 1) % products.length, 'next');
-  const handlePrev = () => triggerChange((activeIndex - 1 + products.length) % products.length, 'prev');
+  const handlePrev = () =>
+    triggerChange((activeIndex - 1 + products.length) % products.length, 'prev');
 
   const backgroundText = activeProduct.name.split(' ').pop()?.toUpperCase() || '';
 
   return (
-    <section id="hero" className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#010101]">
+    <section
+      id="hero"
+      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#010101]"
+    >
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05] select-none z-0"
         style={{ transform: `translateY(${scrollY * 0.1}px)` }}
@@ -50,7 +54,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
           style={{
             color: activeProduct.theme.primary,
             filter: isTransitioning ? 'blur(30px)' : 'blur(4px)',
-            transform: `scale(${isTransitioning ? 1.05 : 1}) translateX(${isTransitioning ? (direction === 'next' ? '-2%' : '2%') : '0'})`
+            transform: `scale(${isTransitioning ? 1.05 : 1}) translateX(${isTransitioning ? (direction === 'next' ? '-2%' : '2%') : '0'})`,
           }}
         >
           {backgroundText}
@@ -66,7 +70,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               top: `${15 + i * 14}%`,
               color: activeProduct.theme.primary,
               animationDelay: `${i * 0.7}s`,
-              transform: `translateY(${scrollY * (-0.03 * (i + 1))}px)`
+              transform: `translateY(${scrollY * (-0.03 * (i + 1))}px)`,
             }}
           />
         ))}
@@ -80,7 +84,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               borderColor: `${activeProduct.theme.primary}aa`,
               color: activeProduct.theme.primary,
               boxShadow: `0 0 22px ${activeProduct.theme.primary}52, inset 0 0 10px ${activeProduct.theme.primary}1f`,
-              textShadow: `0 0 9px ${activeProduct.theme.primary}73`
+              textShadow: `0 0 9px ${activeProduct.theme.primary}73`,
             }}
           >
             <Crown
@@ -99,7 +103,7 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                 className="block"
                 style={{
                   color: i !== 0 ? activeProduct.theme.primary : 'white',
-                  transition: 'color 0.5s ease-out'
+                  transition: 'color 0.5s ease-out',
                 }}
               >
                 {word}
@@ -107,7 +111,10 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
             ))}
           </h1>
 
-          <p className="max-w-md text-base sm:text-xl text-gray-400 font-medium leading-relaxed border-l-[4px] sm:border-l-[6px] pl-6 sm:pl-10" style={{ borderColor: activeProduct.theme.primary }}>
+          <p
+            className="max-w-md text-base sm:text-xl text-gray-400 font-medium leading-relaxed border-l-[4px] sm:border-l-[6px] pl-6 sm:pl-10"
+            style={{ borderColor: activeProduct.theme.primary }}
+          >
             {activeProduct.description}
           </p>
 
@@ -117,7 +124,9 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               className="group relative px-8 sm:px-14 py-5 sm:py-7 rounded-2xl sm:rounded-3xl font-black text-black transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden shadow-2xl w-full sm:w-auto touch-manipulation"
               style={{ backgroundColor: activeProduct.theme.primary }}
             >
-              <span className="relative z-10 text-base sm:text-xl tracking-tighter uppercase">GARANTIR COMBO</span>
+              <span className="relative z-10 text-base sm:text-xl tracking-tighter uppercase">
+                GARANTIR COMBO
+              </span>
             </button>
           </div>
         </div>
@@ -129,14 +138,37 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               const isNext = index === (activeIndex + 1) % products.length;
               const isPrev = index === (activeIndex - 1 + products.length) % products.length;
 
-              let tx = '0%'; let ty = '6%'; let tz = '-800px'; let op = 0; let sc = 0.4; let ry = '0deg'; let zi = 0;
+              let tx = '0%';
+              let ty = '6%';
+              let tz = '-800px';
+              let op = 0;
+              let sc = 0.4;
+              let ry = '0deg';
+              let zi = 0;
 
               if (isCenter) {
-                tx = '0%'; ty = '8%'; tz = '350px'; op = 1; sc = isTransitioning ? 1.2 : 1.1; zi = 50;
+                tx = '0%';
+                ty = '8%';
+                tz = '350px';
+                op = 1;
+                sc = isTransitioning ? 1.2 : 1.1;
+                zi = 50;
               } else if (isNext) {
-                tx = '85%'; ty = '7%'; tz = '-400px'; op = 0.25; sc = 0.6; ry = '-50deg'; zi = 10;
+                tx = '85%';
+                ty = '7%';
+                tz = '-400px';
+                op = 0.25;
+                sc = 0.6;
+                ry = '-50deg';
+                zi = 10;
               } else if (isPrev) {
-                tx = '-45%'; ty = '7%'; tz = '-600px'; op = 0.15; sc = 0.5; ry = '50deg'; zi = 10;
+                tx = '-45%';
+                ty = '7%';
+                tz = '-600px';
+                op = 0.15;
+                sc = 0.5;
+                ry = '50deg';
+                zi = 10;
               }
 
               return (
@@ -147,7 +179,9 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                     transform: `translateX(${tx}) translateY(${ty}) translateZ(${tz}) scale(${sc}) rotateY(${ry})`,
                     opacity: op,
                     zIndex: zi,
-                    filter: isCenter ? `drop-shadow(0 0 60px ${product.theme.primary}40)` : 'blur(15px) grayscale(90%)'
+                    filter: isCenter
+                      ? `drop-shadow(0 0 60px ${product.theme.primary}40)`
+                      : 'blur(15px) grayscale(90%)',
                   }}
                 >
                   <img
@@ -156,7 +190,10 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
                     className={`h-[350px] sm:h-[480px] md:h-[700px] object-contain ${isCenter ? 'animate-float' : ''}`}
                   />
                   {isCenter && (
-                    <div className="absolute inset-0 -z-10 pulse-glow-vogue rounded-full" style={{ backgroundColor: product.theme.primary }} />
+                    <div
+                      className="absolute inset-0 -z-10 pulse-glow-vogue rounded-full"
+                      style={{ backgroundColor: product.theme.primary }}
+                    />
                   )}
                 </div>
               );
@@ -170,13 +207,16 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               style={{
                 border: `2px solid ${activeProduct.theme.primary}55`,
                 boxShadow: `0 0 24px ${activeProduct.theme.primary}42, inset 0 0 10px ${activeProduct.theme.primary}1a`,
-                background: 'rgba(5, 5, 5, 0.72)'
+                background: 'rgba(5, 5, 5, 0.72)',
               }}
             >
               <ChevronLeft
                 size={28}
                 className="sm:w-10 sm:h-10"
-                style={{ color: activeProduct.theme.primary, filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)` }}
+                style={{
+                  color: activeProduct.theme.primary,
+                  filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)`,
+                }}
               />
             </button>
             <button
@@ -185,13 +225,16 @@ const Hero: React.FC<HeroProps> = ({ products, activeIndex, setActiveIndex }) =>
               style={{
                 border: `2px solid ${activeProduct.theme.primary}55`,
                 boxShadow: `0 0 24px ${activeProduct.theme.primary}42, inset 0 0 10px ${activeProduct.theme.primary}1a`,
-                background: 'rgba(5, 5, 5, 0.72)'
+                background: 'rgba(5, 5, 5, 0.72)',
               }}
             >
               <ChevronRight
                 size={28}
                 className="sm:w-10 sm:h-10"
-                style={{ color: activeProduct.theme.primary, filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)` }}
+                style={{
+                  color: activeProduct.theme.primary,
+                  filter: `drop-shadow(0 0 10px ${activeProduct.theme.primary}99)`,
+                }}
               />
             </button>
           </div>

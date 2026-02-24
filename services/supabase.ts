@@ -1,37 +1,37 @@
-import { createClient } from '@supabase/supabase-js'
-import type { SupportedStorage } from '@supabase/auth-js'
+import { createClient } from '@supabase/supabase-js';
+import type { SupportedStorage } from '@supabase/auth-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase URL e Anon Key são obrigatórios. Configure o arquivo .env')
+  throw new Error('Supabase URL e Anon Key são obrigatórios. Configure o arquivo .env');
 }
 
 // Custom storage que sempre funciona
 const customStorage: SupportedStorage = {
   getItem: (key: string) => {
     try {
-      return localStorage.getItem(key)
+      return localStorage.getItem(key);
     } catch {
-      return sessionStorage.getItem(key)
+      return sessionStorage.getItem(key);
     }
   },
   setItem: (key: string, value: string) => {
     try {
-      localStorage.setItem(key, value)
+      localStorage.setItem(key, value);
     } catch {
-      sessionStorage.setItem(key, value)
+      sessionStorage.setItem(key, value);
     }
   },
   removeItem: (key: string) => {
     try {
-      localStorage.removeItem(key)
+      localStorage.removeItem(key);
     } catch {
-      sessionStorage.removeItem(key)
+      sessionStorage.removeItem(key);
     }
-  }
-}
+  },
+};
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -40,6 +40,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     flowType: 'pkce',
     storage: customStorage,
-    storageKey: 'sb-auth-token'
-  }
-})
+    storageKey: 'sb-auth-token',
+  },
+});

@@ -12,7 +12,10 @@ interface CartModalProps {
 export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
 
-  const cartTotal = cart.reduce((total: number, item: CartItem) => total + (item.price * item.quantity), 0);
+  const cartTotal = cart.reduce(
+    (total: number, item: CartItem) => total + item.price * item.quantity,
+    0
+  );
 
   if (!isCartOpen) return null;
 
@@ -28,7 +31,6 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
 
       {/* Modal */}
       <div className="relative w-full max-w-md bg-[#111] border-l border-white/10 shadow-2xl flex flex-col h-full transform transition-transform duration-300 animate-in slide-in-from-right">
-
         {/* Header */}
         <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/50">
           <h2 className="text-xl font-bold font-syncopate text-white flex items-center gap-2">
@@ -58,7 +60,11 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
             </div>
           ) : (
             cart.map((item: CartItem) => (
-              <div key={item.id} data-testid="cart-item" className="flex gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+              <div
+                key={item.id}
+                data-testid="cart-item"
+                className="flex gap-4 bg-white/5 p-4 rounded-xl border border-white/5"
+              >
                 <div className="w-20 h-20 bg-white/5 rounded-lg flex items-center justify-center p-2">
                   <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                 </div>
@@ -75,7 +81,12 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
                       >
                         -
                       </button>
-                      <span data-testid="item-quantity" className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                      <span
+                        data-testid="item-quantity"
+                        className="text-sm font-bold w-4 text-center"
+                      >
+                        {item.quantity}
+                      </span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
@@ -83,7 +94,9 @@ export default function CartModal({ activeTheme, onCheckout }: CartModalProps) {
                         +
                       </button>
                     </div>
-                    <p className="font-bold text-white">{formatCurrency(item.price * item.quantity)}</p>
+                    <p className="font-bold text-white">
+                      {formatCurrency(item.price * item.quantity)}
+                    </p>
                   </div>
                 </div>
                 <button

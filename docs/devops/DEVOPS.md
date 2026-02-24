@@ -5,6 +5,7 @@
 Este projeto usa GitHub Actions para validar codigo e automatizar publicacao.
 
 Objetivos principais:
+
 - Garantir qualidade minima antes de merge
 - Publicar preview por pull request
 - Publicar producao apos merge na branch principal
@@ -18,10 +19,12 @@ Objetivos principais:
 ## CI
 
 Gatilhos:
+
 - Push
 - Pull request
 
 Etapas recomendadas:
+
 - Instalar dependencias
 - Executar lint
 - Executar type-check
@@ -31,18 +34,22 @@ Etapas recomendadas:
 ## Preview
 
 Gatilho:
+
 - Pull request aberto/atualizado
 
 Resultado esperado:
+
 - URL de preview disponivel para revisao
 - Validacao funcional antes do merge
 
 ## Producao
 
 Gatilho:
+
 - Merge/push em `main`
 
 Resultado esperado:
+
 - Publicacao automatica em producao
 - Rastreabilidade via logs no GitHub Actions e Vercel
 
@@ -52,6 +59,7 @@ GitHub:
 `Configuracoes -> Secrets and variables -> Actions`
 
 Exemplo:
+
 ```env
 VERCEL_TOKEN=...
 VERCEL_ORG_ID=...
@@ -86,13 +94,12 @@ npm run preview
 ## Solucao de problemas
 
 ### CI falhando
+
 - Rode localmente `lint`, `type-check` e testes
 - Compare versao do Node local com a do fluxo
 
 ### Deploy falhando
+
 - Verifique segredos obrigatorios
 - Verifique logs do fluxo e da Vercel
 - Confirme que variaveis de ambiente da Vercel estao corretas
-
-
-

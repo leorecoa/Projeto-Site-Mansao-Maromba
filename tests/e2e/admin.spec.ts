@@ -3,14 +3,14 @@ import path from 'path';
 
 const ADMIN_USER = {
   email: process.env.ADMIN_EMAIL || process.env.TEST_USER_EMAIL || 'admin@example.com',
-  password: process.env.ADMIN_PASSWORD || process.env.TEST_USER_PASSWORD || 'admin123'
+  password: process.env.ADMIN_PASSWORD || process.env.TEST_USER_PASSWORD || 'admin123',
 };
 
 const TEST_PRODUCT = {
   name: `Produto Teste E2E ${Date.now()}`,
   description: 'Descricao do produto de teste',
   price: '99.90',
-  stock: '50'
+  stock: '50',
 };
 const HAS_EXPLICIT_ADMIN_ENV = Boolean(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD);
 
@@ -29,8 +29,11 @@ async function login(page: Page) {
   await expect(passwordInput).toBeEditable({ timeout: 15000 });
   await emailInput.fill(ADMIN_USER.email);
   await passwordInput.fill(ADMIN_USER.password);
-  await page.locator('form').getByRole('button', { name: /entrar/i }).click();
-  await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+  await page
+    .locator('form')
+    .getByRole('button', { name: /entrar/i })
+    .click();
+  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
 }
 
 async function hasAdminAccess(page: Page): Promise<boolean> {
@@ -107,7 +110,7 @@ test.describe('Admin Panel (requires admin credentials)', () => {
 
     const row = page.locator('tr', { hasText: TEST_PRODUCT.name }).first();
     if (await row.isVisible().catch(() => false)) {
-      page.once('dialog', dialog => dialog.accept());
+      page.once('dialog', (dialog) => dialog.accept());
       await row.locator('button[title="Excluir"]').click();
       await expect(page.getByText(TEST_PRODUCT.name)).not.toBeVisible({ timeout: 10000 });
     }

@@ -3,6 +3,7 @@
 ## Visao geral
 
 Sistema completo de testes com:
+
 - **Testes unitarios** - Vitest (estado, validacoes)
 - **Testes E2E** - Playwright (fluxos de usuario)
 - **Cobertura** - Relatorios de cobertura
@@ -60,6 +61,7 @@ npm run test:coverage
 ### Testes implementados
 
 #### 1. **Testes de estado** (`tests/store.test.ts`)
+
 - Adicionar item ao carrinho
 - Aumentar quantidade se ja existir
 - Remover item
@@ -68,6 +70,7 @@ npm run test:coverage
 - Calcular total
 
 #### 2. **Testes de validacao** (`tests/validations.test.ts`)
+
 - Validacao de checkout (email, telefone, endereco)
 - Validacao de produto (preco, descricao)
 - Rejeicao de carrinho vazio
@@ -77,13 +80,13 @@ npm run test:coverage
 
 ```typescript
 // tests/myFeature.test.ts
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest';
 
 describe('Minha funcionalidade', () => {
   it('should work correctly', () => {
-    expect(true).toBe(true)
-  })
-})
+    expect(true).toBe(true);
+  });
+});
 ```
 
 ---
@@ -109,6 +112,7 @@ npx playwright test --project=chromium
 ### Testes implementados
 
 #### 1. **Pagina inicial** (`tests/E2E/landing.spec.ts`)
+
 - Load homepage
 - Exibir barra de navegacao
 - Exibir secao principal
@@ -116,12 +120,14 @@ npx playwright test --project=chromium
 - Open cart modal
 
 #### 2. **Fluxo do carrinho** (`tests/E2E/cart.spec.ts`)
+
 - Add product to cart
 - Atualizar quantidade
 - Remover item
 - Navigate to checkout
 
 #### 3. **Autenticacao** (`tests/E2E/auth.spec.ts`)
+
 - Show login page
 - Exibir campos de entrada
 - Google OAuth button
@@ -132,14 +138,14 @@ npx playwright test --project=chromium
 
 ```typescript
 // tests/e2e/myFlow.spec.ts
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Meu fluxo', () => {
   test('should do something', async ({ page }) => {
-    await page.goto('/')
-    await expect(page).toHaveTitle(/Mansao Maromba/)
-  })
-})
+    await page.goto('/');
+    await expect(page).toHaveTitle(/Mansao Maromba/);
+  });
+});
 ```
 
 ---
@@ -179,6 +185,7 @@ open coverage/index.html
 ### GitHub Actions
 
 Testes rodam automaticamente em:
+
 - Push para `main` ou `develop`
 - Pull Requests
 
@@ -200,56 +207,62 @@ Testes rodam automaticamente em:
 ### Testes unitarios
 
 1. **Arrange, Act, Assert**
+
 ```typescript
 it('should add item', () => {
   // Arrange
-  const store = useCartStore.getState()
+  const store = useCartStore.getState();
 
   // Act
-  store.addToCart(product)
+  store.addToCart(product);
 
   // Assert
-  expect(store.items).toHaveLength(1)
-})
+  expect(store.items).toHaveLength(1);
+});
 ```
 
 2. **Limpar estado entre testes**
+
 ```typescript
 beforeEach(() => {
-  useCartStore.setState({ items: [] })
-})
+  useCartStore.setState({ items: [] });
+});
 ```
 
 3. **Testar casos extremos**
+
 ```typescript
 it('should handle negative quantity', () => {
   // Test edge case
-})
+});
 ```
 
 ### Testes E2E
 
 1. **Usar data-testid**
+
 ```tsx
 <div data-testid="product-card">...</div>
 ```
 
 ```typescript
-await page.locator('[data-testid="product-card"]')
+await page.locator('[data-testid="product-card"]');
 ```
 
 2. **Esperar elementos**
+
 ```typescript
-await page.waitForSelector('[data-testid="product"]')
+await page.waitForSelector('[data-testid="product"]');
 ```
 
 3. **Usar Page Objects (opcional)**
+
 ```typescript
 class LoginPage {
   async login(email: string, password: string) {
-    await this.page.fill('input[type="email"]', email)
-    await this.page.fill('input[type="password"]', password)
-    await this.page.click('button[type="submit"]')
+    await this.page.fill('input[type="email"]', email);
+    await this.page.fill('input[type="password"]', password);
+    await this.page.click('button[type="submit"]');
   }
 }
 ```
@@ -284,6 +297,7 @@ npm run test:e2e:headed
 ### Screenshots
 
 Playwright tira screenshots automaticamente em falhas:
+
 ```
 test-results/
   auth-should-login/
@@ -329,10 +343,10 @@ export default defineConfig({
     setupFiles: './tests/setup.ts',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html']
-    }
-  }
-})
+      reporter: ['text', 'json', 'html'],
+    },
+  },
+});
 ```
 
 ### Playwright (`playwright.config.ts`)
@@ -343,14 +357,10 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure'
+    screenshot: 'only-on-failure',
   },
-  projects: [
-    { name: 'chromium' },
-    { name: 'firefox' },
-    { name: 'webkit' }
-  ]
-})
+  projects: [{ name: 'chromium' }, { name: 'firefox' }, { name: 'webkit' }],
+});
 ```
 
 ---
@@ -386,6 +396,3 @@ export default defineConfig({
 
 Cobertura atual: ~60%
 Meta: 80%+
-
-
-
